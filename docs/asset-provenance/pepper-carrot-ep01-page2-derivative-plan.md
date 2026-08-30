@@ -2,13 +2,24 @@
 
 **Plan ID:** `pepper-carrot-ep01-page2-derivatives-v1`
 
-**Status:** DEFINED — no source file was downloaded, no derivative was generated, and no output manifest exists.
+**Status:** EXECUTED AND IMPORTED FOR THE ENGINEERING SPIKE — 18 derivatives were generated twice with matching hashes, verified again at import, and stored in the deliberate Vite public-content path recorded by the actual manifest.
 
 ## Decision
 
-Plan the smallest credible responsive pipeline for approved treatment `ep01-e01p02-panel-emphasis-v1`: crop the verified Spanish compiled page first, then produce three widths in WebP and JPEG. This creates an ordered plan for **18 outputs** without authorizing Sharp installation, source acquisition, generation, repository import, or application implementation.
+Use the smallest credible responsive pipeline for approved treatment `ep01-e01p02-panel-emphasis-v1`: crop the verified Spanish compiled page first, then produce three widths in WebP and JPEG. The separately authorized generation run produced all **18 outputs** twice in isolated temporary staging. A later explicit authorization imported one corrected, independently verified run for the engineering prototype; final-study use remains unauthorized.
 
 The machine-readable companion is [`pepper-carrot-ep01-page2-derivatives.plan.json`](./pepper-carrot-ep01-page2-derivatives.plan.json). It is a plan, not evidence that any output exists.
+
+Observed output evidence is recorded separately in [`pepper-carrot-ep01-page2-derivatives.manifest.json`](./pepper-carrot-ep01-page2-derivatives.manifest.json). Reproduce the bounded run with the pinned lockfile and project-specific script:
+
+```bash
+npm ci
+node scripts/ep01-page2-derivatives.mjs generate --source /tmp/opencode/<task-staging>/es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg --output-dir /tmp/opencode/<task-staging>/run-1 --evidence /tmp/opencode/<task-staging>/run-1.evidence.json
+node scripts/ep01-page2-derivatives.mjs generate --source /tmp/opencode/<task-staging>/es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg --output-dir /tmp/opencode/<task-staging>/run-2 --evidence /tmp/opencode/<task-staging>/run-2.evidence.json
+node scripts/ep01-page2-derivatives.mjs compare --first /tmp/opencode/<task-staging>/run-1.evidence.json --second /tmp/opencode/<task-staging>/run-2.evidence.json --manifest /tmp/opencode/<task-staging>/actual.manifest.json
+```
+
+The generator requires the source, output directories, run evidence, compare inputs, and compare-manifest output to resolve through canonical parents to descendants of `/tmp/opencode`; traversal, symlink escape, and repository paths fail closed. The compare command creates a temporary actual manifest only when both clean runs match the current frozen plan bytes, canonical plan-contract fingerprint, current generator SHA-256, runtime fingerprint/versions, complete source identity, and complete ordered output evidence. It compares every deterministic evidence field, including encoder settings, metadata, and fidelity, and excludes only the two run timestamps recorded as `generatedAt`. Repository evidence is updated separately after review; the generator cannot cross the repository-import gate. Use new paths or remove intentionally superseded temporary artifacts before rerunning because exclusive evidence writes never overwrite existing files.
 
 ## Source and treatment identity
 
@@ -63,10 +74,10 @@ Process planned outputs serially in this exact sort order: panel read order, wid
 4. Apply `resize({ width, fit: "inside", withoutEnlargement: true, kernel: "lanczos3", fastShrinkOnLoad: false })`.
 5. Transform to and attach the built-in sRGB profile with `withIccProfile("srgb", { attach: true })`.
 6. Apply the exact encoder settings for the planned format.
-7. Produce a buffer with output `info`; do not write into the repository yet.
-8. Verify `info.format`, `info.width`, `info.height`, channels, and byte count. Actual dimensions come from `info`, not from the mathematical expectation.
-9. Hash the output bytes with SHA-256 and append one actual-manifest record.
-10. Write to an isolated staging directory using the deterministic filename only after all checks for that buffer pass.
+7. Use Sharp `toFile()` to encode to a temporary pending filename inside isolated staging and capture its output `info`; do not write into the repository or publish the deterministic filename yet.
+8. Read the pending file as bytes and verify `info.format`, `info.width`, `info.height`, channels, byte count, profile, and metadata. Actual dimensions come from `info`, not from the mathematical expectation.
+9. Hash the verified output bytes with SHA-256 and append one actual-manifest record.
+10. Atomically rename the pending file to the deterministic filename only after all checks for those bytes pass.
 11. After all 18 outputs pass, rerun in a clean copy of the same recorded environment and require identical output hashes before import review.
 
 CLI-neutral pseudocode:
@@ -81,10 +92,11 @@ for plannedOutput in orderedPlan:
   pipeline.resize(plannedOutput.width, inside + no-enlarge + lanczos3 + no-fast-shrink)
   pipeline.convertAndAttachProfile(srgb)
   pipeline.encode(plannedOutput.format, exactSettings)
-  data, info = pipeline.toBufferWithInfo()
+  info = pipeline.toFile(temporaryPendingPath)
+  data = readBytes(temporaryPendingPath)
   verifyInfoAgainstPlan(info)
   recordActualEvidence(data, info, runtimeVersions, procedureRevision)
-  stageAtomically(plannedOutput.filename, data)
+  stageAtomically(temporaryPendingPath, plannedOutput.filename)
 ```
 
 Changing operation order, crop values, width order, format order, encoder settings, metadata policy, filename template, or procedure revision creates a new plan version and requires regenerated evidence.
@@ -142,6 +154,7 @@ The eventual actual manifest must use a different filename and status from the `
 | Source | canonical URL, filename, dimensions, byte count, SHA-256, art-package and nested-source hashes |
 | Crop | panel ID/read order, coordinate convention, exact `left`, `top`, `width`, `height`, safe inset |
 | Runtime | Node version, OS/platform, architecture, exact Sharp package version, complete `sharp.versions`, bundled libvips version, lockfile SHA-256 |
+| Execution identity | exact plan byte SHA-256, canonical frozen plan-contract SHA-256, and current generator SHA-256 |
 | Resize | requested width, fit, no-enlargement flag, kernel, fast-shrink flag, actual `info.width` and `info.height` |
 | Encoder | format and every explicit option listed in this plan |
 | Metadata/color | input profile observation, output profile, attach policy, stripped metadata classes, actual verification result |
@@ -157,9 +170,9 @@ The actual manifest must contain one record per successfully staged output and e
 
 - [ ] Compare every output against the verified Spanish source at 100% and 200% zoom and at intended CSS sizes.
 - [ ] Check speech-bubble text, onomatopoeia, high-contrast edges, glow gradients, dark texture, crop seams, and color shifts.
-- [ ] Confirm actual dimensions from Sharp `info` match the plan; any mismatch blocks the run and requires plan review.
-- [ ] Confirm the attached profile is sRGB and no unexpected source metadata remains.
-- [ ] Require two clean runs in the same recorded environment to produce identical hashes.
+- [x] Confirm actual dimensions from Sharp `info` match the plan; any mismatch blocks the run and requires plan review.
+- [x] Confirm the attached profile is sRGB and no unexpected source metadata remains.
+- [x] Require two clean runs in the same recorded environment to produce identical hashes.
 
 ### Accessibility descriptions
 
@@ -170,10 +183,10 @@ The actual manifest must contain one record per successfully staged output and e
 
 ### Byte and performance
 
-- [ ] Record bytes for all outputs and paired WebP/JPEG comparisons at each panel/width.
-- [ ] Investigate any WebP that is not smaller than its paired JPEG; do not import redundant primary output without justification.
-- [ ] Confirm byte size generally increases with width within each panel/format; investigate inversions rather than silently accepting them.
-- [ ] Verify responsive selection never requests a width above 2275 or enlarges a crop.
+- [x] Record bytes for all outputs and paired WebP/JPEG comparisons at each panel/width.
+- [x] Investigate any WebP that is not smaller than its paired JPEG; all nine WebP files were smaller in this run.
+- [x] Confirm byte size generally increases with width within each panel/format; no inversions were observed.
+- [x] Verify the generated matrix never requests a width above 2275 or enlarges a crop. Runtime responsive selection remains an implementation-stage check.
 - [ ] Measure decode/render behavior and total selected payload on the later approved low-/mid-tier physical devices.
 - [ ] Reconsider AVIF only after these measurements establish a material unresolved payload need.
 
@@ -190,10 +203,10 @@ The actual manifest must contain one record per successfully staged output and e
 
 - [x] Formats, widths, encoder settings, operation order, metadata policy, deterministic names, and output matrix DEFINED.
 - [x] Machine-readable manifest PLAN created with no fake output evidence.
-- [ ] Separate authorization to pin/add Sharp and generate temporary outputs.
-- [ ] Actual 18-output generation and actual manifest with dimensions, bytes, hashes, and runtime versions.
-- [ ] Visual fidelity, metadata/color, accessibility-description, byte, and physical-device review.
+- [x] Separate authorization to pin/add Sharp and generate temporary outputs.
+- [x] Actual 18-output generation and actual manifest with dimensions, bytes, hashes, and runtime versions.
+- [ ] Complete human visual fidelity, color-managed browser, accessibility-description, and physical-device review. Bounded local metadata, pixel, byte, and agent visual checks passed and are recorded in the actual manifest.
 - [ ] Complete attribution and modification notices for the generated set.
-- [ ] Separate repository-import authorization.
+- [x] Separate repository-import authorization for the engineering prototype; all 18 files were verified against the actual manifest during import.
 
 Final-study content, final-study treatment, and AVIF remain OPEN.

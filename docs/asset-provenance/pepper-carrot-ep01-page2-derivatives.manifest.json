@@ -1,0 +1,1639 @@
+{
+  "manifestSchemaVersion": "1.0.0",
+  "status": "generated_evidence_reproducible_imported_for_engineering_spike",
+  "planId": "pepper-carrot-ep01-page2-derivatives-v1",
+  "planSha256": "aeff15518c5d8bd301362ce7a997b7b6f8cb26b3571411a08def5a4673bb154d",
+  "planContractSha256": "e056b7900d5d8e9dd7db2e80d28e6e5b82fc0a13d1b8e6003aa551b180ff0c35",
+  "generatorSha256": "4349c90e8c757ad5f314ab36a5da294613479dee0527c88c4cb9060dec2dc9eb",
+  "procedureRevision": "ep01-page2-derivative-procedure-v1",
+  "treatmentId": "ep01-e01p02-panel-emphasis-v1",
+  "generationTimestamps": [
+    "2026-08-30T21:45:24.783Z",
+    "2026-08-30T21:45:30.682Z"
+  ],
+  "source": {
+    "canonicalUrl": "https://www.peppercarrot.com/0_sources/ep01_Potion-of-Flight/hi-res/es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg",
+    "filename": "es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg",
+    "bytes": 2211946,
+    "sha256": "a41885213a22e29579d28f4c932f2da6f9be1312f9fec4079647818f61a91638",
+    "width": 2481,
+    "height": 3503,
+    "format": "jpeg",
+    "orientation": null,
+    "autoOrientWidth": 2481,
+    "autoOrientHeight": 3503,
+    "metadata": {
+      "format": "jpeg",
+      "width": 2481,
+      "height": 3503,
+      "space": "srgb",
+      "channels": 3,
+      "depth": "uchar",
+      "density": 300,
+      "chromaSubsampling": "4:4:4",
+      "isProgressive": true,
+      "hasProfile": false,
+      "hasAlpha": false,
+      "orientation": null,
+      "icc": {
+        "present": false,
+        "bytes": 0,
+        "sha256": null
+      },
+      "exifPresent": false,
+      "iptcPresent": false,
+      "xmpPresent": false
+    },
+    "artPackageSha256": "96d46cb7fe007d4e2eeba76d661e0d42eaab9435c450103801add1016bf40172",
+    "nestedSourceFilename": "E01P02.kra",
+    "nestedSourceSha256": "4013f9964a8bd635e5546c055e8cde7f12ff9608f7110019819c39e9bff7d790"
+  },
+  "runtime": {
+    "nodeVersion": "v24.19.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "sharpPackageVersion": "0.35.4",
+    "bundledLibvipsVersion": "8.18.6",
+    "sharpVersions": {
+      "aom": "3.15.0",
+      "archive": "3.8.9",
+      "cairo": "1.18.4",
+      "cgif": "0.5.3",
+      "exif": "0.6.26",
+      "expat": "2.8.3",
+      "ffi": "3.8.0",
+      "fontconfig": "2.18.3",
+      "freetype": "2.14.3",
+      "fribidi": "1.0.16",
+      "glib": "2.89.4",
+      "harfbuzz": "14.3.1",
+      "heif": "1.23.2",
+      "highway": "1.4.0",
+      "imagequant": "2.4.1",
+      "lcms": "2.19.1",
+      "mozjpeg": "0826579",
+      "pango": "1.58.2",
+      "pixman": "0.46.4",
+      "png": "1.6.58",
+      "proxy-libintl": "0.5",
+      "rsvg": "2.62.91",
+      "tiff": "4.7.2",
+      "uhdr": "2.0.2",
+      "vips": "8.18.6",
+      "webp": "1.6.0",
+      "xml2": "2.15.3",
+      "zlib-ng": "2.3.3",
+      "sharp": "0.35.4"
+    },
+    "lockfileSha256": "a080e51397b86e37129c2a843d22aa42f30d2fb7a781106acae33ede037c92f7"
+  },
+  "generation": {
+    "mode": "serial",
+    "operationOrder": [
+      "verifySourceIdentity",
+      "extract",
+      "resize",
+      "convertAndAttachSrgbProfile",
+      "encode",
+      "captureSharpInfo",
+      "hashOutput",
+      "stageOutput"
+    ],
+    "metadataPolicy": {
+      "outputProfile": "srgb",
+      "attachIccProfile": true,
+      "keepSourceMetadata": false,
+      "strip": [
+        "exif",
+        "xmp",
+        "iptc",
+        "sourceDensity",
+        "unrelatedSourceMetadata"
+      ]
+    },
+    "builtInSrgbProfile": {
+      "present": true,
+      "bytes": 480,
+      "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+    },
+    "expectedOutputCount": 18,
+    "actualOutputCount": 18,
+    "exactExpectedFilesOnly": true,
+    "uniqueFilenames": true,
+    "uniqueOutputHashes": true,
+    "cropGeometryVerified": true
+  },
+  "encoderDefinitions": [
+    {
+      "id": "webp",
+      "extension": "webp",
+      "role": "primary",
+      "settings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      }
+    },
+    {
+      "id": "jpeg",
+      "extension": "jpg",
+      "role": "fallback",
+      "settings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "order": 1,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w0640.webp",
+      "width": 640,
+      "height": 298,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 42702,
+      "sha256": "356893d12b038185abf4970562597b6cfa380b533f6a66123a82239c38bf51e8",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 640,
+        "height": 298,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 42702
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 640,
+        "height": 298,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 572160,
+        "meanAbsoluteError": 2.140148,
+        "meanSquaredError": 15.253875,
+        "peakSignalToNoiseRatioDb": 36.297002,
+        "maxAbsoluteError": 98
+      }
+    },
+    {
+      "order": 2,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w0640.jpg",
+      "width": 640,
+      "height": 298,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 79823,
+      "sha256": "d8d70b14c48b46c55c7c362152698deb914cfebc029060354c0c901a51462b7d",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 298,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 79823
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 298,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 572160,
+        "meanAbsoluteError": 1.575612,
+        "meanSquaredError": 5.708354,
+        "peakSignalToNoiseRatioDb": 40.565694,
+        "maxAbsoluteError": 27
+      }
+    },
+    {
+      "order": 3,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w1280.webp",
+      "width": 1280,
+      "height": 597,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 126832,
+      "sha256": "2616c7c38102528313149a76fde5fe22ed0252b08c82bce3d44ed9086fd79a3f",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 1280,
+        "height": 597,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 126832
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 1280,
+        "height": 597,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2292480,
+        "meanAbsoluteError": 1.833721,
+        "meanSquaredError": 10.708155,
+        "peakSignalToNoiseRatioDb": 37.833657,
+        "maxAbsoluteError": 110
+      }
+    },
+    {
+      "order": 4,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w1280.jpg",
+      "width": 1280,
+      "height": 597,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 258603,
+      "sha256": "efc08a7d843988131bcaf60ad106e1dce465b43ddb39b4a21f456162dd01d32e",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 597,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 258603
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 597,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2292480,
+        "meanAbsoluteError": 1.332342,
+        "meanSquaredError": 4.295603,
+        "peakSignalToNoiseRatioDb": 41.800562,
+        "maxAbsoluteError": 24
+      }
+    },
+    {
+      "order": 5,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w2275.webp",
+      "width": 2275,
+      "height": 1061,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 313800,
+      "sha256": "c7e599ab32d31c6ddc39b977a832753626e8dcf42877fa06142e2809f7ba548c",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 2275,
+        "height": 1061,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 313800
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 2275,
+        "height": 1061,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 7241325,
+        "meanAbsoluteError": 1.545549,
+        "meanSquaredError": 6.954222,
+        "peakSignalToNoiseRatioDb": 39.708318,
+        "maxAbsoluteError": 114
+      }
+    },
+    {
+      "order": 6,
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 104,
+        "width": 2275,
+        "height": 1061,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w2275.jpg",
+      "width": 2275,
+      "height": 1061,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 713127,
+      "sha256": "1b8d676cacb944fee8d64a0ff76b80fc46a72bc98019e731a49bbcd7ad94ee8a",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 1061,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 713127
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 1061,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 7241325,
+        "meanAbsoluteError": 0.421285,
+        "meanSquaredError": 0.704076,
+        "peakSignalToNoiseRatioDb": 49.65461,
+        "maxAbsoluteError": 18
+      }
+    },
+    {
+      "order": 7,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w0640.webp",
+      "width": 640,
+      "height": 280,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 37896,
+      "sha256": "5b99cea678b369008d4bde9ab4eac0c788e865c03ea530eed6b37b0f434aca02",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 640,
+        "height": 280,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 37896
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 640,
+        "height": 280,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 537600,
+        "meanAbsoluteError": 1.809109,
+        "meanSquaredError": 8.732896,
+        "peakSignalToNoiseRatioDb": 38.719221,
+        "maxAbsoluteError": 96
+      }
+    },
+    {
+      "order": 8,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w0640.jpg",
+      "width": 640,
+      "height": 280,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 68122,
+      "sha256": "14d311c3ce7495a452d787446b0eb8f752013d983c1c715155fc0b8777901b3d",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 280,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 68122
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 280,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 537600,
+        "meanAbsoluteError": 1.414851,
+        "meanSquaredError": 4.452232,
+        "peakSignalToNoiseRatioDb": 41.645026,
+        "maxAbsoluteError": 26
+      }
+    },
+    {
+      "order": 9,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w1280.webp",
+      "width": 1280,
+      "height": 559,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 120018,
+      "sha256": "0040014c87a1547b1552721da42e5d56c1ba4364e3565fef161b16410cbb888e",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 1280,
+        "height": 559,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 120018
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 1280,
+        "height": 559,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2146560,
+        "meanAbsoluteError": 1.55088,
+        "meanSquaredError": 6.306644,
+        "peakSignalToNoiseRatioDb": 40.13282,
+        "maxAbsoluteError": 111
+      }
+    },
+    {
+      "order": 10,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w1280.jpg",
+      "width": 1280,
+      "height": 559,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 222675,
+      "sha256": "bc49fb6c097de89ecbb0fa0bcf1c1149b6c0eda934f0528d1d2dbff5cc8b267a",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 559,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 222675
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 559,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2146560,
+        "meanAbsoluteError": 1.204473,
+        "meanSquaredError": 3.378879,
+        "peakSignalToNoiseRatioDb": 42.843078,
+        "maxAbsoluteError": 24
+      }
+    },
+    {
+      "order": 11,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w2275.webp",
+      "width": 2275,
+      "height": 994,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 286276,
+      "sha256": "ec045e4d56ce520b511fc218812f883169c855db313a7d687c6ffcb6d3cd426b",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 2275,
+        "height": 994,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 286276
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 2275,
+        "height": 994,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 6784050,
+        "meanAbsoluteError": 1.386983,
+        "meanSquaredError": 4.582595,
+        "peakSignalToNoiseRatioDb": 41.519689,
+        "maxAbsoluteError": 88
+      }
+    },
+    {
+      "order": 12,
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 1236,
+        "width": 2275,
+        "height": 994,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w2275.jpg",
+      "width": 2275,
+      "height": 994,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 598453,
+      "sha256": "ba4cd0b9338c6f57f3463c0742eaa01125cc94c48bc1d3a85c2496dc34aec9f9",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 994,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 598453
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 994,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 6784050,
+        "meanAbsoluteError": 0.882798,
+        "meanSquaredError": 2.107131,
+        "peakSignalToNoiseRatioDb": 44.893889,
+        "maxAbsoluteError": 22
+      }
+    },
+    {
+      "order": 13,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w0640.webp",
+      "width": 640,
+      "height": 309,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 40566,
+      "sha256": "f8ef8c43a9f36aa20a800dc632d7fdbe2d28b1396daf726538161a9ce169d47a",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 640,
+        "height": 309,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 40566
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 640,
+        "height": 309,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 593280,
+        "meanAbsoluteError": 1.838253,
+        "meanSquaredError": 10.899597,
+        "peakSignalToNoiseRatioDb": 37.756699,
+        "maxAbsoluteError": 94
+      }
+    },
+    {
+      "order": 14,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 640,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w0640.jpg",
+      "width": 640,
+      "height": 309,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 75019,
+      "sha256": "6eae279989d3676e9110edd04bb4cd8a0f9e01fcc6568bfcea9e762843e1ac67",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 309,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 75019
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 640,
+        "height": 309,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 593280,
+        "meanAbsoluteError": 1.405156,
+        "meanSquaredError": 4.371708,
+        "peakSignalToNoiseRatioDb": 41.724292,
+        "maxAbsoluteError": 25
+      }
+    },
+    {
+      "order": 15,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w1280.webp",
+      "width": 1280,
+      "height": 618,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 124092,
+      "sha256": "840a7e9f3f8419134d499071b653cabc695b9109d4e0bb228eab77c17857faa6",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 1280,
+        "height": 618,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 124092
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 1280,
+        "height": 618,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2373120,
+        "meanAbsoluteError": 1.622637,
+        "meanSquaredError": 7.751983,
+        "peakSignalToNoiseRatioDb": 39.236675,
+        "maxAbsoluteError": 104
+      }
+    },
+    {
+      "order": 16,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 1280,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w1280.jpg",
+      "width": 1280,
+      "height": 618,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 247223,
+      "sha256": "6253ae0820d810e05e94d1fe9683c18d2315cd7338f565f8932d3ead2dcad609",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 618,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 247223
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 1280,
+        "height": 618,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 2373120,
+        "meanAbsoluteError": 1.224989,
+        "meanSquaredError": 3.40152,
+        "peakSignalToNoiseRatioDb": 42.814073,
+        "maxAbsoluteError": 27
+      }
+    },
+    {
+      "order": 17,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "webp",
+      "encoderSettings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w2275.webp",
+      "width": 2275,
+      "height": 1098,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 300240,
+      "sha256": "0eae1ec04c67479560419d45a90f4e940e6804cb2209715e8800f798fb04746c",
+      "sharpToFileInfo": {
+        "format": "webp",
+        "width": 2275,
+        "height": 1098,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 300240
+      },
+      "metadata": {
+        "format": "webp",
+        "width": 2275,
+        "height": 1098,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": null,
+        "chromaSubsampling": null,
+        "isProgressive": false,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 7493850,
+        "meanAbsoluteError": 1.385185,
+        "meanSquaredError": 4.89172,
+        "peakSignalToNoiseRatioDb": 41.236188,
+        "maxAbsoluteError": 87
+      }
+    },
+    {
+      "order": 18,
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "crop": {
+        "coordinateConvention": "zero-based half-open x,y,width,height",
+        "left": 104,
+        "top": 2301,
+        "width": 2275,
+        "height": 1098,
+        "safeInsetPixels": 2
+      },
+      "resize": {
+        "requestedWidth": 2275,
+        "fit": "inside",
+        "withoutEnlargement": true,
+        "kernel": "lanczos3",
+        "fastShrinkOnLoad": false
+      },
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "encoderSettings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      },
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w2275.jpg",
+      "width": 2275,
+      "height": 1098,
+      "channels": 3,
+      "colourspace": "srgb",
+      "bytes": 659530,
+      "sha256": "f13369c902b24c07c9bad950f20de7282a782d8a23d433e868893f708dac04f0",
+      "sharpToFileInfo": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 1098,
+        "channels": 3,
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 659530
+      },
+      "metadata": {
+        "format": "jpeg",
+        "width": 2275,
+        "height": 1098,
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "density": 72,
+        "chromaSubsampling": "4:4:4",
+        "isProgressive": true,
+        "hasProfile": true,
+        "hasAlpha": false,
+        "orientation": null,
+        "icc": {
+          "present": true,
+          "bytes": 480,
+          "sha256": "c56e1685d888f5edb92fe07f2750f387f8fe8e91b32ff8fb0b56bfbbb9458353"
+        },
+        "exifPresent": false,
+        "iptcPresent": false,
+        "xmpPresent": false
+      },
+      "fidelity": {
+        "comparison": "decoded output against unencoded crop-first Lanczos3 sRGB reference",
+        "sampleCount": 7493850,
+        "meanAbsoluteError": 0.853265,
+        "meanSquaredError": 1.948613,
+        "peakSignalToNoiseRatioDb": 45.233547,
+        "maxAbsoluteError": 24
+      }
+    }
+  ],
+  "reproducibility": {
+    "status": "passed_same_recorded_environment",
+    "firstRunEnvironmentFingerprint": "19c4fb610efe969eecfb5abbcc31935e67f830a41b3a94525aab6be26443f3dc",
+    "secondRunEnvironmentFingerprint": "19c4fb610efe969eecfb5abbcc31935e67f830a41b3a94525aab6be26443f3dc",
+    "identical": true,
+    "comparisonContract": "complete run evidence except explicitly excluded bookkeeping fields",
+    "excludedFields": [
+      "generatedAt"
+    ],
+    "outputCount": 18,
+    "differences": []
+  },
+  "repositoryImport": {
+    "status": "authorized_and_verified_for_engineering_spike",
+    "importedAt": "2026-08-30",
+    "repositoryPath": "public/content/pepper-carrot/episode-01/page-02",
+    "publicUrlRoot": "/content/pepper-carrot/episode-01/page-02",
+    "sourceEvidence": "corrected retained run 1",
+    "fileCount": 18,
+    "totalBytes": 4314997,
+    "verification": {
+      "filenames": "matched_all_manifest_outputs_exactly",
+      "byteCounts": "matched_all_manifest_outputs_exactly",
+      "sha256": "matched_all_manifest_outputs_exactly",
+      "dimensions": "matched_all_manifest_outputs_exactly",
+      "formats": "matched_all_manifest_outputs_exactly",
+      "unexpectedFiles": []
+    },
+    "scope": "local engineering prototype only; not final-study content or recruitment authorization"
+  },
+  "byteAndPerformanceReview": {
+    "localByteFindings": {
+      "webpNotSmallerThanJpeg": [],
+      "widthInversions": []
+    },
+    "targetDeviceDecodeAndRenderStatus": "pending_physical_device_review"
+  },
+  "rights": {
+    "work": "Pepper & Carrot — Episode 1: The Potion of Flight",
+    "artAndScenario": "David Revoy",
+    "spanishTranslation": "Juanjo Faico",
+    "contributions": [
+      "Andrej Ficko",
+      "Hồ Nhựt Châu"
+    ],
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "officialSpanishSourcePage": "https://www.peppercarrot.com/es/webcomic-sources/ep01_Potion-of-Flight__files.html",
+    "repositoryProvenance": "pepper-carrot-ep01-inspection.md",
+    "modifications": [
+      "Cropped three panels from the verified compiled Spanish page using the frozen two-pixel safe insets.",
+      "Resized each crop down to 640 and 1280 pixels wide and retained the 2275-pixel native crop width.",
+      "Converted output pixels to the Sharp built-in sRGB profile and attached the profile.",
+      "Encoded responsive WebP and JPEG derivatives using the frozen lossy encoder settings."
+    ],
+    "notPerformed": [
+      "No artwork cleanup, segmentation, or layer extraction was performed.",
+      "No translation text or font was re-rendered.",
+      "No animation was baked into the derivative files."
+    ],
+    "noEndorsementImplied": true,
+    "finalAttributionApprovalStatus": "pending"
+  },
+  "review": {
+    "automatedMetadataAndPixelChecks": {
+      "status": "passed",
+      "filesChecked": 18,
+      "findings": [
+        "All outputs decode to the planned dimensions with three sRGB channels and the attached Sharp built-in sRGB ICC profile.",
+        "No output retains EXIF, IPTC, XMP, or orientation metadata; JPEG density is the encoder default 72 rather than the source density 300, and WebP density is absent.",
+        "All JPEG outputs are progressive with 4:4:4 chroma subsampling.",
+        "No output has a fully near-white outer border that would indicate a frame seam.",
+        "Decoded-pixel error metrics against an unencoded crop-first Lanczos3 sRGB reference are recorded per output."
+      ]
+    },
+    "agentVisualFidelityReview": {
+      "status": "passed_bounded_local_review",
+      "reviewedAt": "2026-08-30",
+      "coverage": "All three panels at 640 and 2275 pixels wide in both WebP and JPEG (12 representative files).",
+      "findings": [
+        "No visible white crop seams, clipped panel content, obvious color shifts, or obvious compression failures were observed.",
+        "Spanish speech-bubble lettering remained legible in panels 1 and 2 at 640 pixels wide, and the panel 3 SPLASH lettering remained legible.",
+        "High-contrast sparkles, glow gradients, dark painted texture, and colored edges remained coherent in both formats."
+      ],
+      "limitations": "This was automated-agent/local image inspection, not human approval, a color-managed browser review at prescribed zoom levels, or a physical-device review."
+    },
+    "humanVisualFidelityApproval": {
+      "status": "pending",
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    "spanishAccessibilityDescriptionReview": {
+      "status": "provisional_agent_authored_pending_human_review",
+      "reviewer": null,
+      "reviewedAt": null,
+      "implementationLocation": "src/features/reader/reader-content.ts"
+    },
+    "physicalDeviceReview": {
+      "status": "pending",
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    "repositoryImportStatus": "authorized_and_imported_for_engineering_spike",
+    "finalStudyContentStatus": "open"
+  }
+}
