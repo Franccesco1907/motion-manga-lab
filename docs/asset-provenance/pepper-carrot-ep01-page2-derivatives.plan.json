@@ -1,0 +1,347 @@
+{
+  "planSchemaVersion": "1.0.0",
+  "status": "planned",
+  "planId": "pepper-carrot-ep01-page2-derivatives-v1",
+  "procedureRevision": "ep01-page2-derivative-procedure-v1",
+  "treatmentId": "ep01-e01p02-panel-emphasis-v1",
+  "outputsGenerated": false,
+  "source": {
+    "canonicalUrl": "https://www.peppercarrot.com/0_sources/ep01_Potion-of-Flight/hi-res/es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg",
+    "filename": "es_Pepper-and-Carrot_by-David-Revoy_E01P02.jpg",
+    "width": 2481,
+    "height": 3503,
+    "bytes": 2211946,
+    "sha256": "a41885213a22e29579d28f4c932f2da6f9be1312f9fec4079647818f61a91638",
+    "artPackageSha256": "96d46cb7fe007d4e2eeba76d661e0d42eaab9435c450103801add1016bf40172",
+    "nestedSourceFilename": "E01P02.kra",
+    "nestedSourceSha256": "4013f9964a8bd635e5546c055e8cde7f12ff9608f7110019819c39e9bff7d790"
+  },
+  "coordinateConvention": "zero-based half-open x,y,width,height",
+  "crops": [
+    {
+      "panelId": "e01p02-panel-01",
+      "readOrder": 1,
+      "x": 104,
+      "y": 104,
+      "width": 2275,
+      "height": 1061,
+      "safeInsetPixels": 2
+    },
+    {
+      "panelId": "e01p02-panel-02",
+      "readOrder": 2,
+      "x": 104,
+      "y": 1236,
+      "width": 2275,
+      "height": 994,
+      "safeInsetPixels": 2
+    },
+    {
+      "panelId": "e01p02-panel-03",
+      "readOrder": 3,
+      "x": 104,
+      "y": 2301,
+      "width": 2275,
+      "height": 1098,
+      "safeInsetPixels": 2
+    }
+  ],
+  "responsiveWidths": [
+    640,
+    1280,
+    2275
+  ],
+  "formatOrder": [
+    "webp",
+    "jpeg"
+  ],
+  "formats": [
+    {
+      "id": "webp",
+      "extension": "webp",
+      "role": "primary",
+      "settings": {
+        "quality": 92,
+        "lossless": false,
+        "nearLossless": false,
+        "smartSubsample": true,
+        "preset": "picture",
+        "effort": 6,
+        "force": true
+      }
+    },
+    {
+      "id": "jpeg",
+      "extension": "jpg",
+      "role": "fallback",
+      "settings": {
+        "quality": 94,
+        "progressive": true,
+        "chromaSubsampling": "4:4:4",
+        "optimizeCoding": true,
+        "mozjpeg": false,
+        "force": true
+      }
+    }
+  ],
+  "pipeline": {
+    "outputOrder": [
+      "panelReadOrder",
+      "widthAscending",
+      "formatOrder"
+    ],
+    "orderedOperations": [
+      "verifySourceIdentity",
+      "extract",
+      "resize",
+      "convertAndAttachSrgbProfile",
+      "encode",
+      "captureSharpInfo",
+      "hashOutput",
+      "stageOutput"
+    ],
+    "resize": {
+      "fit": "inside",
+      "withoutEnlargement": true,
+      "kernel": "lanczos3",
+      "fastShrinkOnLoad": false
+    },
+    "metadata": {
+      "outputProfile": "srgb",
+      "attachIccProfile": true,
+      "keepSourceMetadata": false,
+      "strip": [
+        "exif",
+        "xmp",
+        "iptc",
+        "sourceDensity",
+        "unrelatedSourceMetadata"
+      ]
+    },
+    "generationMode": "serial",
+    "stagingDirectoryPolicy": "outside_repository_until_import_approval"
+  },
+  "tooling": {
+    "tool": "sharp",
+    "versionSelection": "implementation_time",
+    "pinRequired": true,
+    "recordRequired": [
+      "process.version",
+      "process.platform",
+      "process.arch",
+      "sharpPackageVersion",
+      "sharp.versions",
+      "bundledLibvipsVersion",
+      "lockfileSha256"
+    ]
+  },
+  "filenameTemplate": "pepper-carrot-ep01-e01p02-panel-{panel:02d}-w{width:04d}.{extension}",
+  "expectedDimensionsMethod": "requested width with nearest-integer height derived from the native crop aspect ratio; actual Sharp info is authoritative",
+  "plannedOutputs": [
+    {
+      "order": 1,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 640,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w0640.webp",
+      "expectedDimensions": { "width": 640, "height": 298 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 2,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w0640.jpg",
+      "expectedDimensions": { "width": 640, "height": 298 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 3,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 1280,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w1280.webp",
+      "expectedDimensions": { "width": 1280, "height": 597 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 4,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w1280.jpg",
+      "expectedDimensions": { "width": 1280, "height": 597 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 5,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 2275,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w2275.webp",
+      "expectedDimensions": { "width": 2275, "height": 1061 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 6,
+      "panelId": "e01p02-panel-01",
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-01-w2275.jpg",
+      "expectedDimensions": { "width": 2275, "height": 1061 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 7,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 640,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w0640.webp",
+      "expectedDimensions": { "width": 640, "height": 280 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 8,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w0640.jpg",
+      "expectedDimensions": { "width": 640, "height": 280 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 9,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 1280,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w1280.webp",
+      "expectedDimensions": { "width": 1280, "height": 559 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 10,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w1280.jpg",
+      "expectedDimensions": { "width": 1280, "height": 559 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 11,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 2275,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w2275.webp",
+      "expectedDimensions": { "width": 2275, "height": 994 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 12,
+      "panelId": "e01p02-panel-02",
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-02-w2275.jpg",
+      "expectedDimensions": { "width": 2275, "height": 994 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 13,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 640,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w0640.webp",
+      "expectedDimensions": { "width": 640, "height": 309 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 14,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 640,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w0640.jpg",
+      "expectedDimensions": { "width": 640, "height": 309 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 15,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 1280,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w1280.webp",
+      "expectedDimensions": { "width": 1280, "height": 618 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 16,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 1280,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w1280.jpg",
+      "expectedDimensions": { "width": 1280, "height": 618 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 17,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 2275,
+      "format": "webp",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w2275.webp",
+      "expectedDimensions": { "width": 2275, "height": 1098 },
+      "verificationStatus": "pending_generation"
+    },
+    {
+      "order": 18,
+      "panelId": "e01p02-panel-03",
+      "requestedWidth": 2275,
+      "format": "jpeg",
+      "filename": "pepper-carrot-ep01-e01p02-panel-03-w2275.jpg",
+      "expectedDimensions": { "width": 2275, "height": 1098 },
+      "verificationStatus": "pending_generation"
+    }
+  ],
+  "deferredFormats": [
+    {
+      "id": "avif",
+      "status": "deferred",
+      "reconsiderWhen": "network and fidelity profiling demonstrates a material unresolved benefit over planned WebP on target devices"
+    }
+  ],
+  "actualManifestRequiredFields": [
+    "sourceIdentity",
+    "crop",
+    "procedureRevision",
+    "nodeVersion",
+    "platform",
+    "architecture",
+    "sharpPackageVersion",
+    "sharpVersions",
+    "bundledLibvipsVersion",
+    "lockfileSha256",
+    "encoderSettings",
+    "metadataPolicy",
+    "outputFilename",
+    "outputFormat",
+    "outputWidth",
+    "outputHeight",
+    "outputChannels",
+    "outputBytes",
+    "outputSha256",
+    "attribution",
+    "modifications",
+    "visualFidelityReview",
+    "accessibilityDescriptionReview",
+    "byteAndPerformanceReview"
+  ],
+  "approvalGates": [
+    "separate_sharp_dependency_and_generation_authorization",
+    "actual_output_generation",
+    "actual_manifest_with_sharp_info_bytes_hashes_and_versions",
+    "visual_fidelity_and_color_profile_review",
+    "spanish_accessibility_description_review",
+    "byte_and_target_device_review",
+    "final_attribution_and_modification_notice",
+    "separate_repository_import_authorization"
+  ]
+}
