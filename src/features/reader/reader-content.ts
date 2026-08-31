@@ -5,9 +5,24 @@ export const READER_MODE = {
 
 export type ReaderMode = (typeof READER_MODE)[keyof typeof READER_MODE]
 
-export const DESCRIPTION_REVIEW = {
-  STATUS: 'pending_human_review',
+export const DESCRIPTION_REVIEW_STATUS = {
+  APPROVED_HUMAN_REVIEW: 'approved_human_review',
 } as const
+
+type DescriptionReviewStatus =
+  (typeof DESCRIPTION_REVIEW_STATUS)[keyof typeof DESCRIPTION_REVIEW_STATUS]
+
+interface DescriptionReviewRecord {
+  reviewedAt: string
+  reviewer: string
+  status: DescriptionReviewStatus
+}
+
+export const DESCRIPTION_REVIEW = {
+  reviewedAt: '2026-08-30',
+  reviewer: 'Franccesco',
+  status: DESCRIPTION_REVIEW_STATUS.APPROVED_HUMAN_REVIEW,
+} as const satisfies DescriptionReviewRecord
 
 export const RESPONSIVE_SIZES =
   '(min-width: 1360px) 1200px, (min-width: 768px) calc(100vw - 144px), calc(100vw - 68px)'
@@ -22,7 +37,7 @@ interface PanelMotion {
 
 export interface ReaderPanel {
   alt: string
-  descriptionReviewStatus: (typeof DESCRIPTION_REVIEW)[keyof typeof DESCRIPTION_REVIEW]
+  descriptionReviewStatus: DescriptionReviewStatus
   height: number
   id: string
   motion: PanelMotion
@@ -33,8 +48,8 @@ export interface ReaderPanel {
 
 export const READER_PANELS = [
   {
-    alt: 'Pepper celebra junto a Carrot mientras una escoba resplandece sobre el caldero; ella dice: «…¡ah! Perfecto.»',
-    descriptionReviewStatus: DESCRIPTION_REVIEW.STATUS,
+    alt: 'Una luz amarilla rodea varios objetos que flotan sobre el caldero. Pepper sonríe con las manos juntas y dice: «…¡ah! Perfecto.» Carrot está a su lado, junto a una escoba.',
+    descriptionReviewStatus: DESCRIPTION_REVIEW.status,
     height: 1061,
     id: 'e01p02-panel-01',
     motion: {
@@ -47,8 +62,8 @@ export const READER_PANELS = [
     width: 2275,
   },
   {
-    alt: 'Pepper intenta detener a Carrot cuando el gato alcanza la escoba luminosa sobre el caldero; ella dice: «¡NO! Ni se te ocurra.»',
-    descriptionReviewStatus: DESCRIPTION_REVIEW.STATUS,
+    alt: 'Pepper pone una mano frente a Carrot, que estira las patas hacia una escoba resplandeciente sobre el caldero, y dice: «¡NO! Ni se te ocurra.»',
+    descriptionReviewStatus: DESCRIPTION_REVIEW.status,
     height: 994,
     id: 'e01p02-panel-02',
     motion: {
@@ -61,8 +76,8 @@ export const READER_PANELS = [
     width: 2275,
   },
   {
-    alt: 'Carrot salta sobre la escoba encantada y la hunde en el caldero con un «SPLASH», mientras Pepper queda a un lado.',
-    descriptionReviewStatus: DESCRIPTION_REVIEW.STATUS,
+    alt: 'Carrot aterriza con las patas delanteras sobre la escoba que cruza el caldero y el líquido salpica con un «SPLASH». Pepper aparece parcialmente oculta a la izquierda.',
+    descriptionReviewStatus: DESCRIPTION_REVIEW.status,
     height: 1098,
     id: 'e01p02-panel-03',
     motion: {

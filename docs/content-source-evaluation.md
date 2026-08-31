@@ -1,6 +1,6 @@
 # Content Source Evaluation for the Engineering Spike
 
-**Decision status:** Episode 1 imported under explicit authorization for the bounded panel-level engineering prototype; final experimental content remains OPEN
+**Decision status:** Episode 1 imported under explicit authorization for the bounded panel-level engineering prototype; scoped human description/fidelity/attribution review approved on 2026-08-30; final experimental content remains OPEN
 
 **Evidence reviewed:** Verified official sources available on 2026-08-28
 
@@ -70,7 +70,7 @@ Episode 1 is conditionally suitable for the spike because:
 - Spanish speech bubbles and text remain editable in named SVG layers; and
 - page 2 provides the strongest bounded sequence for one-shot whole-crop camera emphasis and a restrained light echo.
 
-The inspection also establishes a hard limit: characters, props, backgrounds, and painted effects are flattened into broad paint layers. Subject-level parallax or articulated motion would require manual reconstruction and is rejected for this spike. The Spanish SVGs reference Lavi and Arial without embedding them; Lavi is separately offered under GPLv3 by the official font repository. The spike therefore uses the official compiled Spanish rendering and avoids font delivery; the engineering-prototype import is complete, while human crop/export fidelity approval remains a study and publication gate.
+The inspection also establishes a hard limit: characters, props, backgrounds, and painted effects are flattened into broad paint layers. Subject-level parallax or articulated motion would require manual reconstruction and is rejected for this spike. The Spanish SVGs reference Lavi and Arial without embedding them; Lavi is separately offered under GPLv3 by the official font repository. The spike therefore uses the official compiled Spanish rendering and avoids font delivery. The engineering-prototype import and packet-covered human crop/export fidelity review are complete; physical-device evidence, broader final-publication credit confirmation, and final-study selection remain separate gates.
 
 ## Representativeness caveat
 
@@ -80,13 +80,14 @@ Pepper & Carrot must be described as a Western open webcomic, not manga. Final s
 
 ## Exact next acquisition and verification checklist
 
-The explicit engineering-prototype authorization permitted import after deterministic output verification while leaving human review items open. Those unchecked items continue to gate study/publication claims:
+The explicit engineering-prototype authorization permitted import after deterministic output verification while initially leaving human review items open. Franccesco approved the packet-covered descriptions, visual fidelity, and attribution/modification notice on 2026-08-30. The unchecked device, broader-credit, and final-study items below continue to gate study/publication claims:
 
 - [x] Select Episode 1, inspect Spanish pages 1–3, and recommend page 2 for a bounded panel-level effect.
 - [x] Inspect the actual `.kra` files for layer boundaries, groups, masks, blend modes, linked resources, fonts, color profile, and archive integrity.
 - [x] Verify the license and creator/contributor/translation credits supplied with the selected source.
 - [x] Record canonical source URL, direct file URLs, access date, filenames, byte sizes, server modification dates, and integrity hashes.
 - [x] Define a concise and full attribution approach in the provenance inspection.
+- [x] Approve the exact attribution and modification notice for the engineering-prototype derivative set.
 - [x] Define exact page 2 crop coordinates, timing, trigger, interruption/re-entry behavior, reduced motion, and static parity.
 - [x] Define WebP/JPEG settings, responsive widths, deterministic Sharp procedure, metadata policy, filenames, and the 18-output manifest PLAN.
 - [x] Document every performed derivative modification and explicitly record that no cleanup, segmentation, translation/font re-rendering, or baked animation was performed.
@@ -94,7 +95,9 @@ The explicit engineering-prototype authorization permitted import after determin
 - [x] Verify the exact Spanish text/vector structure, translation credits, font references, linked artwork, and source dimensions.
 - [x] Select the official high-resolution compiled Spanish rendering for the spike; do not distribute or re-render the separately licensed fonts.
 - [x] Under separate authorization, pin/add Sharp, generate into temporary staging, and verify source identity, crop geometry, text/edge fidelity through bounded local agent inspection, metadata, compression metrics, and reproducibility.
-- [ ] Complete human color-managed fidelity review, Spanish accessible-description review, and target-device behavior checks.
+- [x] Complete the packet-covered human color-managed fidelity review and Spanish accessible-description review.
+- [ ] Complete target-device payload, decode/render, performance, dropped-frame, touch/zoom, and motion-craft checks.
+- [ ] Confirm applicable broader Hereva universe and source-page credits before final publication.
 - [x] Confirm that static and motion modes use the same imported source/crop files, dimensions, color, and reading order.
 - [x] Approve and verify the 18-file import for the local engineering prototype; study-build approval remains separate.
 

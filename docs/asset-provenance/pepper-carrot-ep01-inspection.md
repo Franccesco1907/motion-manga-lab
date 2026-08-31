@@ -2,7 +2,7 @@
 
 **Inspection date:** 2026-08-28
 
-**Decision:** Suitable for the authorized bounded, panel-level engineering prototype; page 2 derivatives and treatment are imported and implemented, while human fidelity/accessibility/device approval and final-study selection remain blocked.
+**Decision:** Suitable for the authorized bounded, panel-level engineering prototype; page 2 derivatives and treatment are imported and implemented, and the scoped human fidelity/accessibility/attribution review is approved. Physical-device evidence, broader final-publication credit confirmation, and final-study selection remain blocked.
 
 No source archive, full-page artwork, source font, or temporary evidence from this inspection is stored in the repository. Exactly 18 verified page-2 panel derivatives are stored under `public/content/pepper-carrot/episode-01/page-02` for the engineering prototype.
 
@@ -71,11 +71,11 @@ The selected bounded candidate is **Spanish page 2**, limited to whole-crop tran
 
 ## Attribution plan
 
-A concise product credit should identify the work, episode, creator, translator, license, official source, and modifications. A suitable starting form is:
+A concise product credit should identify the work, episode, creator, translator, license, official source, and modifications. The approved engineering-prototype notice is:
 
-> “Pepper & Carrot — Episode 1: The Potion of Flight,” art and scenario by David Revoy; Spanish translation by Juanjo Faico; contributions by Andrej Ficko and Hồ Nhựt Châu. Licensed under CC BY 4.0. Cropped and animated for an engineering prototype; no endorsement implied.
+> “Pepper & Carrot — Episode 1: The Potion of Flight,” art and scenario by David Revoy; Spanish translation by Juanjo Faico; contributions by Andrej Ficko and Hồ Nhựt Châu. Source: [official Spanish Episode 1 files](https://www.peppercarrot.com/es/webcomic-sources/ep01_Potion-of-Flight__files.html). Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Modified for this engineering prototype: three panels were cropped from the verified compiled Spanish page, resized to 640 and 1280 pixels wide while retaining the 2275-pixel native crop width, encoded as WebP and JPEG with an attached sRGB profile, and presented with restrained crop-transform and overlay-opacity animation. No endorsement by the creator, translator, or contributors is implied.
 
-The final credit must link the [official Spanish source page](https://www.peppercarrot.com/es/webcomic-sources/ep01_Potion-of-Flight__files.html) and [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), retain the source page's applicable episode and universe credits, and enumerate actual modifications after assets are prepared.
+The scoped notice was approved by Franccesco on 2026-08-30. Before final publication, separately confirm and retain the current official source page's applicable broader Hereva universe and source-page credits.
 
 ## Gate status
 
@@ -88,10 +88,13 @@ The final credit must link the [official Spanish source page](https://www.pepper
 - [x] Exact crop coordinates, timing, trigger, reduced-motion behavior, and static parity DEFINED in the engineering treatment specification.
 - [x] Derivative formats, settings, widths, deterministic procedure, and 18-output manifest PLAN DEFINED without generation.
 - [x] Actual derived-asset manifest created with Sharp `toFile` info, output hashes/bytes/dimensions, runtime versions, source mapping, and modification notices.
-- [ ] Human high-resolution crop and Spanish text rendering fidelity approval remains pending; bounded local agent review passed for all panels at native and smallest widths in both formats.
-- [ ] Attribution text updated with the modifications actually performed and approved before publication.
+- [x] Human high-resolution crop/export and Spanish text rendering fidelity approved within the [human-review packet](../reviews/ep01-page2-human-review.md) by Franccesco on 2026-08-30; bounded local agent review also passed for all panels at native and smallest widths in both formats.
+- [x] Spanish accessible descriptions approved within the human-review packet by Franccesco on 2026-08-30.
+- [x] Attribution and modification notice updated with the modifications actually performed and approved for the engineering prototype by Franccesco on 2026-08-30.
+- [ ] Physical-device payload, decode/render, performance, dropped-frame, touch/zoom, and motion-craft evidence remains pending.
+- [ ] Broader Hereva universe and source-page credits remain to be confirmed before final publication.
 
-The explicit prototype authorization allowed a verified repository import and implementation without converting the remaining human reviews into completed evidence. The [treatment specification](../spikes/ep01-page2-treatment-spec.md) freezes engineering behavior, while the [derivative plan](./pepper-carrot-ep01-page2-derivative-plan.md) and [actual manifest](./pepper-carrot-ep01-page2-derivatives.manifest.json) define the generated and imported set. Final-study use, recruitment, human accessibility approval, color-managed fidelity approval, and physical-device evidence remain separate gates.
+The explicit prototype authorization allowed a verified repository import and implementation before the later scoped human approval. The [treatment specification](../spikes/ep01-page2-treatment-spec.md) freezes engineering behavior, while the [derivative plan](./pepper-carrot-ep01-page2-derivative-plan.md) and [actual manifest](./pepper-carrot-ep01-page2-derivatives.manifest.json) define the generated and imported set. Final-study use, recruitment, publication authorization, broader final-publication credit confirmation, and physical-device evidence remain separate gates.
 
 ## Verification commands
 

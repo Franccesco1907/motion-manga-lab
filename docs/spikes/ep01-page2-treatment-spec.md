@@ -2,7 +2,7 @@
 
 **Treatment ID:** `ep01-e01p02-panel-emphasis-v1`
 
-**Status:** APPROVED and implemented for the authorized engineering prototype; the verified derivative set is imported, while final-study selection and the remaining human/device reviews stay open.
+**Status:** APPROVED and implemented for the authorized engineering prototype; the verified derivative set is imported and its scoped human fidelity/accessibility/attribution review is approved, while physical-device evidence, broader final-publication credit confirmation, and final-study selection stay open.
 
 ## Decision
 
@@ -164,9 +164,10 @@ No fallback opacity animation is justified because the content has no state chan
 - [ ] With JavaScript disabled or setup forced to fail, all three crops are immediately visible, readable, and in the correct order.
 - [ ] With reduced motion active before load or enabled during playback, no transform, scale, clip, opacity, or light animation occurs.
 - [ ] The overlay has no semantics, pointer handling, focus target, announcement, or contrast-critical information.
-- [ ] Keyboard, touch, zoom, browser text scaling, focus order, scrolling, and controls behave identically between conditions.
+- [ ] Keyboard, browser text scaling, focus order, scrolling, and controls behave identically between conditions.
+- [ ] Touch and zoom behavior on the selected physical devices is identical between conditions.
 - [ ] No content, control, or completion state waits for an animation.
-- [ ] Spanish accessible descriptions are reviewed before import.
+- [x] Spanish accessible descriptions were approved by Franccesco on 2026-08-30 for the engineering-prototype packet; the separately authorized import was already complete.
 
 ### Motion craft and performance
 
@@ -201,8 +202,10 @@ The exact formats, settings, widths, operation order, naming, and 18-output matr
 
 - [x] Define derivative formats, quality settings, responsive widths, deterministic tooling contract, and machine-readable manifest PLAN.
 - [x] Pin/add Sharp under separate authorization, generate outputs twice in temporary staging, and create the actual manifest with output hashes, sizes, dimensions, runtime evidence, and modification notices.
-- [ ] Approve crop/render fidelity and Spanish accessible descriptions.
-- [ ] Finalize the complete episode/universe attribution with the modifications actually performed.
+- [x] Approve human crop/render fidelity for the packet-covered responsive derivatives.
+- [x] Approve the three Spanish accessible descriptions.
+- [x] Approve the attribution and modification notice for the engineering-prototype derivative set.
+- [ ] Confirm and retain applicable broader Hereva universe and source-page credits before final publication.
 - [x] Approve repository import separately; explicit prototype authorization was granted and the verified 18-file set was imported.
 - [ ] Select physical target devices and complete the later performance/craft review.
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  DESCRIPTION_REVIEW,
   READER_MODE,
   READER_PANELS,
   RESPONSIVE_SIZES,
@@ -176,16 +177,25 @@ export function Reader() {
       </section>
 
       <footer className="reader-footer">
-        <p>Descriptions are provisional and pending human review.</p>
+        <p>
+          Spanish panel descriptions were approved through human review by{' '}
+          {DESCRIPTION_REVIEW.reviewer} on {DESCRIPTION_REVIEW.reviewedAt}.
+        </p>
         <p>
           “Pepper &amp; Carrot — Episode 1: The Potion of Flight,” art and scenario
           by David Revoy; Spanish translation by Juanjo Faico; contributions by
-          Andrej Ficko and Hồ Nhựt Châu. Licensed under{' '}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.{' '}
+          Andrej Ficko and Hồ Nhựt Châu. Source:{' '}
           <a href="https://www.peppercarrot.com/es/webcomic-sources/ep01_Potion-of-Flight__files.html">
-            Official Spanish source
-          </a>. Cropped, responsively encoded, and animated for an engineering
-          prototype; no endorsement implied.
+            official Spanish Episode 1 files
+          </a>
+          . Licensed under{' '}
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+          Modified for this engineering prototype: three panels were cropped from the
+          verified compiled Spanish page, resized to 640 and 1280 pixels wide while
+          retaining the 2275-pixel native crop width, encoded as WebP and JPEG with an
+          attached sRGB profile, and presented with restrained crop-transform and
+          overlay-opacity animation. No endorsement by the creator, translator, or
+          contributors is implied.
         </p>
       </footer>
     </main>
