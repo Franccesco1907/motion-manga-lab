@@ -3,10 +3,19 @@ import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import {
+  DESCRIPTION_REVIEW,
+  READER_PANELS,
+} from './features/reader/reader-content'
 
 const ASSET_ROOT = '/content/pepper-carrot/episode-01/page-02'
 const IDENTITY_TRANSFORM = 'translate3d(0, 0, 0) scale(1)'
 const VISIBLE_CLIP = 'inset(0 0 0 0)'
+const APPROVED_SPANISH_DESCRIPTIONS = [
+  'Una luz amarilla rodea varios objetos que flotan sobre el caldero. Pepper sonríe con las manos juntas y dice: «…¡ah! Perfecto.» Carrot está a su lado, junto a una escoba.',
+  'Pepper pone una mano frente a Carrot, que estira las patas hacia una escoba resplandeciente sobre el caldero, y dice: «¡NO! Ni se te ocurra.»',
+  'Carrot aterriza con las patas delanteras sobre la escoba que cruza el caldero y el líquido salpica con un «SPLASH». Pepper aparece parcialmente oculta a la izquierda.',
+] as const
 
 interface DeferredPromise {
   promise: Promise<void>
@@ -220,11 +229,9 @@ describe('reader baseline', () => {
 
     const images = screen.getAllByRole('img')
     expect(images).toHaveLength(3)
-    expect(images.map((image) => image.getAttribute('alt'))).toEqual([
-      'Pepper celebra junto a Carrot mientras una escoba resplandece sobre el caldero; ella dice: «…¡ah! Perfecto.»',
-      'Pepper intenta detener a Carrot cuando el gato alcanza la escoba luminosa sobre el caldero; ella dice: «¡NO! Ni se te ocurra.»',
-      'Carrot salta sobre la escoba encantada y la hunde en el caldero con un «SPLASH», mientras Pepper queda a un lado.',
-    ])
+    expect(images.map((image) => image.getAttribute('alt'))).toEqual(
+      APPROVED_SPANISH_DESCRIPTIONS,
+    )
 
     const expectedHeights = ['1061', '994', '1098']
     images.forEach((image, index) => {
@@ -265,8 +272,52 @@ describe('reader baseline', () => {
       'e01p02-panel-03',
     ])
     expect(
-      screen.getByText('Descriptions are provisional and pending human review.'),
+      screen.getByText(
+        'Spanish panel descriptions were approved through human review by Franccesco on 2026-08-30.',
+      ),
     ).toBeInTheDocument()
+  })
+
+  it('publishes the approved human-review status contract', () => {
+    expect(DESCRIPTION_REVIEW).toEqual({
+      reviewedAt: '2026-08-30',
+      reviewer: 'Franccesco',
+      status: 'approved_human_review',
+    })
+    expect(READER_PANELS.map((panel) => panel.descriptionReviewStatus)).toEqual([
+      'approved_human_review',
+      'approved_human_review',
+      'approved_human_review',
+    ])
+  })
+
+  it('publishes the approved attribution and modification notice with source links', async () => {
+    render(<App />)
+    await flushPromises()
+
+    const footer = screen.getByRole('contentinfo')
+    expect(
+      screen.queryByText('Descriptions are provisional and pending human review.'),
+    ).not.toBeInTheDocument()
+    expect(footer).toHaveTextContent(
+      '“Pepper & Carrot — Episode 1: The Potion of Flight,” art and scenario by David Revoy; Spanish translation by Juanjo Faico; contributions by Andrej Ficko and Hồ Nhựt Châu.',
+    )
+    expect(footer).toHaveTextContent(
+      'Modified for this engineering prototype: three panels were cropped from the verified compiled Spanish page, resized to 640 and 1280 pixels wide while retaining the 2275-pixel native crop width, encoded as WebP and JPEG with an attached sRGB profile, and presented with restrained crop-transform and overlay-opacity animation.',
+    )
+    expect(footer).toHaveTextContent(
+      'No endorsement by the creator, translator, or contributors is implied.',
+    )
+    expect(
+      screen.getByRole('link', { name: 'official Spanish Episode 1 files' }),
+    ).toHaveAttribute(
+      'href',
+      'https://www.peppercarrot.com/es/webcomic-sources/ep01_Potion-of-Flight__files.html',
+    )
+    expect(screen.getByRole('link', { name: 'CC BY 4.0' })).toHaveAttribute(
+      'href',
+      'https://creativecommons.org/licenses/by/4.0/',
+    )
   })
 
   it('keeps the same content, loading, controls, and order between Motion and Static', async () => {

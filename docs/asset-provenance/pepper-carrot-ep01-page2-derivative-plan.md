@@ -31,7 +31,7 @@ The generator requires the source, output directories, run evidence, compare inp
 | Art package SHA-256 | `96d46cb7fe007d4e2eeba76d661e0d42eaab9435c450103801add1016bf40172` |
 | Nested `E01P02.kra` SHA-256 | `4013f9964a8bd635e5546c055e8cde7f12ff9608f7110019819c39e9bff7d790` |
 | Provenance | [Episode 1 inspection](./pepper-carrot-ep01-inspection.md) |
-| License | CC BY 4.0; final attribution and modification notice remain approval gates |
+| License | CC BY 4.0; the scoped attribution/modification notice is approved, while broader final-publication credit confirmation remains pending |
 
 ## Output set
 
@@ -107,7 +107,7 @@ Changing operation order, crop values, width order, format order, encoder settin
 - Do not call `keepMetadata()` or retain source EXIF, XMP, IPTC, orientation, camera, timestamp, or unrelated density metadata.
 - Verify that generated files contain the attached sRGB profile and no unexpected source metadata.
 - Do not assume metadata behavior from defaults alone; record the Sharp/libvips environment and inspect actual outputs.
-- Compare generated colors and gradients against the verified source on color-managed browsers and at least one physical mobile display before approval.
+- Compare generated colors and gradients against the verified source on color-managed browsers for packet-covered human fidelity approval; separately repeat the comparison on at least one physical mobile display before closing the physical-device gate.
 
 This balances portable color interpretation with metadata minimization. If profile attachment produces a measured compatibility or byte-cost problem, revise the plan explicitly rather than silently stripping it.
 
@@ -168,18 +168,18 @@ The actual manifest must contain one record per successfully staged output and e
 
 ### Visual fidelity
 
-- [ ] Compare every output against the verified Spanish source at 100% and 200% zoom and at intended CSS sizes.
-- [ ] Check speech-bubble text, onomatopoeia, high-contrast edges, glow gradients, dark texture, crop seams, and color shifts.
+- [x] Compare every output against the verified Spanish source at 100% and 200% zoom and at intended CSS sizes; approved within the human-review packet on 2026-08-30.
+- [x] Check speech-bubble text, onomatopoeia, high-contrast edges, glow gradients, dark texture, crop seams, and color shifts; approved within the human-review packet on 2026-08-30.
 - [x] Confirm actual dimensions from Sharp `info` match the plan; any mismatch blocks the run and requires plan review.
 - [x] Confirm the attached profile is sRGB and no unexpected source metadata remains.
 - [x] Require two clean runs in the same recorded environment to produce identical hashes.
 
 ### Accessibility descriptions
 
-- [ ] Author and review one Spanish accessible description per panel in reading order.
-- [ ] Use the same descriptions in static and motion conditions.
-- [ ] Keep treatment-only light and camera movement out of the content description unless a separate study instruction requires disclosure.
-- [ ] Confirm baked lettering remains legible at the smallest rendered candidate; do not rely on alt text to compensate for illegible image text.
+- [x] Author and review one Spanish accessible description per panel in reading order; Franccesco approved all three exact descriptions on 2026-08-30.
+- [x] Use the same descriptions in static and motion conditions.
+- [x] Keep treatment-only light and camera movement out of the content description unless a separate study instruction requires disclosure.
+- [x] Confirm baked lettering remains legible at the smallest rendered candidate; do not rely on alt text to compensate for illegible image text.
 
 ### Byte and performance
 
@@ -195,7 +195,7 @@ The actual manifest must contain one record per successfully staged output and e
 - Generation requires separate authorization plus an implementation-time pinned Sharp version and dependency change.
 - Generate into an isolated temporary staging directory, never directly into repository or public asset paths.
 - If any source hash, dimension, output-info, metadata, reproducibility, accessibility, or fidelity check fails, delete all staged outputs and the incomplete actual manifest. Do not retain or import a partial set.
-- Import is an atomic review decision for the approved outputs plus actual manifest, attribution, and accessible descriptions.
+- The separately authorized engineering-prototype import was completed atomically for the verified outputs and actual manifest. The later scoped human fidelity, attribution/modification, and accessible-description review was approved by Franccesco on 2026-08-30; physical-device and broader final-publication credit gates remain separate.
 - Rollback removes every imported rendition and its manifest references together; static and treatment conditions must never point to different asset sets.
 - Source archives, full-page source rendering, `.kra` files, fonts, and temporary comparison files must be deleted after evidence capture and must never be committed.
 
@@ -205,8 +205,11 @@ The actual manifest must contain one record per successfully staged output and e
 - [x] Machine-readable manifest PLAN created with no fake output evidence.
 - [x] Separate authorization to pin/add Sharp and generate temporary outputs.
 - [x] Actual 18-output generation and actual manifest with dimensions, bytes, hashes, and runtime versions.
-- [ ] Complete human visual fidelity, color-managed browser, accessibility-description, and physical-device review. Bounded local metadata, pixel, byte, and agent visual checks passed and are recorded in the actual manifest.
-- [ ] Complete attribution and modification notices for the generated set.
+- [x] Complete human visual-fidelity and color-managed browser review for the packet-covered responsive set.
+- [x] Complete Spanish accessibility-description review for all three panels.
+- [ ] Complete physical-device payload, decode/render, performance, dropped-frame, touch/zoom, and motion-craft review. Bounded local metadata, pixel, byte, and agent visual checks passed and are recorded in the actual manifest.
+- [x] Approve the attribution and modification notice for the generated engineering-prototype set.
+- [ ] Confirm applicable broader Hereva universe and source-page credits before final publication.
 - [x] Separate repository-import authorization for the engineering prototype; all 18 files were verified against the actual manifest during import.
 
 Final-study content, final-study treatment, and AVIF remain OPEN.

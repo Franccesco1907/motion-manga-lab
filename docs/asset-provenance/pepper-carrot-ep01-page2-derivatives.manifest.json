@@ -1592,9 +1592,26 @@
       "No animation was baked into the derivative files."
     ],
     "noEndorsementImplied": true,
-    "finalAttributionApprovalStatus": "pending"
+    "finalAttributionApprovalStatus": "pending",
+    "attributionAndModificationNoticeReview": {
+      "status": "approved_human_review",
+      "reviewer": "Franccesco",
+      "reviewedAt": "2026-08-30",
+      "scope": "Exact engineering-prototype notice recorded in docs/reviews/ep01-page2-human-review.md",
+      "broaderHerevaAndSourcePageCreditsStatus": "pending_final_publication_confirmation"
+    }
   },
   "review": {
+    "humanApprovalEvidence": {
+      "response": "APPROVE ALL — descriptions, fidelity, and attribution. Reviewer: Franccesco. Date: 2026-08-30.",
+      "reviewer": "Franccesco",
+      "reviewedAt": "2026-08-30",
+      "scope": [
+        "spanish_accessibility_descriptions",
+        "packet_covered_human_visual_fidelity",
+        "engineering_prototype_attribution_and_modification_notice"
+      ]
+    },
     "automatedMetadataAndPixelChecks": {
       "status": "passed",
       "filesChecked": 18,
@@ -1618,14 +1635,15 @@
       "limitations": "This was automated-agent/local image inspection, not human approval, a color-managed browser review at prescribed zoom levels, or a physical-device review."
     },
     "humanVisualFidelityApproval": {
-      "status": "pending",
-      "reviewer": null,
-      "reviewedAt": null
+      "status": "approved_human_review",
+      "reviewer": "Franccesco",
+      "reviewedAt": "2026-08-30",
+      "scope": "Visual-fidelity checks covered by docs/reviews/ep01-page2-human-review.md; excludes physical-device performance and motion-craft evidence"
     },
     "spanishAccessibilityDescriptionReview": {
-      "status": "provisional_agent_authored_pending_human_review",
-      "reviewer": null,
-      "reviewedAt": null,
+      "status": "approved_human_review",
+      "reviewer": "Franccesco",
+      "reviewedAt": "2026-08-30",
       "implementationLocation": "src/features/reader/reader-content.ts"
     },
     "physicalDeviceReview": {
