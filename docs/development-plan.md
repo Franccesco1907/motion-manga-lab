@@ -12,10 +12,10 @@ The target population is **regular manga readers**. The next step is to prepare 
 
 | Area | Current state | Verdict |
 | --- | --- | --- |
-| Product | Placeholder screen only | No reader behavior has been validated. |
+| Product | Visible mobile-first engineering reader prototype | Validate the frozen treatment and control parity without treating it as study evidence. |
 | Frontend | React 19, strict TypeScript 6, Vite 8 | Retain; this is sufficient for the experiment. |
 | Quality | Vitest, Testing Library, ESLint, type checking | Retain; test observable behavior before implementation. |
-| Content and motion | Episode 1 source, exact Spanish page 2 treatment, and 18-output WebP/JPEG derivative PLAN are defined; no Sharp dependency or asset exists in the repository | Require separate generation authorization, actual manifest/fidelity/attribution evidence, and separate import approval. Reject subject-level motion and keep final study content open. |
+| Content and motion | Episode 1 source and exact Spanish page 2 treatment are defined; one corrected 18-output WebP/JPEG run is verified, imported, and implemented for the prototype | Require human fidelity/accessibility/device and final attribution approval before study/publication use. Reject subject-level motion and keep final study content open. |
 | Measurement | Draft protocol, primary Reader Enjoyment Score, target population, and cognitive-pilot procedure selected; no telemetry or complete analysis contract | Pilot the instrument and resolve the remaining experiment contract before treatment implementation. |
 | Operations | No backend, CI, deployment, or production telemetry | Add only the minimum needed for a pilot. |
 
@@ -101,7 +101,7 @@ The target population is **regular manga readers**. The next step is to prepare 
 - The selected approach meets treatment fidelity and all guardrails with the lowest justified complexity.
 - The decision and rejected escalation paths are recorded in [animation-technology-exploration.md](./animation-technology-exploration.md).
 
-**Dependencies and risks:** separate Sharp/generation authorization, actual derived-asset manifest, render fidelity, attribution, separate import approval, and device access. Treatment and generation plans are defined but no dependency, asset, or implementation is approved. Episode 1 supports panel-level treatment but not subject-level animation. Pepper & Carrot is suitable for engineering but is not representative manga; the spike must not freeze final study content. An unbounded framework bake-off would spend effort without improving the product decision.
+**Dependencies and risks:** human render-fidelity/accessibility review, final attribution approval, and device access. The corrected derivatives and treatment are imported and implemented only for the authorized engineering prototype. Episode 1 supports panel-level treatment but not subject-level animation. Pepper & Carrot is suitable for engineering but is not representative manga; the spike must not freeze final study content. An unbounded framework bake-off would spend effort without improving the product decision.
 
 ### Step 3 — Build the motion treatment
 
@@ -201,7 +201,7 @@ These items remain out of scope until experiment evidence or measured constraint
 
 ## Immediate next action
 
-Review the [defined derivative plan](./asset-provenance/pepper-carrot-ep01-page2-derivative-plan.md). The next asset step requires separate authorization to pin/add Sharp and generate all 18 outputs in temporary staging; that future run must produce the actual manifest, fidelity evidence, accessible descriptions, byte/device findings, and final attribution before any separate import decision. Prepare the cognitive-pilot materials in parallel and continue resolving the remaining OPEN decisions below; Step 0 is not frozen.
+Review the [actual derivative manifest](./asset-provenance/pepper-carrot-ep01-page2-derivatives.manifest.json). The verified derivatives are imported only for the engineering prototype. The next asset steps are human color-managed fidelity and Spanish accessible-description review, followed by physical-device byte/decode/render checks and final attribution approval before any study or publication use. Prepare the cognitive-pilot materials in parallel and continue resolving the remaining OPEN decisions below; Step 0 is not frozen.
 
 ## Remaining OPEN decisions
 

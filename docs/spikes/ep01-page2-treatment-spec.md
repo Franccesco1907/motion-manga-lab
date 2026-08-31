@@ -2,13 +2,13 @@
 
 **Treatment ID:** `ep01-e01p02-panel-emphasis-v1`
 
-**Status:** APPROVED treatment definition for the engineering spike; the derivative pipeline is PLANNED, but no dependency, output, import, or implementation is authorized.
+**Status:** APPROVED and implemented for the authorized engineering prototype; the verified derivative set is imported, while final-study selection and the remaining human/device reviews stay open.
 
 ## Decision
 
 Use the three Spanish content panels from Pepper & Carrot Episode 1, page 2, in top-to-bottom reading order. The motion treatment is a one-shot, whole-crop camera emphasis with one non-semantic light echo on the first panel. Every panel is fully readable before, during, and after enhancement.
 
-This specification freezes engineering behavior for a technology spike. It does not select final-study content, claim that motion improves enjoyment, or authorize asset derivation, repository import, or application work.
+This specification freezes engineering behavior for a technology spike. A later explicit user decision authorized the repository import and prototype implementation recorded in the actual manifest; this specification still does not select final-study content, claim that motion improves enjoyment, or authorize recruitment.
 
 ## Non-goals
 
@@ -187,7 +187,7 @@ No fallback opacity animation is justified because the content has no state chan
 
 ## Derived-asset requirements
 
-The exact formats, settings, widths, operation order, naming, and 18-output matrix are defined in the [derivative plan](../asset-provenance/pepper-carrot-ep01-page2-derivative-plan.md) and its machine-readable [plan JSON](../asset-provenance/pepper-carrot-ep01-page2-derivatives.plan.json). These are planning artifacts, not a completed manifest. No derivative is created by this specification. Before import:
+The exact formats, settings, widths, operation order, naming, and 18-output matrix are defined in the [derivative plan](../asset-provenance/pepper-carrot-ep01-page2-derivative-plan.md) and its machine-readable [plan JSON](../asset-provenance/pepper-carrot-ep01-page2-derivatives.plan.json). The separately authorized temporary run and verified repository import are recorded in the [actual manifest](../asset-provenance/pepper-carrot-ep01-page2-derivatives.manifest.json). The 18 derivatives are stored under `public/content/pepper-carrot/episode-01/page-02`; the full-page source, archives, fonts, and temporary evidence remain outside the repository. Import verification required:
 
 1. Derive all three crops only from the verified Spanish compiled page identified above.
 2. Use the same derived files in static and motion conditions; do not create treatment-specific image content.
@@ -200,10 +200,10 @@ The exact formats, settings, widths, operation order, naming, and 18-output matr
 ## Remaining approval gates
 
 - [x] Define derivative formats, quality settings, responsive widths, deterministic tooling contract, and machine-readable manifest PLAN.
-- [ ] Pin/add Sharp under separate authorization, generate outputs, and create the actual manifest with output hashes, sizes, dimensions, and modification notices.
+- [x] Pin/add Sharp under separate authorization, generate outputs twice in temporary staging, and create the actual manifest with output hashes, sizes, dimensions, runtime evidence, and modification notices.
 - [ ] Approve crop/render fidelity and Spanish accessible descriptions.
 - [ ] Finalize the complete episode/universe attribution with the modifications actually performed.
-- [ ] Approve repository import separately; this specification does not grant it.
+- [x] Approve repository import separately; explicit prototype authorization was granted and the verified 18-file set was imported.
 - [ ] Select physical target devices and complete the later performance/craft review.
 
 Final representative manga content and the main-study treatment remain OPEN.

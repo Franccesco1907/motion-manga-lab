@@ -1,12 +1,12 @@
 # Content Source Evaluation for the Engineering Spike
 
-**Decision status:** Episode 1 conditionally approved for a panel-level engineering spike; repository import and final experimental content remain OPEN
+**Decision status:** Episode 1 imported under explicit authorization for the bounded panel-level engineering prototype; final experimental content remains OPEN
 
 **Evidence reviewed:** Verified official sources available on 2026-08-28
 
 ## Decision
 
-Use **Pepper & Carrot Episode 1 provisionally for a bounded, panel-level engineering/animation spike**, subject to the remaining import gates below, the [empirical source inspection](./asset-provenance/pepper-carrot-ep01-inspection.md), and the [defined page 2 treatment](./spikes/ep01-page2-treatment-spec.md). The package can test responsive crops, panel progression, restrained overlay motion, static fallback, and attribution. Its flattened artwork does not support low-effort character parallax or articulated animation.
+Use **Pepper & Carrot Episode 1 provisionally for a bounded, panel-level engineering/animation spike**, under the explicit prototype import authorization recorded by the [actual manifest](./asset-provenance/pepper-carrot-ep01-page2-derivatives.manifest.json), the [empirical source inspection](./asset-provenance/pepper-carrot-ep01-inspection.md), and the [defined page 2 treatment](./spikes/ep01-page2-treatment-spec.md). The package can test responsive crops, panel progression, restrained overlay motion, static fallback, and attribution. Its flattened artwork does not support low-effort character parallax or articulated animation.
 
 Do **not** select it as final study content. Pepper & Carrot's official site describes it as a free/libre/open-source webcomic, not manga. It is a Western webcomic influenced by manga/anime and is not representative conventional manga for the selected population of regular manga readers.
 
@@ -70,7 +70,7 @@ Episode 1 is conditionally suitable for the spike because:
 - Spanish speech bubbles and text remain editable in named SVG layers; and
 - page 2 provides the strongest bounded sequence for one-shot whole-crop camera emphasis and a restrained light echo.
 
-The inspection also establishes a hard limit: characters, props, backgrounds, and painted effects are flattened into broad paint layers. Subject-level parallax or articulated motion would require manual reconstruction and is rejected for this spike. The Spanish SVGs reference Lavi and Arial without embedding them; Lavi is separately offered under GPLv3 by the official font repository. The spike therefore uses the official compiled Spanish rendering and avoids font delivery; exact crop/export fidelity remains an import gate.
+The inspection also establishes a hard limit: characters, props, backgrounds, and painted effects are flattened into broad paint layers. Subject-level parallax or articulated motion would require manual reconstruction and is rejected for this spike. The Spanish SVGs reference Lavi and Arial without embedding them; Lavi is separately offered under GPLv3 by the official font repository. The spike therefore uses the official compiled Spanish rendering and avoids font delivery; the engineering-prototype import is complete, while human crop/export fidelity approval remains a study and publication gate.
 
 ## Representativeness caveat
 
@@ -80,7 +80,7 @@ Pepper & Carrot must be described as a Western open webcomic, not manga. Final s
 
 ## Exact next acquisition and verification checklist
 
-No artwork should be imported or committed before every applicable item passes:
+The explicit engineering-prototype authorization permitted import after deterministic output verification while leaving human review items open. Those unchecked items continue to gate study/publication claims:
 
 - [x] Select Episode 1, inspect Spanish pages 1–3, and recommend page 2 for a bounded panel-level effect.
 - [x] Inspect the actual `.kra` files for layer boundaries, groups, masks, blend modes, linked resources, fonts, color profile, and archive integrity.
@@ -89,13 +89,14 @@ No artwork should be imported or committed before every applicable item passes:
 - [x] Define a concise and full attribution approach in the provenance inspection.
 - [x] Define exact page 2 crop coordinates, timing, trigger, interruption/re-entry behavior, reduced motion, and static parity.
 - [x] Define WebP/JPEG settings, responsive widths, deterministic Sharp procedure, metadata policy, filenames, and the 18-output manifest PLAN.
-- [ ] Document every crop, extraction, cleanup, translation use, animation, and other modification.
-- [ ] Generate the approved outputs and create the actual derived-asset manifest mapping each output to its source, license, credits, modifications, actual dimensions/bytes/hash, runtime versions, and generation procedure.
+- [x] Document every performed derivative modification and explicitly record that no cleanup, segmentation, translation/font re-rendering, or baked animation was performed.
+- [x] Generate the approved outputs twice in temporary staging and create the actual derived-asset manifest mapping each output to its source, license, credits, modifications, actual dimensions/bytes/hash, runtime versions, and generation procedure.
 - [x] Verify the exact Spanish text/vector structure, translation credits, font references, linked artwork, and source dimensions.
 - [x] Select the official high-resolution compiled Spanish rendering for the spike; do not distribute or re-render the separately licensed fonts.
-- [ ] Under separate authorization, pin/add Sharp, generate into temporary staging, and verify crop, text, color, metadata, compression, reproducibility, and target-device behavior.
-- [ ] Confirm that static and motion assets can be exported from the same source/crop with equivalent content, dimensions, color, and reading order.
-- [ ] Approve the checklist record before importing any artwork into the repository or study build.
+- [x] Under separate authorization, pin/add Sharp, generate into temporary staging, and verify source identity, crop geometry, text/edge fidelity through bounded local agent inspection, metadata, compression metrics, and reproducibility.
+- [ ] Complete human color-managed fidelity review, Spanish accessible-description review, and target-device behavior checks.
+- [x] Confirm that static and motion modes use the same imported source/crop files, dimensions, color, and reading order.
+- [x] Approve and verify the 18-file import for the local engineering prototype; study-build approval remains separate.
 
 Spike provenance must remain separate from final-study content provenance.
 

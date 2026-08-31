@@ -2,9 +2,9 @@
 
 **Inspection date:** 2026-08-28
 
-**Decision:** Conditionally suitable for a bounded, panel-level engineering spike; page 2 treatment and derivative PLAN are DEFINED, but dependency addition, generation, import, and implementation remain blocked.
+**Decision:** Suitable for the authorized bounded, panel-level engineering prototype; page 2 derivatives and treatment are imported and implemented, while human fidelity/accessibility/device approval and final-study selection remain blocked.
 
-No source archive, artwork, font, crop, or derivative from this inspection is stored in the repository.
+No source archive, full-page artwork, source font, or temporary evidence from this inspection is stored in the repository. Exactly 18 verified page-2 panel derivatives are stored under `public/content/pepper-carrot/episode-01/page-02` for the engineering prototype.
 
 ## Scope
 
@@ -87,11 +87,11 @@ The final credit must link the [official Spanish source page](https://www.pepper
 - [x] A technically bounded page and effect class recommended without creating derivatives.
 - [x] Exact crop coordinates, timing, trigger, reduced-motion behavior, and static parity DEFINED in the engineering treatment specification.
 - [x] Derivative formats, settings, widths, deterministic procedure, and 18-output manifest PLAN DEFINED without generation.
-- [ ] Actual derived-asset manifest created with Sharp `info`, output hashes/bytes/dimensions, runtime versions, source mapping, and modification notices.
-- [ ] High-resolution crop and Spanish text rendering fidelity verified after preparation.
+- [x] Actual derived-asset manifest created with Sharp `toFile` info, output hashes/bytes/dimensions, runtime versions, source mapping, and modification notices.
+- [ ] Human high-resolution crop and Spanish text rendering fidelity approval remains pending; bounded local agent review passed for all panels at native and smallest widths in both formats.
 - [ ] Attribution text updated with the modifications actually performed and approved before publication.
 
-Repository import remains blocked until the unchecked items are completed. The [treatment specification](../spikes/ep01-page2-treatment-spec.md) freezes engineering behavior, while the [derivative plan](./pepper-carrot-ep01-page2-derivative-plan.md) defines generation requirements only. Neither authorizes dependency addition, output generation, import, or implementation.
+The explicit prototype authorization allowed a verified repository import and implementation without converting the remaining human reviews into completed evidence. The [treatment specification](../spikes/ep01-page2-treatment-spec.md) freezes engineering behavior, while the [derivative plan](./pepper-carrot-ep01-page2-derivative-plan.md) and [actual manifest](./pepper-carrot-ep01-page2-derivatives.manifest.json) define the generated and imported set. Final-study use, recruitment, human accessibility approval, color-managed fidelity approval, and physical-device evidence remain separate gates.
 
 ## Verification commands
 
