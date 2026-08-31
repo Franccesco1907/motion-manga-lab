@@ -1,12 +1,8 @@
 import './App.css'
+import { Reader } from './features/reader/Reader'
 
 function App() {
-  return (
-    <main>
-      <h1>Motion Manga Lab</h1>
-      <p>Reader experiment coming soon.</p>
-    </main>
-  )
+  return <Reader />
 }
 
 export default App
