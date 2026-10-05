@@ -1,5 +1,4 @@
 import {
-  mkdtemp,
   mkdir,
   readFile,
   rm,
@@ -9,6 +8,7 @@ import {
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as generator from './ep01-page2-derivatives.mjs'
+import { createTestArtifactDirectory } from './test-artifact-directory.mjs'
 import {
   assertSourceIdentity,
   assertOutputInfo,
@@ -223,9 +223,7 @@ describe('Episode 1 page 2 derivative plan', () => {
   })
 
   it('rejects repository, traversal, and symlink-escaped artifact paths', async () => {
-    const temporaryDirectory = await mkdtemp(
-      join(TEMPORARY_ROOT, 'motion-manga-path-safety-'),
-    )
+    const temporaryDirectory = await createTestArtifactDirectory('motion-manga-path-safety-')
     const safeParent = join(temporaryDirectory, 'safe')
     const escapedLink = join(temporaryDirectory, 'escaped-link')
     await mkdir(safeParent)
@@ -359,9 +357,7 @@ describe('Episode 1 page 2 derivative plan', () => {
   })
 
   it('preserves pre-existing evidence after an exclusive-write collision', async () => {
-    const temporaryDirectory = await mkdtemp(
-      join(TEMPORARY_ROOT, 'motion-manga-evidence-collision-'),
-    )
+    const temporaryDirectory = await createTestArtifactDirectory('motion-manga-evidence-collision-')
     const evidencePath = join(temporaryDirectory, 'run.evidence.json')
     await writeFile(evidencePath, 'pre-existing evidence')
 
