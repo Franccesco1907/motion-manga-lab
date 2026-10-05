@@ -51,3 +51,7 @@ There is no installed browser E2E, visual-regression, physical-device or formal 
 These are bounded engineering observations on the current Linux machine. They do not replace varied-content evaluation, physical-device results, a formal browser harness or the unresolved release/research gates.
 
 The review-chain preparation adds one regression for self-provisioning the artifact tests' required temporary parent, without changing the production generator's approved path gate. Its complete workspace tip passes **134 tests in 23 suites**, typecheck, lint, build and diff checks. Existing dependencies were reused; this is not clean-clone or remote CI evidence.
+
+## Standalone account API extension
+
+An independently testable compiled Node service adds closed accounts, per-owner private roots, session/CSRF boundaries and explicit reviewed guest manifest/media APIs. The existing Vite workspace remains available; its stored originals are not migrated automatically. Browser login and guest-reader UI follow in the next implementation unit. See [operator setup and bounded release scope](self-hosted-service.md).

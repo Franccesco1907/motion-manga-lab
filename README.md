@@ -58,3 +58,7 @@ npm run build
 `npm test` and `npm run test:watch` discover application and script suites. Local `experiments/` suites use their own documented runners; these commands exclude them and do not verify laboratory behavior. The ownership regression uses synthetic files, so it does not require unversioned laboratory inputs.
 
 The project follows test-driven development: add a failing test for observable behavior before implementing that behavior.
+
+## Standalone account API
+
+The compiled standalone service supports closed operator-created accounts, isolated private workspaces and reviewed derivative-only guest API endpoints. [Operator setup and boundaries](docs/product/self-hosted-service.md) describe this API capability. Browser login and guest-reader integration follow in the next child PR; Internet deployment and content-rights clearance are not included.

@@ -68,7 +68,7 @@ export class LocalRenderService {
   try{
    job.status='running';await this.persist(job)
    if(active.cancelled)throw new Error('Cancelled')
-   const child=spawn(process.execPath,['--max-old-space-size=256','--experimental-strip-types',fileURLToPath(new URL('./render-worker.ts',import.meta.url)),folder],{stdio:['ignore','ignore','pipe'],detached:true})
+   const child=spawn(process.execPath,['--max-old-space-size=256','--experimental-strip-types',fileURLToPath(new URL(import.meta.url.endsWith('.ts')?'./render-worker.ts':'./render-worker.js',import.meta.url)),folder],{stdio:['ignore','ignore','pipe'],detached:true})
    active.process=child
    const timer=setTimeout(()=>{timeout=true;this.kill(child)},this.options.timeoutMs??125_000)
    const done=new Promise<void>((resolve,reject)=>{child.once('error',reject);child.once('close',code=>{clearTimeout(timer);if(code===0)resolve();else reject(new Error('Render worker failed'))})})
