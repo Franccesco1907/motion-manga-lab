@@ -1,6 +1,6 @@
 import type { LocalAssistanceCapabilities, LocalAssistanceJob, LocalAssistanceMode, LocalChapter, LocalDraft, LocalRenderArtifact, LocalRenderJob, LocalSnapshot } from './contracts'
 import { isLocalDraft } from './draft-editing'
-import { localJson, localRequest } from './local-project-client'
+import { localJson, localRequest, privateBlob } from './local-project-client'
 
 const BASE = '/api/local-projects'
 const idPath = (id: string) => {
@@ -26,7 +26,7 @@ async function blob(path: string, signal?: AbortSignal) {
   const response = await localRequest(BASE + path, { signal })
   const type = response.headers.get('content-type') ?? ''
   if (!/^(image\/png|video\/webm|video\/mp4)(;|$)/.test(type)) throw new Error('Local media unavailable. Start npm run dev, then retry.')
-  return response.blob()
+  return privateBlob(response)
 }
 
 function entity<T>(value: unknown): T {

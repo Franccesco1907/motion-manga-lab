@@ -1,6 +1,6 @@
-# Run the standalone account API
+# Run the account-based authoring service
 
-The standalone service serves the built application and account API without Vite. Browser login and guest-reader integration follow in the next child PR; this unit delivers API/operator capability, not those browser journeys. It supports closed, operator-created accounts, isolated private workspaces and explicitly reviewed unlisted reading links. It does not deploy the application or establish permission to distribute artwork.
+The standalone service serves the built application without Vite. Its browser workspace now signs into closed, operator-created accounts and supports isolated authoring plus explicitly reviewed unlisted reading links. It does not deploy the application or establish permission to distribute artwork.
 
 ## Quick path
 
@@ -15,7 +15,11 @@ npm start
 
 Replace quoted placeholders with actual values. Account creation asks for a hidden password on a terminal; noninteractive use accepts one password line through stdin, never a password argument. Do not put real passwords in shell history, source files or command-line arguments. Registration is not exposed through HTTP.
 
-The default service listens on `127.0.0.1:8080`. The built research reader remains available at that address. The existing browser workspace does not yet sign into the account API: use a trusted same-origin API client for this unit, or the existing Vite workspace for local-only authoring. Browser sign-in and guest reading follow next. Account storage uses the separate `self-hosted-v1` directory under the operator's local application-data directory. Existing local/Vite projects are not imported or exposed automatically.
+The default service listens on `127.0.0.1:8080`. Select **Local projects**, sign in, then import pages and use **Edit page**. The research reader remains a separate default view. Account storage uses the separate `self-hosted-v1` directory under the operator's local application-data directory. Existing local/Vite projects are not imported or exposed automatically.
+
+To share, create a complete reviewed local snapshot under **Chapters & snapshots**, then independently approve guest reading and confirm permission to share the content. Optional attribution is plain text. **Share reviewed snapshot** returns the actual new link; copy it immediately. A guest opens `/read/<token>` without an account and sees derived reading assets only, never the editable workspace. **Replace guest link** invalidates older URLs; **Withdraw guest link** blocks subsequent requests.
+
+Workspace runtime is verified before private requests. Session expiry or sign-out closes private views, releases their Blob URLs and removes the prior owner's browser draft recovery. Cookies carry the session; only CSRF state stays in JavaScript memory. Failed saves retain raw fields, and delayed responses from a previous account cannot populate the next account's workspace. Browser recovery is not encrypted storage or a backup.
 
 ## Operator settings
 
