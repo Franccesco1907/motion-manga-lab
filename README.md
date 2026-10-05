@@ -18,7 +18,19 @@ The local workbench's startup instructions and verification are at `experiments/
 
 `src/features/animation/engine/legacy-a-renderer.mjs` is an unchanged copy of the approved original-texture laboratory kernel. Its tests use only synthetic pixels and Vitest, not local artwork or `node:test`. Node `Buffer` and the legacy 1280-pixel edge, six-second/24-fps caps, 16 regions and eight moving regions are retained; no browser integration or approved product limits are implied.
 
-This core review branch still renders only the research `Reader`. The bounded local service and browser authoring workflow follow in the review chain; this stage adds neither export/model adapters nor an editor.
+This service review branch still renders only the research `Reader`. It now exposes the complete bounded local API; the browser authoring workflow follows in the next child. This is not a second editor or a public service.
+
+## Protected local service
+
+`npm run dev` binds to loopback and mounts `/api/local-projects`; static build and preview do not mount the service. All API requests require `X-Motion-Manga-Local: 1`, a trusted local Host and exact same-origin Origin when present. Originals are fetched as guarded bytes, not through unprotected public URLs. These checks are not account authentication, encryption or backup.
+
+The API imports immutable original PNG/JPEG/WebP bytes, lists local pages, saves coherent source-bound raw drafts with optimistic revisions, creates bounded render/assistance jobs, persists ordered chapters, and explicitly creates/replaces/unpublishes reviewed local snapshots. Snapshot media is pinned to the captured revision; withdrawal denies all later revision lookups. Failed/stale rendering never replaces valid reading. Requests accept UUID references and bounded JSON, never client filesystem/model paths.
+
+Storage is a restricted private application directory outside Vite serving paths. One local server process is supported. Originals remain exact; working copies use EXIF orientation, white alpha flattening and a 1280-pixel edge. Numeric draft strings may remain incomplete; strict render validation is separate. Local limits and normalized coordinates do not close D1–D7.
+
+Finite WebM encoding requires Linux/procfs and the existing `/snap/bin/ffmpeg`, writing an inherited Node-owned seekable descriptor. Optional models require existing audited offline environments/weights. Set the trusted operator environment `MOTION_MANGA_MODEL_PROJECT=<project-root>` to reference an existing approved model project; replace the placeholder before execution. Missing resources are explicit; no automatic installation/download/inference/retry is performed. Capability availability is not completed inference or model-quality evidence.
+
+Tests use generated synthetic pixels and temporary private roots. Native HTTP journeys verify originals, invalid-input reopen, revisions, real finite encoding, order and snapshot lifecycle. Existing installed dependencies were reused locally; no clean-clone install, CI, device, legal or public-release acceptance is implied.
 
 ## Development
 

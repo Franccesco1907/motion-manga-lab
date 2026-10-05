@@ -1,0 +1,3 @@
+import type { LocalDraft, RawRegion } from '../../src/features/local-projects/contracts.ts'
+export const region = (overrides: Partial<RawRegion> = {}): RawRegion => ({ id: 'region-1', label: 'Manual region', role: 'actor', selection: { x: '.2', y: '.2', width: '.2', height: '.2', strokes: [] }, motion: { type: 'static', anchorX: '.5', anchorY: '.5', dx: '0', dy: '0', angle: '0', start: '0', duration: '.5', cycles: '1', period: '', pause: '', wristInfluence: '', endState: 'hold', easing: 'smooth' }, ...overrides })
+export const draft = (sourceVersion: string, regions: RawRegion[] = [region()]): LocalDraft => ({ schemaVersion: 1, projectId: 'test-project', sourceVersion, normalizationVersion: 'working-image-v1', revision: 1, duration: '1', fps: '4', regions })
