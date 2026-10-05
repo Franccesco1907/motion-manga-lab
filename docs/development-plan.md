@@ -1,6 +1,26 @@
-# Development Plan: Enjoyment-First Motion Manga Experiment
+# Development Plan: Product MVP and Preserved Research Track
 
-**Status:** Active plan, updated 2026-08-30
+**Status:** User-accepted product planning baseline, 2026-10-04; implementation not authorized by this acceptance. Proposed details and OPEN decisions remain as labelled. Research plan retained from 2026-08-30.
+
+## Current product direction — planning only
+
+The user approved documenting a user-directed animation MVP inside the main application: users upload JPG/PNG/WebP pages, order them into chapters, use suggested or manual editable selections, direct movement, save their work, and optionally publish it for other readers. The platform does not supply a manga catalog; PDF and CBZ import are deferred. This is a conscious product-planning expansion, not evidence that the product has already been integrated or released.
+
+Read the product documents in this order:
+
+1. [MVP scope](./product/mvp.md) — confirmed requirements, proposed boundaries and open decisions.
+2. [Architecture](./product/architecture.md) — editor, processing and reader responsibilities; draft and publication contracts.
+3. [Implementation plan](./product/implementation-plan.md) — dependent work packages and observable acceptance criteria.
+
+The accepted A workbench (`experiments/a-workbench/README.md`, a repository-root local path) is the engineering baseline to evaluate and reuse, not a production service to expose unchanged. It is local, unversioned engineering evidence, not included in this documentation change or available in a clean clone. Its local single-image limits, model quality and browser observations are not approved product limits or broad usability evidence. The first integration target is one authorized page through editing, persistence and reading; the whole MVP also requires ordered chapter uploads and optional publication.
+
+**Immediate product action:** resolve the decisions that block the first work package and obtain its separate implementation authorization. This documentation approval does not authorize implementation, new dependencies, content imports, model generation, deployment or actual publication. No provider, cost commitment or unresolved study decision is silently selected.
+
+## Research track boundary
+
+The remaining sections preserve the enjoyment-first research plan and its 2026-08-30 engineering snapshot. Their study-specific exclusions and gates remain in force for that track; they do not erase the separately approved product-planning discussion above. The preserved engineering snapshot describes the Pepper & Carrot reader on this branch; the independent personal workbench is not part of the main application.
+
+The [experiment protocol](./experiment-protocol.md), its unresolved decisions, content provenance and approval history are unchanged. Acceptance of the laboratory does not approve a study, recruitment, publication rights, human accessibility review or physical-device results. Product validation and enjoyment-study evidence must remain distinguishable.
 
 ## Outcome first
 
@@ -8,7 +28,7 @@ The primary experimental outcome is **increased reader enjoyment**, measured wit
 
 The target population is **regular manga readers**. The next step is to prepare the specified cognitive pilot and complete the exact-asset checks in the [content source evaluation](./content-source-evaluation.md). Implementation should use the recommended open webcomic only for a bounded engineering spike; final representative manga excerpts remain OPEN for the experiment.
 
-## Current state and architectural verdict
+## Research engineering snapshot and architectural verdict — 2026-08-30
 
 | Area | Current state | Verdict |
 | --- | --- | --- |
@@ -186,7 +206,7 @@ The target population is **regular manga readers**. The next step is to prepare 
 
 **Dependencies and risks:** adequate recruitment, protocol adherence, and analysis expertise.
 
-## Explicitly deferred
+## Explicitly deferred for the research track
 
 These items remain out of scope until experiment evidence or measured constraints justify them:
 
@@ -199,7 +219,7 @@ These items remain out of scope until experiment evidence or measured constraint
 - Broad analytics, behavioral profiling, advertising, or unrelated engagement metrics.
 - Offline/PWA support, native applications, internationalization, and large-scale deployment architecture.
 
-## Immediate next action
+## Research-track next action
 
 Use the approved [Episode 1 page 2 human accessibility and fidelity review](./reviews/ep01-page2-human-review.md) and updated [actual derivative manifest](./asset-provenance/pepper-carrot-ep01-page2-derivatives.manifest.json) as the scoped human/engineering record. Next, define and authorize the missing physical-device performance/craft harness before collecting payload, decode/render, dropped-frame, touch, or zoom-on-device evidence, and separately confirm broader Hereva/source-page credits before final publication. Prepare the cognitive-pilot materials in parallel and continue resolving the remaining OPEN decisions below; Step 0 is not frozen and no study or publication use is authorized.
 
