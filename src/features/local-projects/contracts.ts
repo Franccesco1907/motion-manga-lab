@@ -19,6 +19,12 @@ export interface LocalProject {
 
 export const LOCAL_MOTION = { STATIC: 'static', TRANSLATE: 'translate', ROTATE: 'rotate', REVEAL: 'reveal' } as const
 export type LocalMotionType = (typeof LOCAL_MOTION)[keyof typeof LOCAL_MOTION]
+export const LOCAL_AFFINE_MOTION = { ...LOCAL_MOTION, SCALE: 'scale', STRETCH: 'stretch' } as const
+export type LocalAffineMotionType = (typeof LOCAL_AFFINE_MOTION)[keyof typeof LOCAL_AFFINE_MOTION]
+export const LOCAL_DRAFT_SCHEMA = { LEGACY: 1, AFFINE: 2 } as const
+export type LocalDraftSchemaVersion = (typeof LOCAL_DRAFT_SCHEMA)[keyof typeof LOCAL_DRAFT_SCHEMA]
+export const LOCAL_RENDERER_VERSION = { LEGACY: 'legacy-a-v1', AFFINE: 'affine-a-v2' } as const
+export type LocalRendererVersion = (typeof LOCAL_RENDERER_VERSION)[keyof typeof LOCAL_RENDERER_VERSION]
 export const LOCAL_ROLE = { ACTOR: 'actor', PROTECTED: 'protected', FOREGROUND: 'foreground' } as const
 export type LocalRegionRole = (typeof LOCAL_ROLE)[keyof typeof LOCAL_ROLE]
 export const LOCAL_STROKE = { ADD: 'add', ERASE: 'erase' } as const
@@ -38,7 +44,7 @@ export interface NormalizedPoint { x: number; y: number }
 export interface RawMaskStroke { mode: LocalStrokeMode; radius: string; points: NormalizedPoint[] }
 export interface RawSelection { x: string; y: string; width: string; height: string; strokes: RawMaskStroke[] }
 export interface RawMotion {
-  type: LocalMotionType
+  type: LocalAffineMotionType
   anchorX: string
   anchorY: string
   dx: string
@@ -52,10 +58,13 @@ export interface RawMotion {
   wristInfluence: string
   endState: LocalEndState
   easing: LocalEasing
+  scale?: string
+  scaleX?: string
+  scaleY?: string
 }
 export interface RawRegion { id: string; label: string; role: LocalRegionRole; selection: RawSelection; motion: RawMotion; maskId?: string }
 export interface LocalDraft {
-  schemaVersion: 1
+  schemaVersion: LocalDraftSchemaVersion
   projectId: string
   sourceVersion: string
   normalizationVersion: 'working-image-v1'
@@ -77,6 +86,8 @@ export interface LocalRenderArtifact {
   fps: number
   createdAt: string
   videoMime: LocalVideoMime
+  rendererVersion?: LocalRendererVersion
+  draftSchemaVersion?: LocalDraftSchemaVersion
 }
 export interface LocalFailure { code: string; message: string }
 export interface LocalRenderJob {
@@ -87,6 +98,8 @@ export interface LocalRenderJob {
   status: LocalJobStatus
   error?: LocalFailure
   artifact?: LocalRenderArtifact
+  rendererVersion?: LocalRendererVersion
+  draftSchemaVersion?: LocalDraftSchemaVersion
 }
 export interface LocalSnapshotPage { projectId: string; name: string; artifact: LocalRenderArtifact }
 export interface LocalSnapshot {

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { LOCAL_VIDEO_MIME, type LocalChapter, type LocalDraft, type LocalRenderArtifact, type LocalSnapshot } from '../../src/features/local-projects/contracts.ts'
+import { LOCAL_DRAFT_SCHEMA, LOCAL_RENDERER_VERSION, LOCAL_VIDEO_MIME, type LocalChapter, type LocalDraft, type LocalRenderArtifact, type LocalSnapshot } from '../../src/features/local-projects/contracts.ts'
 import { isUuid, object, revision, validateDraft } from './draft-validation.ts'
 import { StateFiles } from './state-files.ts'
 import { LocalProjectError, type LocalProjectStore } from './store.ts'
@@ -13,14 +13,18 @@ const stale = () => new LocalProjectError('stale_revision', 'Saved work changed.
 const badChapter = () => new LocalProjectError('invalid_chapter', 'Provide a name and at most 100 unique existing local page IDs.', 422)
 const matchingRender = () => new LocalProjectError('matching_render_required', 'Every page needs a completed render matching its currently saved source and draft. Previous snapshots remain unchanged.', 409)
 function publicArtifact(artifact: LocalRenderArtifact): LocalRenderArtifact {
+  const draftSchemaVersion=artifact.draftSchemaVersion??LOCAL_DRAFT_SCHEMA.LEGACY
+  const rendererVersion=artifact.rendererVersion??LOCAL_RENDERER_VERSION.LEGACY
   if (!isUuid(artifact.id) || !isUuid(artifact.projectId) || !/^[a-f0-9]{64}$/.test(artifact.sourceVersion) ||
     !Number.isSafeInteger(artifact.draftRevision) || artifact.draftRevision < 0 || artifact.normalizationVersion !== 'working-image-v1' ||
     !Number.isInteger(artifact.width) || !Number.isInteger(artifact.height) || artifact.width < 2 || artifact.height < 2 ||
     Math.max(artifact.width, artifact.height) > 1280 || !Number.isFinite(artifact.duration) || artifact.duration < .1 || artifact.duration > 6 ||
     !Number.isInteger(artifact.fps) || artifact.fps < 1 || artifact.fps > 24 || !Number.isFinite(Date.parse(artifact.createdAt)) ||
-    !Object.values(LOCAL_VIDEO_MIME).includes(artifact.videoMime)) throw matchingRender()
+    !Object.values(LOCAL_VIDEO_MIME).includes(artifact.videoMime)||!Object.values(LOCAL_DRAFT_SCHEMA).includes(draftSchemaVersion)||
+    rendererVersion!==(draftSchemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?LOCAL_RENDERER_VERSION.AFFINE:LOCAL_RENDERER_VERSION.LEGACY)) throw matchingRender()
   const { id, projectId, sourceVersion, draftRevision, normalizationVersion, width, height, duration, fps, createdAt, videoMime } = artifact
-  return { id, projectId, sourceVersion, draftRevision, normalizationVersion, width, height, duration, fps, createdAt, videoMime }
+  return { id, projectId, sourceVersion, draftRevision, normalizationVersion, width, height, duration, fps, createdAt, videoMime,
+    ...(artifact.rendererVersion!==undefined||artifact.draftSchemaVersion!==undefined?{rendererVersion,draftSchemaVersion}:{}) }
 }
 
 export class EditingStore {
@@ -103,7 +107,8 @@ export class EditingStore {
     for (const projectId of chapter.pageIds) {
       const draft = await this.getDraft(projectId), original = await this.originals.original(projectId), artifact = await renderer.latestCompleted(projectId)
       if (!artifact || !isUuid(artifact.id) || artifact.projectId !== projectId || artifact.sourceVersion !== draft.sourceVersion || artifact.draftRevision !== draft.revision ||
-        artifact.normalizationVersion !== draft.normalizationVersion || !Object.values(LOCAL_VIDEO_MIME).includes(artifact.videoMime)) {
+        artifact.normalizationVersion !== draft.normalizationVersion || (artifact.draftSchemaVersion??LOCAL_DRAFT_SCHEMA.LEGACY)!==draft.schemaVersion ||
+        (artifact.rendererVersion??LOCAL_RENDERER_VERSION.LEGACY)!==(draft.schemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?LOCAL_RENDERER_VERSION.AFFINE:LOCAL_RENDERER_VERSION.LEGACY) || !Object.values(LOCAL_VIDEO_MIME).includes(artifact.videoMime)) {
         throw matchingRender()
       }
       // Confirm both immutable artifacts exist before advancing the active snapshot.

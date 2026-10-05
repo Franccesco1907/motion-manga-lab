@@ -21,7 +21,7 @@ These cover a bounded local adaptation of M1–M3 and local snapshot lifecycle w
 - Originals: at most 10 MiB and 20 million pixels; still images only. Bytes remain immutable.
 - Working source: EXIF-oriented, white-flattened RGB, maximum edge 1280. `sourceVersion` is the original-byte SHA-256; `normalizationVersion: working-image-v1` defines normalized working-image fractions, not original pixel coordinates. Old coordinates are not silently reinterpreted.
 - Drafts: at most 16 regions, 64 strokes per region, 4096 aggregate brush points, 64 characters per raw numeric field and 256 KiB per JSON request/state file. Chapters contain at most 100 unique page IDs.
-- Motion: legacy duration cap six seconds, 24 fps, eight moving regions; no scale or stretch added. Active render values must be finite, complete and within legacy bounds.
+- Motion: legacy duration cap six seconds, 24 fps and eight moving regions remain. The protected backend now supports explicit schema-2 scale/stretch targets with positive factors 0.75–1.25; the frozen browser editor still offers only the four legacy actions. See [the versioned affine boundary](affine-v2.md). Active render values must be finite, complete and within their version's bounds.
 - Processing: one shared heavy render/inference slot; at most 144 frames, 32 MiB encoded output, bounded owned-worker timeouts. Brush raster work is bounded at two million operations per selection and aggregate moving-source mask area at 200,000 pixels to bound numerical background completion.
 - Storage: one local development-server process; restricted directories/files and atomic JSON replacement. No account isolation, encryption, backups, quotas, multi-server coordination or retention automation is promised.
 
@@ -39,7 +39,7 @@ Existing data is not automatically migrated, cleaned or overwritten. Preserve th
 
 Tests use generated synthetic pixels and temporary private roots: exact-byte reopen, raw invalid-input persistence, concurrent revision conflicts, atomic failure recovery, chapter order, immutable snapshots and withdrawn lookup denial. Native HTTP integration exercises the real renderer/encoder, finite-video decoding and later-edit/stale-render behavior. Optional model smoke evidence is distinct from deterministic adapter tests and does not establish selection quality.
 
-There is no installed browser E2E, visual-regression, physical-device or formal accessibility/performance acceptance harness. Synthetic examples are not a varied rights-cleared evaluation corpus. Large/occluded backgrounds, mask leakage, lettering quality and anatomy still require review; keep defective cases static. Public hosting/authentication, reporting/takedown policy, release thresholds, scaling/stretching and the formal enjoyment-study decisions remain unresolved or deferred as documented in D1–D7.
+There is no installed browser E2E, visual-regression, physical-device or formal accessibility/performance acceptance harness. Synthetic examples are not a varied rights-cleared evaluation corpus. Large/occluded backgrounds, mask leakage, lettering quality and anatomy still require review; keep defective cases static. Public hosting/authentication, reporting/takedown policy, release thresholds, broader transform-quality acceptance and the formal enjoyment-study decisions remain unresolved or deferred as documented in D1–D7. Schema-2 affine backend capability does not itself provide its dependent browser controls or freeze final D3 scope.
 
 ### Recorded engineering checks for the original implementation worktree
 

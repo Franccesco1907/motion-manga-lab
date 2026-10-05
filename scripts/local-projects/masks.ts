@@ -1,5 +1,8 @@
-import { validateProject, preparePixels, renderFrame, type LegacyContext, type LegacyMotion, type LegacyRegion } from '../../src/features/animation/engine/legacy-a-renderer.mjs'
-import type { LocalDraft, RawMotion, RawSelection } from '../../src/features/local-projects/contracts.ts'
+import * as legacy from '../../src/features/animation/engine/legacy-a-renderer.mjs'
+import type { LegacyContext, LegacyRegion } from '../../src/features/animation/engine/legacy-a-renderer.mjs'
+import * as affine from '../../src/features/animation/engine/affine-a-renderer-v2.mjs'
+import type { AffineMotion } from '../../src/features/animation/engine/affine-a-renderer-v2.mjs'
+import { LOCAL_DRAFT_SCHEMA, LOCAL_RENDERER_VERSION, type LocalDraft, type LocalDraftSchemaVersion, type LocalRendererVersion, type RawMotion, type RawSelection } from '../../src/features/local-projects/contracts.ts'
 import type { WorkingSource } from './working-source.ts'
 export function rawNumber(value: string, name: string, min: number, max: number): number {
   if (typeof value !== 'string' || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value.trim())) throw new Error(`${name} requires a finite decimal number`)
@@ -33,28 +36,37 @@ export function rasterizeSelection(selection: RawSelection, width: number, heigh
   if(!mask.some(Boolean)) throw new Error('Region mask is empty')
   return mask
 }
-function translateMotion(raw: RawMotion): LegacyMotion {
-  const base: LegacyMotion = { type:raw.type, anchor:[.5,.5], dx:0,dy:0,angle:0,start:0,duration:1,cycles:1,endState:raw.endState,easing:raw.easing }
+function translateMotion(raw: RawMotion): AffineMotion {
+  const base: AffineMotion = { type:raw.type, anchor:[.5,.5], dx:0,dy:0,angle:0,start:0,duration:1,cycles:1,endState:raw.endState,easing:raw.easing }
   if(raw.type==='static') return base
   base.start=rawNumber(raw.start,'start',0,6); base.duration=rawNumber(raw.duration,'duration',.04,6)
   if(raw.type==='translate') { base.dx=rawNumber(raw.dx,'dx',-1,1);base.dy=rawNumber(raw.dy,'dy',-1,1) }
   if(raw.type==='rotate') { base.angle=rawNumber(raw.angle,'angle',-45,45);base.anchor=[rawNumber(raw.anchorX,'anchorX',0,1),rawNumber(raw.anchorY,'anchorY',0,1)] }
-  if(raw.type==='rotate') {
+  const affineMotion = raw.type==='scale'||raw.type==='stretch'
+  if(affineMotion) {
+    base.anchor=[rawNumber(raw.anchorX,'anchorX',0,1),rawNumber(raw.anchorY,'anchorY',0,1)]
+    if(raw.type==='scale') base.scale=rawNumber(raw.scale??'','scale',.75,1.25)
+    else {base.scaleX=rawNumber(raw.scaleX??'','scaleX',.75,1.25);base.scaleY=rawNumber(raw.scaleY??'','scaleY',.75,1.25)}
+  }
+  if(raw.type==='rotate'||affineMotion) {
     base.cycles=rawNumber(raw.cycles,'cycles',1,12)
     if(raw.period.trim()) base.period=rawNumber(raw.period,'period',.12,6)
-    if(base.cycles>1 && base.period===undefined) throw new Error('Finite repetitions require a rotation gesture period')
+    if(base.cycles>1 && base.period===undefined) throw new Error(raw.type==='rotate'?'Finite repetitions require a rotation gesture period':'Finite affine repetition requires an explicit period')
     if(raw.pause.trim()) base.pause=rawNumber(raw.pause,'pause',0,6)
-    if(raw.wristInfluence.trim()) base.wristInfluence=rawNumber(raw.wristInfluence,'wristInfluence',.001,1)
+    if(raw.type==='rotate'&&raw.wristInfluence.trim()) base.wristInfluence=rawNumber(raw.wristInfluence,'wristInfluence',.001,1)
   }
   return base
 }
-export interface PreparedDraft { context: LegacyContext; duration: number; fps: number; frameCount: number }
+export interface PreparedDraft { context: LegacyContext; duration: number; fps: number; frameCount: number; rendererVersion: LocalRendererVersion; draftSchemaVersion: LocalDraftSchemaVersion }
 export function prepareDraft(working: WorkingSource, draft: LocalDraft, modelMasks:Record<string,Uint8Array>={}, validateOnly=false): PreparedDraft {
+  if(draft.schemaVersion!==LOCAL_DRAFT_SCHEMA.LEGACY&&draft.schemaVersion!==LOCAL_DRAFT_SCHEMA.AFFINE)throw new Error('Unsupported draft schema version')
+  const kernel=draft.schemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?affine:legacy
   if(draft.sourceVersion!==working.sourceVersion || draft.normalizationVersion!=='working-image-v1') throw new Error('Draft source/version does not match immutable original')
   const regions: LegacyRegion[]=[], protectMasks:Uint8Array[]=[], foregroundMasks:Uint8Array[]=[]
   if(draft.regions.length>16) throw new Error('At most 16 regions are allowed')
   const ids=new Set<string>()
   for(const region of draft.regions) {
+    if(draft.schemaVersion===LOCAL_DRAFT_SCHEMA.LEGACY&&(region.motion.type==='scale'||region.motion.type==='stretch'))throw new Error('Affine motion requires draft schema version 2')
     if(!/^[a-zA-Z0-9_-]{1,64}$/.test(region.id)||ids.has(region.id)) throw new Error('Invalid or duplicate region identifier')
     ids.add(region.id)
     if(region.maskId && !modelMasks[region.maskId]) throw new Error('Model mask is missing or does not match source')
@@ -64,11 +76,12 @@ export function prepareDraft(working: WorkingSource, draft: LocalDraft, modelMas
     else if(region.role==='actor') regions.push({id:region.id,maskPath:`internal:${region.id}`,mask,motion:translateMotion(region.motion)})
     else throw new Error('Unknown region role')
   }
-  const project=validateProject({sourcePath:'internal:working',duration:rawNumber(draft.duration,'duration',.1,6),fps:rawNumber(draft.fps,'fps',1,24),regions})
+  const project=kernel.validateProject({sourcePath:'internal:working',duration:rawNumber(draft.duration,'duration',.1,6),fps:rawNumber(draft.fps,'fps',1,24),regions})
   const frameCount=Math.ceil(project.duration*project.fps)
   // Bound worst-case background completion CPU work before entering legacy preparation.
   const movingArea=regions.filter(r=>r.motion.type!=='static').reduce((n,r)=>n+r.mask.filter(Boolean).length,0)
   if(movingArea>200_000) throw new Error('Moving masks exceed the bounded local preparation budget (200000 pixels)')
-  return { context:preparePixels({source:working.pixels,width:working.width,height:working.height,regions:validateOnly?[]:project.regions,protectMasks,foregroundMasks}),duration:project.duration,fps:project.fps,frameCount }
+  return { context:kernel.preparePixels({source:working.pixels,width:working.width,height:working.height,regions:validateOnly?[]:project.regions,protectMasks,foregroundMasks}),duration:project.duration,fps:project.fps,frameCount,
+    rendererVersion:draft.schemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?LOCAL_RENDERER_VERSION.AFFINE:LOCAL_RENDERER_VERSION.LEGACY,draftSchemaVersion:draft.schemaVersion }
 }
-export function frameForDraft(prepared: PreparedDraft,time:number,staticOnly=false):Buffer { return renderFrame(prepared.context,time,{static:staticOnly}) }
+export function frameForDraft(prepared: PreparedDraft,time:number,staticOnly=false):Buffer { return (prepared.rendererVersion===LOCAL_RENDERER_VERSION.AFFINE?affine:legacy).renderFrame(prepared.context,time,{static:staticOnly}) }
