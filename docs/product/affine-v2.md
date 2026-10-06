@@ -1,13 +1,15 @@
 # Explicit local affine renderer version 2
 
-This backend increment adds uniform drawing scale and independent-axis stretch behind **draft schema version 2**. It does not change the byte-preserved legacy renderer or silently migrate saved version-1 drafts. These are bounded local engineering capabilities, not general visual-quality or research acceptance.
+Uniform drawing scale and independent-axis stretch use **draft schema version 2**. The backend increment is followed here by explicit browser controls; neither changes the byte-preserved legacy renderer or silently migrates saved version-1 drafts. These are bounded engineering capabilities, not general visual-quality or research acceptance.
 
 ## Version and UI boundary
 
 - Existing schema-1 drafts use `legacy-a-v1` and remain valid. Old job/artifact records without version metadata are read as version 1.
 - Schema-2 drafts use `affine-a-v2`; jobs and immutable artifacts record `draftSchemaVersion` and `rendererVersion`. Worker output and reviewed reading snapshots must match those versions as well as source/draft identity.
 - Both versions retain the original-byte SHA-256 and `working-image-v1` normalized working-image coordinates. Working-source normalization is not reinterpreted.
-- The frozen browser editor still offers only its four legacy actions. This PR is independently usable through the protected local draft/render API, not complete browser scale/stretch controls. Those controls follow in a dependent UI change; a schema-2 draft must not be presented as editable by the current schema-1 editor.
+- The browser **Movement** selector now offers `scale` and `stretch`. Choosing either explicitly upgrades the draft to schema 2; editing a legacy action does not upgrade a version-1 draft. **Uniform drawing scale**, **Drawing scale X/Y** and **Pivot X/Y** are separate from selection geometry.
+- Factor 1 is the identity default only for absent fields. Empty or invalid factor strings remain intact across part switches, save/reopen and owner-scoped recovery. **Save & render** saves the complete draft before asking the authoritative service to validate and process it.
+- One-shot easing and final-state controls are hidden for periodic affine motion because its fixed sine curve returns to identity. This avoids presenting ineffective controls as supported behavior.
 
 ## Raw motion contract
 

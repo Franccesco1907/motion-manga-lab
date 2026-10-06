@@ -4,6 +4,8 @@ import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { localProjectClient } from './features/local-projects/local-project-client'
+import { accountClient } from './features/accounts/account-client'
+import { resetPrivateSession } from './features/accounts/private-session'
 import {
   DESCRIPTION_REVIEW,
   READER_PANELS,
@@ -171,6 +173,7 @@ async function flushPromises() {
 }
 
 beforeEach(() => {
+  vi.spyOn(accountClient, 'runtime').mockResolvedValue({ mode: 'local' })
   animateRecords.length = 0
   MockIntersectionObserver.instances.length = 0
   mediaQuery.matches = false
@@ -203,6 +206,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  resetPrivateSession()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   if (originalAnimate) {

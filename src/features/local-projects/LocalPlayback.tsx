@@ -2,9 +2,10 @@ interface LocalPlaybackProps {
   name: string
   originalUrl: string
   loadVideo: (signal: AbortSignal) => Promise<Blob>
+  staticLabel?: string
 }
 
-export function LocalPlayback({ name, originalUrl, loadVideo }: LocalPlaybackProps) {
+export function LocalPlayback({ name, originalUrl, loadVideo, staticLabel = 'Static original' }: LocalPlaybackProps) {
   const [reduced, setReduced] = useState(() => {
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches }
     catch { return true }
@@ -92,7 +93,7 @@ export function LocalPlayback({ name, originalUrl, loadVideo }: LocalPlaybackPro
     </div>
     {reduced && <p>Reduced motion is enabled. Reading stays static.</p>}
     {error && <p role="alert">{error}</p>}
-    <img hidden={playing && !reduced} alt={`Static original: ${name}`} src={originalUrl} />
+    <img hidden={playing && !reduced} alt={`${staticLabel}: ${name}`} src={originalUrl} />
     {!reduced && <video ref={video} hidden={!playing} src={url || undefined} controls muted playsInline preload="none"
       aria-label={`Animated page: ${name}`} onEnded={staticMode} onError={mediaFailed} />}
   </div>

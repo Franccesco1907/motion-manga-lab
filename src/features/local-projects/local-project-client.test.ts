@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { localProjectClient } from './local-project-client'
+import { configurePrivateSession, getPrivateSession, resetPrivateSession } from '../accounts/private-session'
 
 const project = {
   id: 'f3a8c842-a5f8-4ee4-89ec-15230555eca7',
@@ -11,9 +12,33 @@ const project = {
   createdAt: '2026-10-04T00:00:00.000Z',
 }
 
-afterEach(() => vi.unstubAllGlobals())
+beforeEach(() => configurePrivateSession('local'))
+afterEach(() => { vi.unstubAllGlobals(); resetPrivateSession() })
 
 describe('local project client', () => {
+  it('expires account state on private 401 and never retries with anonymous access', async () => {
+    configurePrivateSession('accounts', { user: { id: 'owner-a', username: 'alice' }, csrfToken: 'csrf-a' })
+    const fetch = vi.fn().mockResolvedValue(Response.json({ error: { code: 'session_expired', message: 'Sign in again.' } }, { status: 401 }))
+    vi.stubGlobal('fetch', fetch)
+    await expect(localProjectClient.list()).rejects.toThrow('Sign in')
+    expect(getPrivateSession().user).toBeNull()
+    expect(getPrivateSession().mode).toBe('accounts')
+    expect(fetch).toHaveBeenCalledTimes(1)
+    await expect(localProjectClient.list()).rejects.toThrow('Sign in')
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+  it('rejects a delayed private response body after the signed-in owner changes', async () => {
+    configurePrivateSession('accounts', { user: { id: 'owner-a', username: 'alice' }, csrfToken: 'csrf-a' })
+    let finish!: (value: unknown) => void
+    const response = Response.json({ projects: [] })
+    const json = vi.spyOn(response, 'json').mockReturnValue(new Promise(resolve => { finish = resolve }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response))
+    const pending = localProjectClient.list()
+    await vi.waitFor(() => expect(json).toHaveBeenCalled())
+    configurePrivateSession('accounts', { user: { id: 'owner-b', username: 'bob' }, csrfToken: 'csrf-b' })
+    finish({ projects: [project] })
+    await expect(pending).rejects.toThrow('session changed')
+  })
   it('lists saved projects with the private same-origin fetch header', async () => {
     const fetch = vi.fn().mockResolvedValue(Response.json({ projects: [project] }))
     vi.stubGlobal('fetch', fetch)

@@ -24,7 +24,7 @@ The kernel now runs behind the bounded local processing service; the browser doe
 
 ## Local authoring and reading
 
-Run `npm run dev` from this checkout and open the printed loopback URL. Choose **Local projects** to import still PNG, JPEG or WebP pages, author rectangle/brush selections, direct the existing motion actions, save/reopen drafts and render finite videos. Arrange imported pages into ordered local chapters. Explicitly reviewed reading snapshots can be created, replaced and unpublished locally; this is **not Internet publication**.
+Run `npm run dev` from this checkout and open the printed loopback URL. Choose **Local projects** to import still PNG, JPEG or WebP pages, author rectangle/brush selections, direct motion, save/reopen drafts and render finite videos. Explicitly choosing scale/stretch upgrades a draft to [affine version 2](docs/product/affine-v2.md); legacy edits retain version 1. Arrange imported pages into ordered local chapters. Explicitly reviewed reading snapshots can be created, replaced and unpublished locally; this is **not Internet publication**.
 
 The development-only service stores immutable original bytes, editable JSON, jobs and reading snapshots under `~/.local/share/motion-manga-lab/local-projects-v1`, outside repository/public serving paths, with restricted directory/file permissions. Imports become visible only after complete staging and rename. These local files are not encrypted, backed up or shared; the loopback, Host, Origin and request-header checks are not account authentication or rights clearance. To reset storage, stop the server and remove only that dedicated directory after backing up anything you want to retain. Use one local server process for this store.
 
@@ -59,6 +59,6 @@ npm run build
 
 The project follows test-driven development: add a failing test for observable behavior before implementing that behavior.
 
-## Standalone account API
+## Standalone account service
 
-The compiled standalone service supports closed operator-created accounts, isolated private workspaces and reviewed derivative-only guest API endpoints. [Operator setup and boundaries](docs/product/self-hosted-service.md) describe this API capability. Browser login and guest-reader integration follow in the next child PR; Internet deployment and content-rights clearance are not included.
+The compiled standalone service provides browser sign-in to closed operator-created accounts and isolated private workspaces. Reviewed snapshots can be explicitly shared as unlisted, derivative-only guest reading after separate content-permission acknowledgment. Links are returned only on creation/replacement and can be withdrawn. [Operator setup and boundaries](docs/product/self-hosted-service.md) cover login, sharing and data isolation. Internet deployment, legal clearance and validated release-quality evidence are not included.
