@@ -36,6 +36,7 @@ export function localProjectsPlugin(): Plugin {
       const handler = createLocalProjectsHandler(new LocalProjectStore(root), { renderer, assistance, workingSource: createWorkingSource })
       server.httpServer?.once('close', () => { void Promise.all([renderer.shutdown(), assistance.shutdown()]) })
       server.middlewares.use((req, res, next) => {
+        if (req.url === '/api/runtime' && req.method === 'GET') { res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify({ mode: 'local' })); return }
         if (req.url === '/api/local-projects' || req.url?.startsWith('/api/local-projects/')) void handler(req, res)
         else next()
       })

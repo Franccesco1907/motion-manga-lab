@@ -59,7 +59,7 @@ describe('coherent versioned local drafts', () => {
     expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1)
     expect(results.find(result => result.status === 'rejected')).toMatchObject({ reason: { code: 'stale_revision' } })
     const saved = await editing.getDraft(projectId)
-    for (const mutation of [{ sourceVersion: '0'.repeat(64) }, { schemaVersion: 2 }, { projectId: randomUUID() }, { normalizationVersion: 'other' }]) {
+    for (const mutation of [{ sourceVersion: '0'.repeat(64) }, { schemaVersion: 3 }, { projectId: randomUUID() }, { normalizationVersion: 'other' }]) {
       await expect(editing.saveDraft(projectId, 1, { ...saved, ...mutation })).rejects.toMatchObject({ code: 'invalid_draft' })
     }
     expect(await editing.getDraft(projectId)).toEqual(saved)
