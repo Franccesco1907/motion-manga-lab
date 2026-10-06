@@ -4,7 +4,7 @@ import { EditingStore } from './editing-store.ts'
 import { object, STATE_BYTE_LIMIT } from './draft-validation.ts'
 import { authoringRoute, type AuthoringServices } from './authoring-routes.ts'
 
-interface LocalBoundary {
+export interface LocalBoundary {
   peer?: string
   port?: number
   host?: string
@@ -38,7 +38,7 @@ async function body(req: IncomingMessage, maxBytes: number) {
   return Buffer.concat(chunks)
 }
 
-export function createLocalProjectsHandler(store: LocalProjectStore, services: AuthoringServices = {}) {
+export function createLocalProjectsHandler(store: LocalProjectStore, services: AuthoringServices = {}, boundaryPolicy: (boundary: LocalBoundary) => void = assertLocalBoundary) {
   let importing = false
   let mutating = false
   const editing = services.editing ?? new EditingStore(store)
@@ -48,7 +48,7 @@ export function createLocalProjectsHandler(store: LocalProjectStore, services: A
     res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
     let admittedMutation = false
     try {
-      assertLocalBoundary({ peer: req.socket.remoteAddress, port: req.socket.localPort, host: req.headers.host,
+      boundaryPolicy({ peer: req.socket.remoteAddress, port: req.socket.localPort, host: req.headers.host,
         origin: req.headers.origin, marker: typeof req.headers['x-motion-manga-local'] === 'string' ? req.headers['x-motion-manga-local'] : undefined, method: req.method })
       if (req.url !== '/api/local-projects' && ['POST', 'PUT', 'DELETE'].includes(req.method ?? '')) {
         if (mutating) throw new LocalProjectError('busy', 'Another local save or processing request is being prepared. Try again.', 409)

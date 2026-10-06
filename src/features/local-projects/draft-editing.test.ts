@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { newRegion, updateRegion, recoverDraft, backupDraft, finiteRaw } from './draft-editing'
+import { newRegion, updateRegion, recoverDraft, backupDraft, finiteRaw, isLocalDraft } from './draft-editing'
 import type { LocalDraft } from './contracts'
 
 const draft: LocalDraft = {
@@ -32,5 +32,22 @@ it('backs up only raw editable JSON and recovers against the same source without
   expect(recoverDraft({ ...draft, revision: 1 })?.conflict).toBe(true)
   expect(recoverDraft({ ...draft, sourceVersion: 'different' })).toBeUndefined()
   expect(JSON.stringify(recovery)).not.toContain('blob:')
+  localStorage.clear()
+})
+
+it('recognizes v2 raw factor drafts and recovers incomplete factors only for their owner and source', () => {
+  const next = structuredClone(draft)
+  next.schemaVersion = 2
+  next.regions[0].motion = { ...next.regions[0].motion, type: 'scale', scale: '' }
+  next.regions[1].motion = { ...next.regions[1].motion, type: 'stretch', scaleX: '1.2', scaleY: '-' }
+  expect(isLocalDraft(next)).toBe(true)
+  backupDraft(next, 'owner-a')
+  expect(recoverDraft(draft, 'owner-a')?.draft.regions[1].motion.scaleY).toBe('-')
+  expect(recoverDraft(draft, 'owner-b')).toBeUndefined()
+  expect(isLocalDraft({ ...next, schemaVersion: 1 })).toBe(false)
+  expect(isLocalDraft({ ...next, schemaVersion: 3 })).toBe(false)
+  const invalid = structuredClone(next)
+  Reflect.set(invalid.regions[0].motion, 'scale', 1)
+  expect(isLocalDraft(invalid)).toBe(false)
   localStorage.clear()
 })

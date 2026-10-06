@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
-import { LOCAL_EASING, LOCAL_END, LOCAL_MOTION, LOCAL_ROLE, type LocalDraft, type LocalProject, type LocalRenderArtifact, type LocalRenderJob, type RawMotion, type RawRegion } from './contracts'
+import { LOCAL_AFFINE_MOTION, LOCAL_EASING, LOCAL_END, LOCAL_ROLE, type LocalDraft, type LocalProject, type LocalRenderArtifact, type LocalRenderJob, type RawMotion, type RawRegion } from './contracts'
 import { authoringClient, type AuthoringClient } from './authoring-client'
-import { backupDraft, clearBackup, newRegion, recoverDraft, updateRegion, SELECTION_TOOL, finiteRaw, type SelectionTool } from './draft-editing'
+import { backupDraft, clearBackup, newRegion, recoverDraft, updateRegion, selectMotion, SELECTION_TOOL, finiteRaw, type SelectionTool } from './draft-editing'
 import { SelectionSurface } from './SelectionSurface'
 import { LocalPlayback } from './LocalPlayback'
 import { AssistancePanel } from './AssistancePanel'
 
-interface PageEditorProps { project: LocalProject; originalUrl: string; client?: AuthoringClient }
+interface PageEditorProps { project: LocalProject; originalUrl: string; client?: AuthoringClient; ownerId?: string }
 
-const MOTION_LABELS = { anchorX: 'Pivot X', anchorY: 'Pivot Y', dx: 'Horizontal movement', dy: 'Vertical movement', angle: 'Rotation angle', start: 'Movement start', duration: 'Movement duration', cycles: 'Finite repetitions', period: 'Gesture period (optional)', pause: 'Gesture pause (optional)', wristInfluence: 'Wrist influence (optional)' } as const
+const MOTION_LABELS = { anchorX: 'Pivot X', anchorY: 'Pivot Y', dx: 'Horizontal movement', dy: 'Vertical movement', angle: 'Rotation angle', start: 'Movement start', duration: 'Movement duration', cycles: 'Finite repetitions', period: 'Gesture period (optional)', pause: 'Gesture pause (optional)', wristInfluence: 'Wrist influence (optional)', scale: 'Uniform drawing scale', scaleX: 'Drawing scale X', scaleY: 'Drawing scale Y' } as const
 const GEOMETRY_LABELS = { x: 'Selection X', y: 'Selection Y', width: 'Selection width', height: 'Selection height' } as const
 const message = (error: unknown) => error instanceof Error ? error.message : 'The local operation failed. Your draft is kept; retry explicitly.'
 
-export function PageEditor({ project, originalUrl, client = authoringClient }: PageEditorProps) {
+export function PageEditor({ project, originalUrl, client = authoringClient, ownerId = 'local' }: PageEditorProps) {
   const [draft, setDraft] = useState<LocalDraft>()
   const [selectedId, setSelectedId] = useState('')
   const [workingUrl, setWorkingUrl] = useState('')
@@ -52,7 +52,7 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
     return Promise.all([client.draft(project.id, controller.signal), client.working(project.id, controller.signal), client.latest(project.id, controller.signal)]).then(([saved, working, latest]) => {
       if (!alive.current || controller.signal.aborted) return
       let recovered
-      try { if (discard) clearBackup(project.id); else recovered = recoverDraft(saved) }
+      try { if (discard) clearBackup(project.id, ownerId); else recovered = recoverDraft(saved, ownerId) }
       catch { setRecoveryNotice('Browser recovery is unavailable. Save drafts to the local service before leaving this page.') }
       setSavedRevision(saved.revision)
       setDraft(recovered?.draft ?? saved)
@@ -79,7 +79,7 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
     return () => { alive.current = false; loadController.current?.abort(); jobController.current?.abort(); for (const url of owned) URL.revokeObjectURL(url); owned.clear() }
     // Project boundaries remount this editor; external client synchronization is intentional.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project.id, client])
+  }, [project.id, client, ownerId])
 
   useEffect(() => {
     if (!selected?.maskId) return
@@ -102,7 +102,7 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
     setDraft(next)
     setDirty(true)
     setStatus('Unsaved changes.')
-    try { backupDraft(next) }
+    try { backupDraft(next, ownerId) }
     catch { setRecoveryNotice('Browser draft recovery could not be written. Keep this page open until Save draft succeeds.') }
   }
   function editRegion(update: (region: RawRegion) => RawRegion) {
@@ -126,14 +126,14 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
         setDraft(saved)
         setDirty(false)
         setStatus('Draft saved.')
-        try { clearBackup(project.id); setRecoveryNotice('') } catch { setRecoveryNotice('Draft saved, but browser recovery could not be cleared.') }
+        try { clearBackup(project.id, ownerId); setRecoveryNotice('') } catch { setRecoveryNotice('Draft saved, but browser recovery could not be cleared.') }
       } else {
         const retained = { ...currentDraft.current!, revision: saved.revision }
         currentDraft.current = retained
         setDraft(retained)
         setDirty(true)
         setStatus('Prior draft saved; newer edits remain unsaved.')
-        try { backupDraft(retained) } catch { setRecoveryNotice('Recovery unavailable. Save newer edits before leaving.') }
+        try { backupDraft(retained, ownerId) } catch { setRecoveryNotice('Recovery unavailable. Save newer edits before leaving.') }
       }
       return saved
     } catch (failure) {
@@ -199,7 +199,11 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
   }
 
   const moving = selected && selected.motion.type !== 'static'
-  const motionKeys: (keyof typeof MOTION_LABELS)[] = selected?.motion.type === 'translate' ? ['dx', 'dy'] : selected?.motion.type === 'rotate' ? ['anchorX', 'anchorY', 'angle', 'cycles', 'period', 'pause', 'wristInfluence'] : []
+  const affine = selected?.motion.type === 'scale' || selected?.motion.type === 'stretch'
+  const motionKeys: (keyof typeof MOTION_LABELS)[] = selected?.motion.type === 'translate' ? ['dx', 'dy']
+    : selected?.motion.type === 'rotate' ? ['anchorX', 'anchorY', 'angle', 'cycles', 'period', 'pause', 'wristInfluence']
+      : selected?.motion.type === 'scale' ? ['anchorX', 'anchorY', 'scale', 'cycles', 'period', 'pause']
+        : selected?.motion.type === 'stretch' ? ['anchorX', 'anchorY', 'scaleX', 'scaleY', 'cycles', 'period', 'pause'] : []
   const activeJob = job?.status === 'queued' || job?.status === 'running'
 
   return <section className="page-editor" aria-labelledby="editor-title">
@@ -236,10 +240,12 @@ export function PageEditor({ project, originalUrl, client = authoringClient }: P
           <label>Brush point X<input inputMode="decimal" value={brushX} onChange={event => setBrushX(event.target.value)} /></label><label>Brush point Y<input inputMode="decimal" value={brushY} onChange={event => setBrushY(event.target.value)} /></label></div>
         <button onClick={brushPoint} disabled={tool === SELECTION_TOOL.RECTANGLE}>Apply brush point</button>
         <button onClick={() => editRegion(region => ({ ...region, selection: { ...region.selection, strokes: region.selection.strokes.slice(0, -1) } }))} disabled={!selected.selection.strokes.length}>Undo last brush stroke</button>
-        <label>Movement<select value={selected.motion.type} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, type: event.target.value as RawMotion['type'] } }))}>{Object.values(LOCAL_MOTION).map(type => <option key={type}>{type}</option>)}</select></label>
-        {moving && <div className="editor-fields">{[...motionKeys, 'start', 'duration'].map(key => <label key={key}>{MOTION_LABELS[key as keyof typeof MOTION_LABELS]}<input inputMode="decimal" value={selected.motion[key as keyof typeof MOTION_LABELS]} onChange={event => numericMotion(key as keyof typeof MOTION_LABELS, event.target.value)} /></label>)}</div>}
+        <label>Movement<select value={selected.motion.type} onChange={event => edit(selectMotion(draft, selected.id, event.target.value as RawMotion['type']))}>{Object.values(LOCAL_AFFINE_MOTION).map(type => <option key={type}>{type}</option>)}</select></label>
+        {affine && <p>Drawing factors are separate from selection width and height. Factor 1 keeps the drawing size unchanged; the current renderer accepts 0.75 to 1.25. Choosing scale or stretch explicitly upgrades this draft to version 2. Pivot coordinates are working-image fractions.</p>}
+        {moving && <div className="editor-fields">{[...motionKeys, 'start', 'duration'].map(key => <label key={key}>{MOTION_LABELS[key as keyof typeof MOTION_LABELS]}<input inputMode="decimal" value={selected.motion[key as keyof typeof MOTION_LABELS] ?? ''} onChange={event => numericMotion(key as keyof typeof MOTION_LABELS, event.target.value)} /></label>)}</div>}
         {selected.motion.type === 'rotate' && <p>Finite repetitions require a gesture period. With no period, rotation is one action; a periodic gesture follows the renderer's fixed sine curve.</p>}
-        {(selected.motion.type === 'translate' || (selected.motion.type === 'rotate' && !selected.motion.period.trim())) && <><label>Easing<select value={selected.motion.easing} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, easing: event.target.value as RawMotion['easing'] } }))}>{Object.values(LOCAL_EASING).map(value => <option key={value}>{value}</option>)}</select></label>
+        {affine && <p>Finite repetitions require a gesture period; without a period, the drawing changes size once over Movement duration. Periodic motion uses the renderer's fixed sine curve and returns to identity. Repetition stays finite and does not enable reader looping.</p>}
+        {(selected.motion.type === 'translate' || ((affine || selected.motion.type === 'rotate') && !selected.motion.period.trim())) && <><label>Easing<select value={selected.motion.easing} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, easing: event.target.value as RawMotion['easing'] } }))}>{Object.values(LOCAL_EASING).map(value => <option key={value}>{value}</option>)}</select></label>
           <label>Final state<select value={selected.motion.endState} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, endState: event.target.value as RawMotion['endState'] } }))}>{Object.values(LOCAL_END).map(value => <option key={value}>{value}</option>)}</select></label></>}
       </fieldset>}
       {!selected && <p>Add a part to draw a region and direct its movement.</p>}
