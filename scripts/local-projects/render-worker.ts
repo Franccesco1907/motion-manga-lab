@@ -39,6 +39,6 @@ try {
   if(!info.size||info.size>=32*1024*1024) throw new Error('Output byte limit exceeded')
   await writeFile(join(folder,'poster.png'),working.png,{flag:'wx',mode:0o600})
   await rename(partial,join(folder,'video.webm'))
-  await writeFile(join(folder,'result.json'),JSON.stringify({width:working.width,height:working.height,duration:prepared.frameCount/prepared.fps,fps:prepared.fps,frames:prepared.frameCount,sourceVersion:working.sourceVersion}),{flag:'wx',mode:0o600})
+  await writeFile(join(folder,'result.json'),JSON.stringify({width:working.width,height:working.height,duration:prepared.frameCount/prepared.fps,fps:prepared.fps,frames:prepared.frameCount,sourceVersion:working.sourceVersion,rendererVersion:prepared.rendererVersion,draftSchemaVersion:prepared.draftSchemaVersion}),{flag:'wx',mode:0o600})
 } catch(error) {terminate();await completion.catch(()=>{});throw error}
 finally {clearTimeout(timer);await output.close()}

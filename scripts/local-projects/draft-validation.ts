@@ -1,5 +1,5 @@
 import {
-  LOCAL_EASING, LOCAL_END, LOCAL_MOTION, LOCAL_ROLE, LOCAL_STROKE,
+  LOCAL_AFFINE_MOTION, LOCAL_DRAFT_SCHEMA, LOCAL_EASING, LOCAL_END, LOCAL_MOTION, LOCAL_ROLE, LOCAL_STROKE,
   type LocalDraft, type RawMotion, type RawRegion, type RawSelection,
 } from '../../src/features/local-projects/contracts.ts'
 import { LocalProjectError } from './store.ts'
@@ -25,7 +25,7 @@ function option<T extends string>(value: unknown, values: readonly T[]): T {
 }
 export function validateDraft(value: unknown, projectId: string, sourceVersion: string): LocalDraft {
   const draft = object(value)
-  if (draft.schemaVersion !== 1 || draft.projectId !== projectId || draft.sourceVersion !== sourceVersion || draft.normalizationVersion !== 'working-image-v1' ||
+  if ((draft.schemaVersion !== LOCAL_DRAFT_SCHEMA.LEGACY && draft.schemaVersion !== LOCAL_DRAFT_SCHEMA.AFFINE) || draft.projectId !== projectId || draft.sourceVersion !== sourceVersion || draft.normalizationVersion !== 'working-image-v1' ||
     !Array.isArray(draft.regions) || draft.regions.length > 16) throw invalid()
   const ids = new Set<string>(); let points = 0
   const regions: RawRegion[] = draft.regions.map(value => {
@@ -53,16 +53,20 @@ export function validateDraft(value: unknown, projectId: string, sourceVersion: 
       }),
     }
     const motion: RawMotion = {
-      type: option(movement.type, Object.values(LOCAL_MOTION)),
+      type: option(movement.type, Object.values(draft.schemaVersion === LOCAL_DRAFT_SCHEMA.AFFINE ? LOCAL_AFFINE_MOTION : LOCAL_MOTION)),
       anchorX: raw(movement.anchorX), anchorY: raw(movement.anchorY), dx: raw(movement.dx), dy: raw(movement.dy),
       angle: raw(movement.angle), start: raw(movement.start), duration: raw(movement.duration), cycles: raw(movement.cycles),
       period: raw(movement.period), pause: raw(movement.pause), wristInfluence: raw(movement.wristInfluence),
       endState: option(movement.endState, Object.values(LOCAL_END)), easing: option(movement.easing, Object.values(LOCAL_EASING)),
     }
+    for (const field of ['scale', 'scaleX', 'scaleY'] as const) if (movement[field] !== undefined) {
+      if (draft.schemaVersion !== LOCAL_DRAFT_SCHEMA.AFFINE) throw invalid()
+      motion[field] = raw(movement[field])
+    }
     if (region.maskId !== undefined && !isUuid(region.maskId)) throw invalid()
     return { id, label: raw(region.label, 120), role: option(region.role, Object.values(LOCAL_ROLE)), selection, motion,
       ...(region.maskId !== undefined ? { maskId: region.maskId as string } : {}) }
   })
-  return { schemaVersion: 1, projectId, sourceVersion, normalizationVersion: 'working-image-v1', revision: revision(draft.revision),
+  return { schemaVersion: draft.schemaVersion, projectId, sourceVersion, normalizationVersion: 'working-image-v1', revision: revision(draft.revision),
     duration: raw(draft.duration), fps: raw(draft.fps), regions }
 }

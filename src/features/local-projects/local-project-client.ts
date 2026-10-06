@@ -1,4 +1,5 @@
 import { LOCAL_IMAGE_MIME, type LocalProject } from './contracts'
+import { expirePrivateSession, getPrivateSession, privateHeaders } from '../accounts/private-session'
 
 export interface LocalProjectClient {
   list: (signal?: AbortSignal) => Promise<LocalProject[]>
@@ -7,9 +8,13 @@ export interface LocalProjectClient {
 }
 
 const BASE = '/api/local-projects'
-const HEADERS = { 'X-Motion-Manga-Local': '1' }
 const UNAVAILABLE = 'Local service unavailable. Start npm run dev on this machine, then retry. Build and preview do not provide local project storage.'
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+const responseEpochs = new WeakMap<Response, number>()
+function validateEpoch(response: Response) {
+  const epoch = responseEpochs.get(response)
+  if (epoch !== undefined && epoch !== getPrivateSession().epoch) throw new Error('Workspace session changed. Reopen the page after signing in.')
+}
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -25,17 +30,34 @@ function isProject(value: unknown): value is LocalProject {
 
 export async function localJson(response: Response): Promise<unknown> {
   if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) throw new Error(UNAVAILABLE)
-  try { return await response.json() }
+  let value: unknown
+  try { value = await response.json() }
   catch (error) { throw new Error(UNAVAILABLE, { cause: error }) }
+  validateEpoch(response)
+  return value
+}
+
+export async function privateBlob(response: Response) {
+  const blob = await response.blob()
+  validateEpoch(response)
+  return blob
 }
 
 export async function localRequest(url: string, options: RequestInit = {}): Promise<Response> {
   let response: Response
+  const session = getPrivateSession()
+  const headers = privateHeaders(options.method ?? 'GET')
   try {
-    response = await fetch(url, { credentials: 'same-origin', ...options, headers: { ...HEADERS, ...options.headers } })
+    response = await fetch(url, { credentials: 'same-origin', redirect: 'error', cache: 'no-store', ...options, headers: { ...options.headers, ...headers } })
   } catch (error) {
     if (options.signal?.aborted) throw error
     throw new Error(UNAVAILABLE, { cause: error })
+  }
+  if (getPrivateSession().epoch !== session.epoch) throw new Error('Workspace session changed. Reopen the page after signing in.')
+  responseEpochs.set(response, session.epoch)
+  if (response.status === 401) {
+    expirePrivateSession()
+    throw new Error('Sign in again. Your session expired and the private workspace has been closed.')
   }
   if (!response.ok) {
     const body = await localJson(response)
@@ -66,7 +88,7 @@ export const localProjectClient: LocalProjectClient = {
     const response = await localRequest(`${BASE}/${encodeURIComponent(id)}/original`, { signal })
     const mime = response.headers.get('content-type')?.split(';')[0].trim()
     if (!Object.values(LOCAL_IMAGE_MIME).some(value => value === mime)) throw new Error(UNAVAILABLE)
-    const blob = await response.blob()
+    const blob = await privateBlob(response)
     if (!blob.size) throw new Error('The saved original is empty. Retry or import the source file again.')
     return blob
   },

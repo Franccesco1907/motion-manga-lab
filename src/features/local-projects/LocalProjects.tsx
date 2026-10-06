@@ -24,7 +24,7 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'The local request failed. Retry when the local service is available.'
 }
 
-export function LocalProjects({ client = localProjectClient }: { client?: LocalProjectClient }) {
+export function LocalProjects({ client = localProjectClient, ownerId = 'local', sharingEnabled = false }: { client?: LocalProjectClient; ownerId?: string; sharingEnabled?: boolean }) {
   const [projects, setProjects] = useState<LocalProject[]>([])
   const [listState, setListState] = useState<ListState>(LIST_STATE.LOADING)
   const [listError, setListError] = useState('')
@@ -199,10 +199,10 @@ export function LocalProjects({ client = localProjectClient }: { client?: LocalP
         <p className="local-projects__kicker">Motion Manga Lab · Local workspace</p>
         <h1 ref={headingRef} tabIndex={-1}>Local projects</h1>
         <p>Import originals, direct their parts, and prepare ordered local reading versions.</p>
-        <p className="local-projects__notice">Available through <code>npm run dev</code> on this machine. Nothing is published online. Local storage is not encrypted storage or a backup.</p>
+        <p className="local-projects__notice">{sharingEnabled ? 'Account-scoped self-hosted workspace. Originals stay private; guest access requires explicitly sharing a reviewed snapshot. Stored files are not encrypted backups.' : <>Available through <code>npm run dev</code> on this machine. Nothing is published online. Local storage is not encrypted storage or a backup.</>}</p>
       </header>
       <div className="local-toolbar" aria-label="Local workspace views"><button aria-pressed={!chaptersVisible} onClick={() => setChaptersVisible(false)}>Pages & editor</button><button aria-pressed={chaptersVisible} onClick={() => setChaptersVisible(true)}>Chapters & snapshots</button></div>
-      {chaptersVisible ? <LocalChapters projects={projects} /> : <div className="local-projects__layout">
+      {chaptersVisible ? <LocalChapters projects={projects} sharingEnabled={sharingEnabled} /> : <div className="local-projects__layout">
         <div className="local-projects__controls">
           <section aria-labelledby="import-title" className="local-projects__panel">
             <h2 id="import-title">Save an original</h2>
@@ -244,7 +244,7 @@ export function LocalProjects({ client = localProjectClient }: { client?: LocalP
             <img src={visible.url} alt={`Original page: ${visible.project.name}`} width={visible.project.width} height={visible.project.height} />
             <a href={visible.url} download={visible.project.name}>Download original</a>
             <button onClick={() => setEditing(value => !value)}>{editing ? 'Close editor' : 'Edit page'}</button>
-            {editing && <PageEditor key={visible.project.id} project={visible.project} originalUrl={visible.url} />}
+            {editing && <PageEditor key={`${ownerId}:${visible.project.id}`} ownerId={ownerId} project={visible.project} originalUrl={visible.url} />}
           </>}
           {!visible && !openingName && !originalFailure && <p>Open a saved project or save your first original.</p>}
           {candidate && <img key={candidate.url} hidden src={candidate.url} alt={`Original page: ${candidate.project.name}`}

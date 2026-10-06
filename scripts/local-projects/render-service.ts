@@ -3,7 +3,7 @@ import { spawn, type ChildProcess } from 'node:child_process'
 import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { LocalDraft, LocalRenderArtifact, LocalRenderJob } from '../../src/features/local-projects/contracts.ts'
+import { LOCAL_DRAFT_SCHEMA, LOCAL_RENDERER_VERSION, type LocalDraft, type LocalDraftSchemaVersion, type LocalRenderArtifact, type LocalRenderJob, type LocalRendererVersion } from '../../src/features/local-projects/contracts.ts'
 import { LocalProjectError } from './store.ts'
 import { createWorkingSource } from './working-source.ts'
 import { prepareDraft } from './masks.ts'
@@ -35,7 +35,12 @@ export class LocalRenderService {
   for(const p of [folder,join(folder,'job.json')]) {const s=await lstat(p).catch(()=>{throw missing()});if(s.isSymbolicLink()||(p===folder?!s.isDirectory():!s.isFile()||s.size>65536)) throw missing()}
   const value:unknown=JSON.parse(await readFile(join(folder,'job.json'),'utf8'))
   if(!value||typeof value!=='object'||!('id'in value)||value.id!==id||!('projectId'in value)||typeof value.projectId!=='string')throw missing()
-  return value as LocalRenderJob
+  const job=value as LocalRenderJob
+  const draftSchemaVersion=job.draftSchemaVersion??LOCAL_DRAFT_SCHEMA.LEGACY
+  const rendererVersion=job.rendererVersion??LOCAL_RENDERER_VERSION.LEGACY
+  if(!Object.values(LOCAL_DRAFT_SCHEMA).includes(draftSchemaVersion)||rendererVersion!==(draftSchemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?LOCAL_RENDERER_VERSION.AFFINE:LOCAL_RENDERER_VERSION.LEGACY))throw missing()
+  if(job.artifact&&((job.artifact.draftSchemaVersion??LOCAL_DRAFT_SCHEMA.LEGACY)!==draftSchemaVersion||(job.artifact.rendererVersion??LOCAL_RENDERER_VERSION.LEGACY)!==rendererVersion))throw missing()
+  return {...job,draftSchemaVersion,rendererVersion,...(job.artifact?{artifact:{...job.artifact,draftSchemaVersion,rendererVersion}}:{})}
  }
  private async clean(id:string){const folder=this.folder(id);for(const name of await readdir(folder))if(name!=='job.json')await rm(join(folder,name),{recursive:true,force:true})}
  async start(projectId:string,draft:LocalDraft,original:Buffer):Promise<LocalRenderJob>{
@@ -45,7 +50,8 @@ export class LocalRenderService {
   const modelMasks:Record<string,Uint8Array>={}
   try { const working=await createWorkingSource(original);for(const region of draft.regions)if(region.maskId){if(!this.options.readMask)throw new Error('Model masks unavailable');const mask=await this.options.readMask(projectId,region.maskId,draft.sourceVersion);if(mask.width!==working.width||mask.height!==working.height)throw new Error('Model mask dimensions mismatch');modelMasks[region.maskId]=mask.pixels}prepareDraft(working,draft,modelMasks,true) }catch(error){throw new LocalProjectError('invalid_render',error instanceof Error?error.message:'Invalid local render request.',422)}
   const id=randomUUID();this.gate.acquire(id)
-  const job:LocalRenderJob={id,projectId,sourceVersion:draft.sourceVersion,draftRevision:draft.revision,status:'queued'}
+  const job:LocalRenderJob={id,projectId,sourceVersion:draft.sourceVersion,draftRevision:draft.revision,status:'queued',draftSchemaVersion:draft.schemaVersion,
+   rendererVersion:draft.schemaVersion===LOCAL_DRAFT_SCHEMA.AFFINE?LOCAL_RENDERER_VERSION.AFFINE:LOCAL_RENDERER_VERSION.LEGACY}
   try{
    const folder=this.folder(id);await mkdir(folder,{mode:0o700});await this.persist(job)
    await writeFile(join(folder,'original'),original,{flag:'wx',mode:0o600});await writeFile(join(folder,'draft.json'),JSON.stringify(draft),{flag:'wx',mode:0o600})
@@ -62,7 +68,7 @@ export class LocalRenderService {
   try{
    job.status='running';await this.persist(job)
    if(active.cancelled)throw new Error('Cancelled')
-   const child=spawn(process.execPath,['--max-old-space-size=256','--experimental-strip-types',fileURLToPath(new URL('./render-worker.ts',import.meta.url)),folder],{stdio:['ignore','ignore','pipe'],detached:true})
+   const child=spawn(process.execPath,['--max-old-space-size=256','--experimental-strip-types',fileURLToPath(new URL(import.meta.url.endsWith('.ts')?'./render-worker.ts':'./render-worker.js',import.meta.url)),folder],{stdio:['ignore','ignore','pipe'],detached:true})
    active.process=child
    const timer=setTimeout(()=>{timeout=true;this.kill(child)},this.options.timeoutMs??125_000)
    const done=new Promise<void>((resolve,reject)=>{child.once('error',reject);child.once('close',code=>{clearTimeout(timer);if(code===0)resolve();else reject(new Error('Render worker failed'))})})
@@ -70,9 +76,9 @@ export class LocalRenderService {
    if(active.cancelled)this.kill(child)
    await done
    if(active.cancelled)throw new Error('Cancelled')
-   const result=JSON.parse(await readFile(join(folder,'result.json'),'utf8')) as {width:number;height:number;duration:number;fps:number;frames:number;sourceVersion:string}
-   if(result.sourceVersion!==job.sourceVersion||!Number.isInteger(result.frames)||result.frames<1||result.frames>144)throw new Error('Invalid worker output')
-   job.artifact={id:job.id,projectId:job.projectId,sourceVersion:job.sourceVersion,draftRevision:job.draftRevision,normalizationVersion:'working-image-v1',width:result.width,height:result.height,duration:result.duration,fps:result.fps,createdAt:new Date().toISOString(),videoMime:'video/webm'}
+   const result=JSON.parse(await readFile(join(folder,'result.json'),'utf8')) as {width:number;height:number;duration:number;fps:number;frames:number;sourceVersion:string;rendererVersion:LocalRendererVersion;draftSchemaVersion:LocalDraftSchemaVersion}
+   if(result.sourceVersion!==job.sourceVersion||result.rendererVersion!==job.rendererVersion||result.draftSchemaVersion!==job.draftSchemaVersion||!Number.isInteger(result.frames)||result.frames<1||result.frames>144)throw new Error('Invalid worker output')
+   job.artifact={id:job.id,projectId:job.projectId,sourceVersion:job.sourceVersion,draftRevision:job.draftRevision,normalizationVersion:'working-image-v1',width:result.width,height:result.height,duration:result.duration,fps:result.fps,createdAt:new Date().toISOString(),videoMime:'video/webm',rendererVersion:job.rendererVersion,draftSchemaVersion:job.draftSchemaVersion}
    // Remove private worker inputs before publishing the atomic completed record.
    await rm(join(folder,'original'),{force:true});await rm(join(folder,'draft.json'),{force:true});await rm(join(folder,'result.json'),{force:true});for(const name of await readdir(folder))if(name.startsWith('mask-'))await rm(join(folder,name),{force:true})
    const assets={poster:createHash('sha256').update(await readFile(join(folder,'poster.png'))).digest('hex'),video:createHash('sha256').update(await readFile(join(folder,'video.webm'))).digest('hex')}

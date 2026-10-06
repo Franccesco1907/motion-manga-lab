@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": ".",
+    "outDir": "dist-server",
+    "incremental": false
+  },
+  "include": ["scripts/self-hosted/**/*.ts", "scripts/local-projects/**/*.ts", "src/features/accounts/contracts.ts", "src/features/sharing/contracts.ts", "src/features/local-projects/contracts.ts", "src/features/animation/engine/legacy-a-renderer.d.mts"],
+  "exclude": ["**/*.test.ts", "scripts/local-projects/vite-plugin.ts", "scripts/local-projects/render-fixtures.ts"]
+}

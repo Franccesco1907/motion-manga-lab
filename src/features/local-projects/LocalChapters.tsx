@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import type { LocalChapter, LocalProject, LocalSnapshot } from './contracts'
 import { authoringClient, type AuthoringClient } from './authoring-client'
 import { ChapterReader } from './ChapterReader'
-interface LocalChaptersProps { projects: LocalProject[]; client?: AuthoringClient }
+import { SharePanel } from '../sharing/SharePanel'
+interface LocalChaptersProps { projects: LocalProject[]; client?: AuthoringClient; sharingEnabled?: boolean }
 const READING = { PRIVATE: 'private', SNAPSHOT: 'snapshot' } as const
 type ReadingMode = (typeof READING)[keyof typeof READING]
 
-export function LocalChapters({ projects, client = authoringClient }: LocalChaptersProps) {
+export function LocalChapters({ projects, client = authoringClient, sharingEnabled = false }: LocalChaptersProps) {
   const [chapters, setChapters] = useState<LocalChapter[]>([])
   const [snapshots, setSnapshots] = useState<LocalSnapshot[]>([])
   const [drafts, setDrafts] = useState<Record<string, LocalChapter>>({})
@@ -58,7 +59,7 @@ export function LocalChapters({ projects, client = authoringClient }: LocalChapt
   }
   return <section className="local-chapters" aria-labelledby="chapters-title">
     <h2 id="chapters-title">Chapters & local reading snapshots</h2>
-    <p>Order saved pages and review a stable reading version. This is local-only, not Internet sharing. Draft edits never change an existing snapshot.</p>
+    <p>Order saved pages and review a stable reading version. {sharingEnabled ? 'Snapshot creation is private; guest sharing requires a separate explicit action below.' : 'This is local-only, not Internet sharing.'} Draft edits never change an existing snapshot.</p>
     {loading && <p role="status">Loading chapters…</p>}
     {error && <p role="alert">{error}</p>}
     <p role="status">{status}</p>
@@ -82,6 +83,7 @@ export function LocalChapters({ projects, client = authoringClient }: LocalChapt
         <button onClick={() => void operation(async () => { await saveChapter(chapter); setStatus('Chapter saved.') })}>Save chapter</button>
         <button disabled={!chapter.pageIds.length} onClick={() => setReading(READING.PRIVATE)}>Read private chapter</button>
       </fieldset>
+      {sharingEnabled && snapshot && <SharePanel key={`${snapshot.id}:${snapshot.revision}`} snapshot={snapshot} />}
       <fieldset disabled={busy}><legend>Reviewed local reading version</legend>
         <label><input type="checkbox" checked={reviewed} onChange={event => setReviewed(event.target.checked)} />I reviewed every rendered page and its static fallback.</label>
         <button disabled={!reviewed || !chapter.pageIds.length} onClick={() => void operation(async () => {
