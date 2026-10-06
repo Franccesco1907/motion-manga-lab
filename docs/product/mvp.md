@@ -1,6 +1,6 @@
 # User-directed manga animation MVP
 
-**Status:** User-accepted planning baseline, 2026-10-04. Proposed details and OPEN decisions remain as labelled; product implementation is not yet authorized.
+**Status:** User-accepted planning baseline, 2026-10-04. Planning approval alone was not implementation authorization. Subsequently authorized local and self-hosted execution is recorded in [the implementation status](local-execution-status.md); proposed details and OPEN release/research decisions remain as labelled.
 
 Users upload their own manga, select parts of the drawing, direct their movement, and optionally publish an animated reading experience for others. AI assists selection; it does not replace the user's creative direction or guarantee correct results.
 
