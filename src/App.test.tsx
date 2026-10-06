@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { localProjectClient } from './features/local-projects/local-project-client'
+import { accountClient } from './features/accounts/account-client'
+import { resetPrivateSession } from './features/accounts/private-session'
 import {
   DESCRIPTION_REVIEW,
   READER_PANELS,
@@ -170,6 +173,7 @@ async function flushPromises() {
 }
 
 beforeEach(() => {
+  vi.spyOn(accountClient, 'runtime').mockResolvedValue({ mode: 'local' })
   animateRecords.length = 0
   MockIntersectionObserver.instances.length = 0
   mediaQuery.matches = false
@@ -202,6 +206,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  resetPrivateSession()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   if (originalAnimate) {
@@ -217,6 +222,19 @@ afterEach(() => {
 })
 
 describe('reader baseline', () => {
+  it('opens local projects only through the explicit workspace entry and returns to research', async () => {
+    const list = vi.spyOn(localProjectClient, 'list').mockResolvedValue([])
+    render(<App />)
+    expect(screen.getAllByRole('img')).toHaveLength(3)
+    expect(list).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Local projects' }))
+    expect(await screen.findByRole('heading', { name: 'Local projects' })).toHaveFocus()
+    expect(await screen.findByText('No saved projects yet.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Research reader' }))
+    expect(screen.getAllByRole('img')).toHaveLength(3)
+    expect(screen.getByRole('main')).toBeInTheDocument()
+  })
+
   it('renders a semantic, visible reading sequence with exact responsive candidates', async () => {
     const { container } = render(<App />)
     await flushPromises()
