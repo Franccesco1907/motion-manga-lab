@@ -4,7 +4,7 @@ The standalone service serves the built application without Vite. Its browser wo
 
 ## Quick path
 
-Use the existing Node.js 22.12+ environment and installed dependencies:
+Use Linux with Node.js 22.12+ and installed dependencies. Storage enforces POSIX permissions; rendering needs procfs and `/snap/bin/ffmpeg`. Native Windows does not satisfy these service prerequisites.
 
 ```sh
 npm run build
@@ -47,7 +47,7 @@ Build output includes compiled server JavaScript, source-only renderer kernels a
 
 ## Verification and release gates
 
-`npm test` includes native two-owner/anonymous API boundaries, actual encoded synthetic derivatives, permission acknowledgments and a compiled-entry journey. This branch does not claim the following browser UI proof. `npm run typecheck`, `npm run lint`, `npm run build` and `npm run build:server` verify the shipped code/build boundaries.
+`npm test` includes native two-owner/anonymous API boundaries, actual encoded synthetic derivatives, permission acknowledgments and a compiled-entry journey. `npm run typecheck`, `npm run lint`, `npm run build` and `npm run build:server` verify the shipped code/build boundaries.
 
 Live Internet deployment, operational TLS/security review, reporting and retention policy, real-art public rights, corpus selection, physical-device acceptance and research-quality claims remain release gates. No public hosting, data migration, legal clearance or universal model-quality guarantee is implied.
 
@@ -55,4 +55,4 @@ Live Internet deployment, operational TLS/security review, reporting and retenti
 
 `GET /api/runtime` reports account mode. `GET /api/auth/session` returns the current user and in-memory CSRF token, or null values. `POST /api/auth/login` accepts username/password JSON from the exact configured Origin with `X-Motion-Manga-Local: 1`; it issues an opaque HttpOnly cookie. Private requests require that cookie, and mutations also require the returned `X-Motion-Manga-CSRF` token and exact Origin. `POST /api/auth/logout` revokes the session. No public registration endpoint exists.
 
-The existing `/api/local-projects` paths are scoped to the authenticated owner. `POST /api/shares` requires `snapshotId`, `expectedSnapshotRevision`, `reviewed: true`, `rightsConfirmed: true` and optional `attribution`; it returns the new token once. `PUT /api/shares/:id` additionally requires `expectedRevision`, rotates the token and invalidates old links. `DELETE /api/shares/:id` withdraws all token revisions. Anonymous access is limited to `GET /api/read/:token` and its `/pages/:index/poster|video` derivatives. The returned `/read/:token` browser path is reserved for the next UI integration; use the manifest/media APIs in this unit.
+The existing `/api/local-projects` paths are scoped to the authenticated owner. `POST /api/shares` requires `snapshotId`, `expectedSnapshotRevision`, `reviewed: true`, `rightsConfirmed: true` and optional `attribution`; it returns the new token once. `PUT /api/shares/:id` additionally requires `expectedRevision`, rotates the token and invalidates old links. `DELETE /api/shares/:id` withdraws all token revisions. Anonymous access is limited to `GET /api/read/:token` and its `/pages/:index/poster|video` derivatives. The returned `/read/:token` path opens the guest reader without an account.

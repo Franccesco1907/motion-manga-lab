@@ -1,233 +1,30 @@
-# Development Plan: Product MVP and Preserved Research Track
+# Development plan
 
-**Status:** User-accepted product planning baseline, 2026-10-04; implementation not authorized by this acceptance. Proposed details and OPEN decisions remain as labelled. Research plan retained from 2026-08-30.
+## Current implementation
 
-## Current product direction — planning only
+The main application includes the research reader, local image authoring, ordered chapters, reviewed snapshots, versioned affine motion and a compiled closed-account service with guest reading. The earlier documentation-only/placeholder snapshot is superseded by this code. No Internet deployment or completed product/study release is claimed.
 
-The user approved documenting a user-directed animation MVP inside the main application: users upload JPG/PNG/WebP pages, order them into chapters, use suggested or manual editable selections, direct movement, save their work, and optionally publish it for other readers. The platform does not supply a manga catalog; PDF and CBZ import are deferred. This is a conscious product-planning expansion, not evidence that the product has already been integrated or released.
+Use [README](../README.md) for commands, [local execution status](product/local-execution-status.md) for implemented limits, and [self-hosted service](product/self-hosted-service.md) for account operations. The old unversioned A workbench is historical engineering evidence; a clean clone does not need it for synthetic application tests. Optional model assistance still requires separately approved local runtimes/weights.
 
-Read the product documents in this order:
+## Product work remaining
 
-1. [MVP scope](./product/mvp.md) — confirmed requirements, proposed boundaries and open decisions.
-2. [Architecture](./product/architecture.md) — editor, processing and reader responsibilities; draft and publication contracts.
-3. [Implementation plan](./product/implementation-plan.md) — dependent work packages and observable acceptance criteria.
+The accepted 2026-10-04 direction is a user-directed editor/reader: upload PNG/JPEG/WebP, arrange chapters, edit selections and motion, save and optionally share a reviewed version. There is no supplied manga catalog; PDF/CBZ remain deferred.
 
-The accepted A workbench (`experiments/a-workbench/README.md`, a repository-root local path) is the engineering baseline to evaluate and reuse, not a production service to expose unchanged. It is local, unversioned engineering evidence, not included in this documentation change or available in a clean clone. Its local single-image limits, model quality and browser observations are not approved product limits or broad usability evidence. The first integration target is one authorized page through editing, persistence and reading; the whole MVP also requires ordered chapter uploads and optional publication.
+Keep [MVP scope and D1-D7](product/mvp.md), [architecture](product/architecture.md), [affine versioning](product/affine-v2.md) and [milestone acceptance criteria](product/implementation-plan.md) as the product contracts. Bounded local M1-M3 behavior and account/guest functionality do not close M4 Internet policy/operations or M5 corpus/device/release evidence. No provider, cost commitment or OPEN decision is implicitly selected.
 
-**Immediate product action:** resolve the decisions that block the first work package and obtain its separate implementation authorization. This documentation approval does not authorize implementation, new dependencies, content imports, model generation, deployment or actual publication. No provider, cost commitment or unresolved study decision is silently selected.
+## Preserved research contract
 
-## Research track boundary
+The question is whether restrained motion increases reader enjoyment without disrupting reading pace. Regular manga readers are the target population; the primary outcome is the project-specific three-item Reader Enjoyment Score in the [draft protocol](experiment-protocol.md). Completion, abandonment, disruption, accessibility and performance are guardrails, not substitutes for enjoyment.
 
-The remaining sections preserve the enjoyment-first research plan and its 2026-08-30 engineering snapshot. Their study-specific exclusions and gates remain in force for that track; they do not erase the separately approved product-planning discussion above. The preserved engineering snapshot describes the Pepper & Carrot reader on this branch; the independent personal workbench is not part of the main application.
+Pepper & Carrot Episode 1 Spanish page 2 is provisional engineering content, not representative final-study manga. Its 18 verified derivatives and panel-level treatment are imported and implemented; the scoped human descriptions/fidelity/attribution review was approved on 2026-08-30. Physical-device evidence, broader final-publication credit confirmation and final content selection remain separate gates. Preserve [source rights](content-source-evaluation.md), [inspection](asset-provenance/pepper-carrot-ep01-inspection.md), [derivative contract](asset-provenance/pepper-carrot-ep01-page2-derivative-plan.md) and [treatment specification](spikes/ep01-page2-treatment-spec.md).
 
-The [experiment protocol](./experiment-protocol.md), its unresolved decisions, content provenance and approval history are unchanged. Acceptance of the laboratory does not approve a study, recruitment, publication rights, human accessibility review or physical-device results. Product validation and enjoyment-study evidence must remain distinguishable.
+## Research gates, in order
 
-## Outcome first
+1. **Freeze the protocol:** cognitive-pilot the three-item instrument; predeclare reliability/distribution diagnostics, language/version, scoring, practical effect, study shape, eligibility, analysis, sample-size rationale, stopping rules, privacy and retention. Resolve OPEN decisions before recruitment. The score is not a validated psychometric scale.
+2. **Validate control/treatment:** use identical content, layout, quality, controls and questionnaire. Preserve static/reduced-motion reading, semantic order, keyboard/touch/zoom and failure behavior. The control must be credible without animation.
+3. **Finish the bounded spike:** profile the frozen native DOM/CSS/WAAPI treatment on agreed low/mid-tier physical devices, against pre-agreed craft, frame stability, main-thread, memory, network and accessibility thresholds. Keep panel-level motion; flattened source art does not justify character segmentation. Use [technology findings](animation-technology-exploration.md) before considering only the strongest alternative runtime.
+4. **Instrument minimally:** after protocol freeze, add assignment/versioning, questionnaire and guardrail events. Validate duplicate delivery, refresh/re-entry, offline failure, retention/deletion and an end-to-end data-quality dry run. Provider and transport remain OPEN; collect no unnecessary identifiers.
+5. **Pilot an immutable study:** deployment needs separate approval. Verify comprehension, accessibility, assignment and capture, resolve defects, then freeze the main study. Do not tune the hypothesis from pilot outcomes without versioning/restarting the protocol.
+6. **Run and decide:** follow predeclared stopping/analysis criteria; report uncertainty, limitations and guardrail failures. Engineering polish or synthetic tests cannot establish an enjoyment benefit.
 
-The primary experimental outcome is **increased reader enjoyment**, measured with the selected three-item project-specific **Reader Enjoyment Score** defined in the [draft experiment protocol](./experiment-protocol.md). The project should determine whether a restrained motion treatment makes a manga excerpt more enjoyable than the same reading experience without motion. Completion, abandonment, perceived disruption, accessibility, and performance are secondary outcomes or guardrails; they must not replace enjoyment as the definition of success.
-
-The target population is **regular manga readers**. The next step is to prepare the specified cognitive pilot and complete the exact-asset checks in the [content source evaluation](./content-source-evaluation.md). Implementation should use the recommended open webcomic only for a bounded engineering spike; final representative manga excerpts remain OPEN for the experiment.
-
-## Research engineering snapshot and architectural verdict — 2026-08-30
-
-| Area | Current state | Verdict |
-| --- | --- | --- |
-| Product | Visible mobile-first engineering reader prototype | Validate the frozen treatment and control parity without treating it as study evidence. |
-| Frontend | React 19, strict TypeScript 6, Vite 8 | Retain; this is sufficient for the experiment. |
-| Quality | Vitest, Testing Library, ESLint, type checking | Retain; test observable behavior before implementation. |
-| Content and motion | Episode 1 source and exact Spanish page 2 treatment are defined; one corrected 18-output WebP/JPEG run is verified, imported, implemented, and approved for the packet-covered human descriptions/fidelity/attribution scope | Require physical-device evidence and broader final-publication credit confirmation before study/publication use. Reject subject-level motion and keep final study content open. |
-| Measurement | Draft protocol, primary Reader Enjoyment Score, target population, and cognitive-pilot procedure selected; no telemetry or complete analysis contract | Pilot the instrument and resolve the remaining experiment contract before treatment implementation. |
-| Operations | No backend, CI, deployment, or production telemetry | Add only the minimum needed for a pilot. |
-
-**Architectural verdict:** use a mobile-first, semantic DOM reader with responsive image layers. Start with native CSS `transform`/`opacity`, the Web Animations API (WAAPI), and browser visibility/scroll primitives. Do not select an animation dependency until a bounded spike shows that native technology misses a pre-agreed craft, performance, or maintainability threshold. Keep frontend code organized by product feature rather than by technical layer.
-
-## Working principles
-
-- Compare a credible static control with one restrained motion treatment.
-- Keep reading available when JavaScript animation fails or motion is reduced.
-- Change one experimental variable: motion. Keep content, layout, image quality, controls, and questionnaire equivalent.
-- Prefer progressive enhancement and semantic HTML over a rendering engine.
-- Collect only data required to evaluate enjoyment and guardrails.
-- Treat visual polish as part of treatment validity, but do not add motion without a reading purpose.
-- Keep engineering-spike content provenance separate from final experimental excerpts and their representativeness decision.
-
-## Stages
-
-### Step 0 — Freeze the experiment contract
-
-**Objective:** make enjoyment measurable and prevent implementation choices from redefining success.
-
-**Activities**
-
-- Apply the selected three-item Reader Enjoyment Score identically between conditions.
-- Conduct pilot cognitive testing; define reliability and response-distribution diagnostics; freeze the instrument language/version before the main study.
-- Resolve the remaining OPEN decisions in [experiment-protocol.md](./experiment-protocol.md), including practical effect, study shape, operational eligibility, analysis approach, and decision thresholds.
-- Apply the package-level rights, attribution, layer, and provenance checklist in the [content source evaluation](./content-source-evaluation.md).
-- Confirm final representative manga excerpts and target devices separately from the engineering-spike content.
-- Define control/treatment equivalence and the reduced-motion treatment behavior.
-
-**Tools:** written protocol, evidence review, stakeholder review; no application dependency required.
-
-**Exit criteria**
-
-- Reader Enjoyment Score wording/order, response scale, timing, language/version, and scoring pass pilot cognitive testing and are frozen before the main study.
-- Reliability and response-distribution diagnostics are predeclared without using main-study condition results to select or alter items.
-- Sample-size and power rationale are documented from an explicit design, not guessed.
-- Guardrails, stopping conditions, exclusions, and privacy/retention rules are agreed.
-- Exact final study assets, rights, attribution, and representativeness are approved; a spike recommendation alone does not satisfy this criterion.
-
-**Dependencies and risks:** pilot participants, measurement/statistical expertise, content rights, and recruitment feasibility. The Reader Enjoyment Score is project-specific, not a validated psychometric scale; unclear wording or poor response behavior found during the pilot must be resolved and versioned before the main study.
-
-### Step 1 — Build the static control reader
-
-**Objective:** establish an accessible, mobile-first reading experience that can stand alone as the control.
-
-**Activities**
-
-- Define a minimal content manifest for excerpt, page/panel order, responsive sources, layer metadata, and accessible text alternatives.
-- Render semantic reading landmarks and responsive `<picture>`/`<img>` assets.
-- Implement loading, progression, completion, error, and restart behavior without motion.
-- Test keyboard, touch, zoom, responsive layout, image failure, and reading order.
-
-**Tools:** existing React, TypeScript, Vite, Vitest, Testing Library, and browser accessibility/developer tools.
-
-**Exit criteria**
-
-- The representative excerpt can be read and completed on target mobile viewports.
-- Reading order and controls remain usable without animation.
-- Behavioral tests cover the critical reader path and failure states.
-
-**Dependencies and risks:** licensed assets, text alternatives, image dimensions/crops, and content representativeness. A weak control invalidates the comparison.
-
-### Step 2 — Run the bounded animation technology spike
-
-**Objective:** choose the least complex technology that can deliver a credible treatment.
-
-**Activities**
-
-- Use the separately authorized, completed engineering prototype of the frozen [Episode 1 page 2 treatment specification](./spikes/ep01-page2-treatment-spec.md) for bounded review. The packet-covered human fidelity, accessibility-description, and attribution/modification gates are approved; physical-device evidence, broader final-publication credits, and final-study selection remain open.
-- If generation is separately authorized, follow the [derivative plan](./asset-provenance/pepper-carrot-ep01-page2-derivative-plan.md) exactly: pinned Sharp/libvips environment, crop-first serial processing, widths 640/1280/2275, WebP/JPEG outputs, explicit sRGB policy, and actual evidence from Sharp `info`.
-- Keep the treatment panel-level. Do not segment or imply isolated motion for characters, the broom, liquid, or painted sparkles; the [source inspection](./asset-provenance/pepper-carrot-ep01-inspection.md) found no animation-ready subject layers.
-- Preserve the specification's progressive-enhancement baseline, exact observer/lifecycle behavior, fully static reduced-motion path, and static-control parity contract.
-- Test reduced motion and profile frame stability, main-thread cost, memory, load weight, visual fidelity, and implementation complexity on representative low- and mid-tier mobile devices.
-- Implement **only the strongest alternative** if the native version misses an agreed threshold: Motion for React-driven sequencing/gestures, GSAP for complex authored timelines, or PixiJS for a demonstrated rendering bottleneck.
-- Record results against the same assets, effect, viewport, interaction, and measurement procedure.
-
-**Tools:** browser performance/memory/network tooling and physical-device testing; candidate libraries are temporary spike choices, not committed dependencies.
-
-**Exit criteria**
-
-- Thresholds are agreed before comparison results are interpreted.
-- The selected approach meets treatment fidelity and all guardrails with the lowest justified complexity.
-- The decision and rejected escalation paths are recorded in [animation-technology-exploration.md](./animation-technology-exploration.md).
-
-**Dependencies and risks:** physical-device access, motion-craft/performance evidence, broader final-publication credit confirmation, and final-study content approval. The corrected derivatives and treatment are imported and implemented only for the authorized engineering prototype, and their scoped human review is recorded separately. Episode 1 supports panel-level treatment but not subject-level animation. Pepper & Carrot is suitable for engineering but is not representative manga; the spike must not freeze final study content. An unbounded framework bake-off would spend effort without improving the product decision.
-
-### Step 3 — Build the motion treatment
-
-**Objective:** produce a polished treatment that differs from the control only by intentional motion.
-
-**Activities**
-
-- Encode a small effect vocabulary with explicit purpose, trigger, timing, cleanup, and reduced-motion behavior.
-- Apply motion to the same content and layout used by the control.
-- Stop or suspend work for off-screen panels; make playback deterministic and restartable.
-- Review the treatment at normal speed, slow motion, and frame by frame on physical devices.
-
-**Tools:** the spike winner; existing test stack; browser animation and performance tools.
-
-**Exit criteria**
-
-- Treatment and control are equivalent except for motion.
-- Every effect has a reading purpose and a reduced-motion equivalent.
-- No known critical accessibility, disruption, or performance guardrail failure remains.
-
-**Dependencies and risks:** editorial motion direction and asset preparation. Over-animation can reduce enjoyment while still looking impressive in isolation.
-
-### Step 4 — Add experiment instrumentation
-
-**Objective:** capture the primary Reader Enjoyment Score and minimum guardrail evidence reliably.
-
-**Activities**
-
-- Implement condition assignment, study-version tracking, conceptual events from the protocol, and the versioned three-item Reader Enjoyment Score.
-- Validate completion/abandonment definitions and performance summaries.
-- Test duplicate delivery, refresh/re-entry, offline/failure behavior, and data deletion/retention paths.
-- Perform an end-to-end data-quality dry run before recruitment.
-
-**Tools:** provider and transport are OPEN; prefer a minimal, replaceable boundary over vendor-specific calls throughout the reader.
-
-**Exit criteria**
-
-- A test session can be traced from assignment through reading and questionnaire submission without direct identifiers.
-- Event validation rejects incompatible study versions and impossible transitions.
-- The collected fields match the frozen protocol and nothing more.
-
-**Dependencies and risks:** privacy review, hosting choice, and retention policy. Instrumentation defects can make otherwise valid sessions unusable.
-
-### Step 5 — Pilot and deploy the study
-
-**Objective:** prove operational and comprehension readiness without making an efficacy claim.
-
-**Activities**
-
-- Deploy an immutable study version over HTTPS.
-- Run a small operational pilot to find comprehension, accessibility, assignment, rendering, and telemetry defects.
-- Review only predeclared data-quality and safety checks; do not tune the enjoyment hypothesis from pilot outcomes unless the protocol is versioned and restarted.
-
-**Tools:** deployment and monitoring provider are OPEN; add CI only where it protects the study release.
-
-**Exit criteria**
-
-- Participants can complete both assigned experiences and submit all three Reader Enjoyment Score responses per condition.
-- Condition assignment and data capture pass the dry-run checks.
-- Pilot defects are resolved or explicitly accepted before the main study version is frozen.
-
-**Dependencies and risks:** recruitment, target-device coverage, deployment reliability, and accidental exposure of unpublished content.
-
-### Step 6 — Run, analyze, and decide
-
-**Objective:** decide whether motion increases enjoyment without unacceptable harm.
-
-**Activities**
-
-- Run the frozen protocol to its predeclared stopping point.
-- Analyze the primary Reader Enjoyment Score first, then guardrails and exploratory outcomes.
-- Report missing data, exclusions, protocol deviations, and uncertainty.
-- Choose to proceed, revise and retest, or stop; do not justify infrastructure from a neutral result.
-
-**Tools:** analysis tooling is OPEN and should be selected with the statistical design.
-
-**Exit criteria**
-
-- The decision follows the predeclared enjoyment and guardrail rule.
-- Results and limitations are reproducible from the frozen study version.
-- Any next investment has evidence tied to a reader outcome.
-
-**Dependencies and risks:** adequate recruitment, protocol adherence, and analysis expertise.
-
-## Explicitly deferred for the research track
-
-These items remain out of scope until experiment evidence or measured constraints justify them:
-
-- Production backend, accounts, synchronization, and long-term content management.
-- Global client state management or a generalized reader platform.
-- AI-assisted segmentation, animation generation, or personalization.
-- GSAP, Motion, PixiJS, Canvas/WebGL, or another animation dependency by default.
-- A visual timeline editor, generalized effect DSL, or multi-title publishing pipeline.
-- Video/GIF/Lottie/Rive conversion pipelines for manga panels.
-- Broad analytics, behavioral profiling, advertising, or unrelated engagement metrics.
-- Offline/PWA support, native applications, internationalization, and large-scale deployment architecture.
-
-## Research-track next action
-
-Use the approved [Episode 1 page 2 human accessibility and fidelity review](./reviews/ep01-page2-human-review.md) and updated [actual derivative manifest](./asset-provenance/pepper-carrot-ep01-page2-derivatives.manifest.json) as the scoped human/engineering record. Next, define and authorize the missing physical-device performance/craft harness before collecting payload, decode/render, dropped-frame, touch, or zoom-on-device evidence, and separately confirm broader Hereva/source-page credits before final publication. Prepare the cognitive-pilot materials in parallel and continue resolving the remaining OPEN decisions below; Step 0 is not frozen and no study or publication use is authorized.
-
-## Remaining OPEN decisions
-
-- Operational manga-reading frequency, age/consent boundary, study language, geography, recruitment channel, and familiarity screening.
-- Practical effect threshold, final study design, exact statistical test/model, uncertainty rule, power rationale, and sample size.
-- Final representative manga excerpts, excerpt comparability, exact asset rights/attribution, and treatment-fidelity review.
-- Guardrail definitions and numbers, reduced-motion estimand handling, supported devices/browsers, and failure rules.
-- Privacy provider, jurisdiction, consent text, retention, withdrawal/deletion, and free-text policy.
-- Cognitive-pilot participant count, operational comprehension criterion, diagnostics, and reviewer approval.
+New artwork imports/generation, models, dependencies, public hosting, final-study use and recruitment retain their separate approval/rights gates. Product acceptance and engineering prototype approval are not research evidence.

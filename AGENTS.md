@@ -1,84 +1,25 @@
-# Motion Manga Lab Engineering Rules
+# Motion Manga Lab
 
-## Mission and current stage
+The repository contains a research reader, local authoring workspace and compiled closed-account service. Product implementation is distinct from the enjoyment study: no deployed public service, study approval or release-quality claim is implied.
 
-This repository is a documentation-first engineering spike for testing whether restrained motion improves manga-reading enjoyment. The application is still a placeholder. Pepper & Carrot Episode 1, Spanish page 2 is provisional spike content only; it is not frozen or representative final-study manga content.
+## Read only what the task needs
 
-## Sources of truth and scope
+- [README](README.md): commands and runtime prerequisites; [development plan](docs/development-plan.md): active boundaries and remaining gates.
+- [Product scope](docs/product/mvp.md), [architecture](docs/product/architecture.md), [implementation gates](docs/product/implementation-plan.md), [local limits](docs/product/local-execution-status.md), [account operations](docs/product/self-hosted-service.md).
+- Research changes require the [protocol](docs/experiment-protocol.md), [treatment](docs/spikes/ep01-page2-treatment-spec.md) and relevant [content/provenance](docs/content-source-evaluation.md). A plan.json is planning data, never output evidence.
 
-- `docs/development-plan.md` defines the active stage, architecture, gates, and deferred work.
-- `docs/experiment-protocol.md` defines the draft research contract and records unresolved study decisions.
-- `docs/spikes/ep01-page2-treatment-spec.md` freezes spike behavior but does not authorize generation, import, dependencies, or implementation.
-- `docs/content-source-evaluation.md` and `docs/asset-provenance/` define content rights, provenance, derivative planning, and approval gates. A `*.plan.json` file is planning data, never generated-output evidence.
-- `README.md`, `package.json`, and the TypeScript/Vite configuration define the currently executable developer workflow.
+## Engineering and verification
 
-Do not silently resolve an `OPEN` decision, broaden the experiment into a reader platform, or treat spike evidence as study evidence.
+- Node.js 22.12+, npm 11+, React 19, strict TypeScript 6, Vite 8, plain CSS, Vitest/jsdom and Testing Library. Preserve feature organization, semantic mobile-first UI and progressive enhancement.
+- Use CodeGraph when available, with the actual checkout root; check index status before use and sync after source changes. Fall back to focused reads/search if unavailable, stale or incomplete.
+- Behavior changes require failing observable regression tests before implementation, then green/refactor. Control media queries, image decoding, observers, visibility and WAAPI deterministically; do not sleep for animation assertions.
+- Run `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`; service changes also require `npm run build:server`. Scripts in package.json are authoritative. Laboratory experiments have separate runners and are excluded.
+- No browser E2E, physical-device, performance or accessibility certification command exists. Report unrun/blocked evidence honestly. Use relevant installed skills for the files being changed; artifacts default to English.
 
-## Proven stack and conventions
+## Safety and motion
 
-- Node.js 22.12+, npm 11+, React 19, strict TypeScript 6, Vite 8, plain CSS, Vitest/jsdom, Testing Library, and ESLint.
-- Keep UI semantic, mobile-first, progressively enhanced, and organized by product feature rather than technical layer.
-- Prefer ordinary DOM, responsive `<picture>`/`<img>`, CSS `transform`/`opacity`, WAAPI, and native visibility/scroll primitives. Add an animation runtime only after the documented bounded spike proves a need.
-- Preserve strict typing, observable behavior tests, accessible queries, and existing formatting unless an authorized change establishes a different convention.
-
-## Navigation: CodeGraph first
-
-Use CodeGraph before broad manual searching for source behavior, call paths, symbols, or change impact. For MCP calls, always pass:
-
-```text
-projectPath: /home/franccesco/Projects/motion-manga-lab
-```
-
-Run `codegraph status /home/franccesco/Projects/motion-manga-lab` before relying on the index and `codegraph sync /home/franccesco/Projects/motion-manga-lab` after source changes. Documentation and configuration may not be indexed. If CodeGraph is unavailable, stale, or omits the needed file, fall back to direct file reads and focused search; never infer missing evidence.
-
-## TDD and verification
-
-Use red-green-refactor for every behavior change:
-
-1. Write a failing test for user-observable behavior.
-2. Implement only enough behavior to pass.
-3. Refactor with the suite green.
-
-Add a failing regression test before fixing a bug. Test behavior rather than implementation details. Animation and accessibility checks must be deterministic: control media queries, image decoding, observer entries, document visibility, and WAAPI lifecycle rather than sleeping on wall-clock time. Verify static parity, reading order, keyboard/touch/zoom behavior, one-shot/restart behavior, cleanup, and reduced motion.
-
-Currently available commands are exactly:
-
-```bash
-npm run dev
-npm test
-npm run test:watch
-npm run typecheck
-npm run lint
-npm run build
-npm run preview
-```
-
-There is currently no E2E, visual-regression, animation-performance, or physical-device test command. Define and authorize the required harness and package script before implementing behavior that depends on such proof; do not invent a command or claim unrun evidence.
-
-## Frozen accessibility and motion constraints
-
-- Content must remain visible, readable, correctly ordered, and operable when JavaScript, decoding, observers, or animation fail.
-- `prefers-reduced-motion: reduce` is fully static for the specified spike: create no WAAPI crop animation, keep identity transforms/content opacity, and keep the light overlay at zero.
-- Motion must never gate controls, progression, completion, or outcome collection. Preserve static/treatment parity except for the approved motion and light.
-- For the specified treatment, animate only crop `transform` and overlay `opacity`; do not animate layout, clipping, filters, blur, blend modes, or inherited CSS variables. Do not add loops, scroll hijacking, timers, or `requestAnimationFrame` animation loops.
-- Preserve semantic landmarks, DOM reading order, accessible descriptions, focus behavior, touch, zoom, text scaling, and non-semantic/pointer-inert overlays.
-
-## Optional skills
-
-| Skill | Use when |
-| --- | --- |
-| `typescript` | Changing strict TypeScript types, APIs, or domain models. |
-| `react-19` | Building or reviewing React components and lifecycle behavior. |
-| `frontend-design` | Shaping the reader's intentional mobile-first visual design. |
-| `review-animations` | Reviewing treatment timing, easing, performance, interruption, and reduced motion. |
-| `playwright` | Designing browser E2E checks after an E2E harness is authorized and available. |
-| `cognitive-doc-design` | Updating plans, protocols, provenance, or reviewer-facing guidance. |
-| `work-unit-commits` | Planning reviewable implementation units; do not commit unless explicitly requested. |
-
-## Safety boundaries
-
-- Do not download, import, commit, or generate artwork or derivatives without separate authorization and all provenance gates.
-- Do not add Sharp or any other dependency without separate authorization.
-- Do not implement the page-2 treatment until separately authorized.
-- Never fabricate output files, hashes, dimensions, byte counts, manifests, device results, accessibility reviews, or other generated evidence.
-- Code, comments, documentation, and UI copy default to English unless another artifact language is explicitly requested.
+- Do not silently resolve OPEN product/study decisions. Existing local implementation and approved engineering assets do not authorize new artwork/derivatives, model downloads, dependencies, deployment, publication, recruitment or final-study use.
+- Preserve original bytes, owner isolation, private storage, resource bounds, explicit review and separate rights acknowledgment for guest sharing. Never fabricate hashes, assets, dimensions, manifests or validation results.
+- Reading remains visible, ordered and operable when JavaScript, decoding, observers or animation fail. Preserve keyboard/touch/zoom, text scaling, focus, static/treatment parity and pointer-inert nonsemantic overlays.
+- The frozen research treatment animates only crop transform and overlay opacity; reduced motion is fully static (identity transforms/content opacity, zero light, no WAAPI). No layout/filter/blur/blend animation, loops, scroll hijacking, timers or requestAnimationFrame animation loops. Motion never gates controls or outcomes.
+- Prefer DOM/images, CSS, WAAPI and native visibility primitives. Add an animation runtime only after a bounded spike demonstrates need. Existing Sharp serves approved processing; it is not authorization for additional dependencies.

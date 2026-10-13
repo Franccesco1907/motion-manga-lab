@@ -30,7 +30,7 @@ The development-only service stores immutable original bytes, editable JSON, job
 
 Reversible local safety defaults include **10 MiB per original, 20 million pixels, one active upload and one heavy render/inference job**. Animated or incomplete files are rejected; originals are never normalized or overwritten. Working copies use EXIF orientation, white alpha flattening and a 1280-pixel maximum edge. Raw numeric draft fields remain strings, including incomplete input; strict render validation is separate. These bounds and normalized working coordinates do not close product decisions D1–D7.
 
-Finite WebM encoding currently requires Linux/procfs and the existing `/snap/bin/ffmpeg`; the encoder writes through an inherited, Node-owned seekable file descriptor to preserve duration metadata, not a client-provided path. Optional audited Magi/SAM assistance requires existing offline environments/weights; no installer or automatic model download is included. In this extra worktree, start with `MOTION_MANGA_MODEL_PROJECT=<project-root> npm run dev` to reference the original laboratory's approved runtimes read-only. This operator environment setting is not a client-selectable path. Capabilities do not prove model quality or completed inference; all proposed regions/masks require review.
+Finite WebM encoding currently requires Linux/procfs and the existing `/snap/bin/ffmpeg`; the encoder writes through an inherited, Node-owned seekable file descriptor to preserve duration metadata, not a client-provided path. Optional audited Magi/SAM assistance requires existing offline environments/weights; no installer or automatic model download is included. Start with `MOTION_MANGA_MODEL_PROJECT=<project-root> npm run dev` to reference the original laboratory's approved runtimes read-only. This operator environment setting is not a client-selectable path. Capabilities do not prove model quality or completed inference; all proposed regions/masks require review.
 
 The service rejects non-loopback development binding and is absent from `npm run build` output and `npm run preview`; static preview cannot save, process or reopen local data. Motion never starts automatically, and reduced-motion reading stays static. Neither these local controls nor synthetic tests establish device/accessibility certification or study outcomes.
 
@@ -40,6 +40,7 @@ Requirements:
 
 - Node.js 22.12 or newer
 - npm 11 or newer
+- Linux for local/account storage and server tests: they enforce POSIX permissions; rendering also requires procfs and `/snap/bin/ffmpeg`. Windows can build the UI, but does not satisfy these service prerequisites.
 
 ```bash
 npm install
