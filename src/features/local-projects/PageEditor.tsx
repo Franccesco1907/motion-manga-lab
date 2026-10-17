@@ -6,7 +6,7 @@ import { SelectionSurface, type SelectionInteraction } from './SelectionSurface'
 import { LocalPlayback } from './LocalPlayback'
 import { AssistancePanel } from './AssistancePanel'
 import { createHistory, recordEdit, restoreContent, undoContent, redoContent } from './editor-history'
-import { applyPreset, currentPreset, EDITOR_PRESET, PRESET_LABELS, type EditorPreset } from './editor-presets'
+import { applyPreset, currentPreset, EDITOR_PRESET, PRESET_LABELS, isRepeatMovementEnabled, setRepeatMovement, setPresetSpeed, type EditorPreset } from './editor-presets'
 import { selectionBounds, SURFACE_INTERACTION } from './selection-geometry'
 import './PageEditor.css'
 
@@ -212,6 +212,18 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
     } catch (failure) { setError(message(failure)); setAdvanced(true); setInspectorOpen(true) }
   }
 
+  function changeRepeat(enabled: boolean) {
+    if (!draft || !selected) return
+    try { edit(setRepeatMovement(draft, selected.id, enabled)); setError('') }
+    catch (failure) { setError(message(failure)); setAdvanced(true); setInspectorOpen(true) }
+  }
+
+  function changeSpeed(speed: number) {
+    if (!draft || !selected) return
+    try { edit(setPresetSpeed(draft, selected.id, speed)); setError('') }
+    catch (failure) { setError(message(failure)); setAdvanced(true); setInspectorOpen(true) }
+  }
+
   async function save(): Promise<LocalDraft | undefined> {
     if (!draft || saving || loading) return
     setSaving(true)
@@ -358,7 +370,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
 
   const moving = selected && selected.motion.type !== 'static'
   const affine = selected?.motion.type === 'scale' || selected?.motion.type === 'stretch'
-  const motionKeys: (keyof typeof MOTION_LABELS)[] = selected?.motion.type === 'translate' ? ['dx', 'dy']
+  const motionKeys: (keyof typeof MOTION_LABELS)[] = selected?.motion.type === 'translate' ? ['dx', 'dy', ...(selected.motion.repeat ? ['cycles', 'period', 'pause'] as const : [])]
     : selected?.motion.type === 'rotate' ? ['anchorX', 'anchorY', 'angle', 'cycles', 'period', 'pause', 'wristInfluence']
       : selected?.motion.type === 'scale' ? ['anchorX', 'anchorY', 'scale', 'cycles', 'period', 'pause']
         : selected?.motion.type === 'stretch' ? ['anchorX', 'anchorY', 'scaleX', 'scaleY', 'cycles', 'period', 'pause'] : []
@@ -374,7 +386,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   const amplitude = selected?.motion.type === 'rotate' ? Math.abs(Number(selected.motion.angle)) / 15
     : selected?.motion.type === 'scale' ? Math.abs(Number(selected.motion.scale) - 1) / .15 : Math.hypot(Number(selected?.motion.dx), Number(selected?.motion.dy)) / .08
   const intensity = Number.isFinite(amplitude) ? Math.max(0, Math.min(100, Math.round(amplitude * 100))) : 50
-  const span = Number(selected?.motion.period || selected?.motion.duration)
+  const span = Number(selected?.motion.type === 'translate' && !selected.motion.repeat ? selected.motion.duration : selected?.motion.period || selected?.motion.duration)
   const speed = span > 1.5 ? 1 : span < .9 ? 3 : 2
 
   return <section className="page-editor" aria-labelledby="editor-title">
@@ -421,7 +433,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
             <div className="page-editor__presets">{Object.values(EDITOR_PRESET).map(preset => <button key={preset} disabled={!selected.maskId && !workingSize} aria-pressed={selected.motion.type === preset} onClick={() => choosePreset(preset, 50, 2, true)}>{PRESET_LABELS[preset]}</button>)}</div>
             {selected.maskId && <p>Model mask bounds are unknown here. Presets keep your current pivot; use Place pivot to set it visually.</p>}
             {!workingSize && !selected.maskId && <p>Wait for the working image to load before choosing a preset.</p>}
-            {preset && <><label>Intensity<input type="range" min="0" max="100" value={intensity} onChange={event => choosePreset(preset, Number(event.target.value), speed)} /></label><label>Speed · {speed === 1 ? 'Slow' : speed === 2 ? 'Medium' : 'Fast'}<input aria-label="Speed" type="range" min="1" max="3" step="1" value={speed} aria-valuetext={speed === 1 ? 'Slow' : speed === 2 ? 'Medium' : 'Fast'} onChange={event => choosePreset(preset, intensity, Number(event.target.value))} onKeyDown={event => { const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0; if (direction) { event.preventDefault(); choosePreset(preset, intensity, Math.max(1, Math.min(3, speed + direction))) } }} /></label></>}
+            {preset && <><label>Intensity<input type="range" min="0" max="100" value={intensity} onChange={event => choosePreset(preset, Number(event.target.value), speed)} /></label><div className="page-editor__speed-repeat"><label>Speed · {speed === 1 ? 'Slow' : speed === 2 ? 'Medium' : 'Fast'}<input aria-label="Speed" type="range" min="1" max="3" step="1" value={speed} aria-valuetext={speed === 1 ? 'Slow' : speed === 2 ? 'Medium' : 'Fast'} onChange={event => changeSpeed(Number(event.target.value))} onKeyDown={event => { const direction = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 0; if (direction) { event.preventDefault(); changeSpeed(Math.max(1, Math.min(3, speed + direction))) } }} /></label><label className="page-editor__repeat"><input type="checkbox" checked={isRepeatMovementEnabled(selected.motion)} aria-describedby="repeat-movement-help" onChange={event => changeRepeat(event.target.checked)} />Repeat movement</label></div><p id="repeat-movement-help">Repeats within this clip, not the whole clip.</p>{selected.motion.repeat !== true && isRepeatMovementEnabled(selected.motion) && <p>Custom repetitions: {selected.motion.cycles}. Changing Speed or Intensity fills this clip with complete movements.</p>}</>}
             <button aria-pressed={selected.motion.type === 'static'} onClick={() => edit(selectMotion(draft, selected.id, 'static'))}>Keep static</button>
           </fieldset>
           <details className="page-editor__selection" open={selectionOpen} onToggle={event => setSelectionOpen(event.currentTarget.open)}><summary>Edit selection</summary>
@@ -449,7 +461,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
               {moving && <div className="editor-fields">{[...motionKeys, 'start', 'duration'].map(key => <label key={key}>{MOTION_LABELS[key as keyof typeof MOTION_LABELS]}<input inputMode="decimal" value={selected.motion[key as keyof typeof MOTION_LABELS] ?? ''} onChange={event => numericMotion(key as keyof typeof MOTION_LABELS, event.target.value)} /></label>)}</div>}
               {selected.motion.type === 'rotate' && <p>Finite repetitions require a gesture period. With no period, rotation is one action; a periodic gesture follows the renderer's fixed sine curve.</p>}
               {affine && <p>Finite repetitions require a gesture period; without a period, the drawing changes size once over Movement duration. Periodic motion uses the renderer's fixed sine curve and returns to identity. Repetition stays finite and does not enable reader looping.</p>}
-              {(selected.motion.type === 'translate' || ((affine || selected.motion.type === 'rotate') && !selected.motion.period.trim())) && <><label>Easing<select value={selected.motion.easing} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, easing: event.target.value as RawMotion['easing'] } }))}>{Object.values(LOCAL_EASING).map(value => <option key={value}>{value}</option>)}</select></label><label>Final state<select value={selected.motion.endState} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, endState: event.target.value as RawMotion['endState'] } }))}>{Object.values(LOCAL_END).map(value => <option key={value}>{value}</option>)}</select></label></>}
+              {((selected.motion.type === 'translate' && !selected.motion.repeat) || ((affine || selected.motion.type === 'rotate') && !selected.motion.period.trim())) && <><label>Easing<select value={selected.motion.easing} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, easing: event.target.value as RawMotion['easing'] } }))}>{Object.values(LOCAL_EASING).map(value => <option key={value}>{value}</option>)}</select></label><label>Final state<select value={selected.motion.endState} onChange={event => editRegion(region => ({ ...region, motion: { ...region.motion, endState: event.target.value as RawMotion['endState'] } }))}>{Object.values(LOCAL_END).map(value => <option key={value}>{value}</option>)}</select></label></>}
             </fieldset>
             <AssistancePanel draft={draft} selectedId={selectedId} client={client} prepare={save} apply={next => { edit(next); if (!selectedId) setSelectedId(next.regions[0]?.id ?? '') }} />
           </details>

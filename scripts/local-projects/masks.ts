@@ -38,6 +38,10 @@ export function rasterizeSelection(selection: RawSelection, width: number, heigh
 }
 function translateMotion(raw: RawMotion): AffineMotion {
   const base: AffineMotion = { type:raw.type, anchor:[.5,.5], dx:0,dy:0,angle:0,start:0,duration:1,cycles:1,endState:raw.endState,easing:raw.easing }
+  if(raw.repeat!==undefined) {
+    if(typeof raw.repeat!=='boolean') throw new Error('repeat must be a boolean')
+    base.repeat=raw.repeat
+  }
   if(raw.type==='static') return base
   base.start=rawNumber(raw.start,'start',0,6); base.duration=rawNumber(raw.duration,'duration',.04,6)
   if(raw.type==='translate') { base.dx=rawNumber(raw.dx,'dx',-1,1);base.dy=rawNumber(raw.dy,'dy',-1,1) }
@@ -48,10 +52,11 @@ function translateMotion(raw: RawMotion): AffineMotion {
     if(raw.type==='scale') base.scale=rawNumber(raw.scale??'','scale',.75,1.25)
     else {base.scaleX=rawNumber(raw.scaleX??'','scaleX',.75,1.25);base.scaleY=rawNumber(raw.scaleY??'','scaleY',.75,1.25)}
   }
-  if(raw.type==='rotate'||affineMotion) {
+  if(raw.type==='rotate'||affineMotion||(raw.type==='translate'&&raw.repeat===true)) {
     base.cycles=rawNumber(raw.cycles,'cycles',1,12)
     if(raw.period.trim()) base.period=rawNumber(raw.period,'period',.12,6)
     if(base.cycles>1 && base.period===undefined) throw new Error(raw.type==='rotate'?'Finite repetitions require a rotation gesture period':'Finite affine repetition requires an explicit period')
+    if(raw.repeat===true && base.period===undefined) throw new Error('Repeated movement requires an explicit gesture period')
     if(raw.pause.trim()) base.pause=rawNumber(raw.pause,'pause',0,6)
     if(raw.type==='rotate'&&raw.wristInfluence.trim()) base.wristInfluence=rawNumber(raw.wristInfluence,'wristInfluence',.001,1)
   }

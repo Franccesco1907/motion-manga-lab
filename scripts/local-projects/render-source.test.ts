@@ -5,6 +5,39 @@ import { createWorkingSource } from './working-source.ts'
 import { rasterizeSelection, prepareDraft, frameForDraft } from './masks.ts'
 import { region, draft } from './render-fixtures.ts'
 describe('working source and manual masks', () => {
+  it('renders explicit repeated Move across schemas while preserving the old hold path and finite budgets', async () => {
+    const pixels = Buffer.from(Array.from({ length: 24 * 24 * 3 }, (_, i) => i % 255))
+    const working = await createWorkingSource(await sharp(pixels, { raw: { width: 24, height: 24, channels: 3 } }).png().toBuffer())
+    for (const schemaVersion of [1, 2] as const) {
+      const selected = region()
+      selected.motion = { ...selected.motion, type: 'translate', dx: '.125', dy: '-.125', start: '0', duration: '.5', period: '.5', cycles: '3' }
+      Reflect.set(selected.motion, 'repeat', true)
+      const value = { ...draft(working.sourceVersion, [selected]), schemaVersion, duration: '2', fps: '24' }
+      const prepared = prepareDraft(working, value)
+      expect(prepared.context.regions[0].motion).toMatchObject({ repeat: true, cycles: 3, period: .5 })
+      expect(frameForDraft(prepared, .25)).not.toEqual(working.pixels)
+      expect(frameForDraft(prepared, .75)).toEqual(frameForDraft(prepared, .25))
+      expect(frameForDraft(prepared, 1.5)).toEqual(working.pixels)
+      expect(frameForDraft(prepared, 2)).toEqual(working.pixels)
+      expect(frameForDraft(prepared, .25, true)).toEqual(working.pixels)
+      for (const repeat of [false, undefined]) {
+        const old = structuredClone(value)
+        Reflect.set(old.regions[0].motion, 'repeat', repeat)
+        const held = prepareDraft(working, old)
+        expect(held.context.regions[0].motion.period).toBeUndefined()
+        expect(frameForDraft(held, 2)).not.toEqual(working.pixels)
+      }
+      for (const mutation of [{ cycles: '1.5' }, { cycles: '13' }, { period: '' }, { period: '1', cycles: '3' }, { repeat: 'true' }]) {
+        const invalid = structuredClone(value)
+        Object.assign(invalid.regions[0].motion, mutation)
+        expect(() => prepareDraft(working, invalid)).toThrow()
+      }
+      expect(() => prepareDraft(working, { ...value, duration: '6.01' })).toThrow()
+      expect(() => prepareDraft(working, { ...value, fps: '25' })).toThrow()
+      expect(() => prepareDraft(working, { ...value, regions: Array.from({ length: 9 }, (_, index) => ({ ...selected, id: `actor-${index}` })) })).toThrow(/eight/)
+    }
+  })
+
   it('derives deterministic EXIF-oriented RGB PNG without mutating originals', async () => {
     const original = await sharp({ create: { width: 1600, height: 800, channels: 3, background: '#ff2233' } }).jpeg().withMetadata({ orientation: 6 }).toBuffer()
     const copy = Buffer.from(original), a = await createWorkingSource(original), b = await createWorkingSource(original)

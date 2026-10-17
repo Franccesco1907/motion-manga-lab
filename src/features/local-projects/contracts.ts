@@ -45,6 +45,7 @@ export interface RawMaskStroke { mode: LocalStrokeMode; radius: string; points: 
 export interface RawSelection { x: string; y: string; width: string; height: string; strokes: RawMaskStroke[] }
 export interface RawMotion {
   type: LocalAffineMotionType
+  repeat?: boolean
   anchorX: string
   anchorY: string
   dx: string

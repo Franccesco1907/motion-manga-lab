@@ -60,6 +60,39 @@ test('translation ignores gesture period and retains a final falling pose', () =
   const motion = validateProject(project({ type: 'translate', dx: .2, dy: .5, duration: 1, period: 1, cycles: 1, endState: 'hold' })).regions[0].motion
   assert.equal(motionPose(motion, 2).dy, .5)
 })
+
+test('explicit repeated translation follows its signed direction out and back for finite cycles only', () => {
+  const m = validateProject(project({ type: 'translate', repeat: true, dx: -.2, dy: .4, start: .25, duration: .5, period: .5, cycles: 3, endState: 'hold' })).regions[0].motion
+  for (const time of [0, .25, .75, 1.25, 1.75, 2]) {
+    const pose = motionPose(m, time)
+    assert.ok(Math.abs(pose.dx) < 1e-12)
+    assert.ok(Math.abs(pose.dy) < 1e-12)
+  }
+  for (const time of [.5, 1, 1.5]) assert.deepEqual(motionPose(m, time), { dx: -.2, dy: .4, angle: 0, opacity: 1 })
+  assert.ok(Math.abs(motionPose(m, .375).dy - .2) < 1e-12)
+  assert.ok(Math.abs(motionPose(m, .625).dy - .2) < 1e-12)
+  const off = validateProject(project({ ...m, repeat: false, duration: .5 })).regions[0].motion
+  assert.equal(motionPose(off, 2).dy, .4)
+})
+
+test('repeat admission is explicit, bounded and inactive for static or reveal tracks', () => {
+  for (const repeat of ['true', 1, null, {}]) assert.throws(() => validateProject(project({ type: 'translate', repeat })), /repeat/)
+  for (const motion of [
+    { type: 'translate', repeat: true },
+    { type: 'translate', repeat: true, period: .5, cycles: 1.5 },
+    { type: 'translate', repeat: true, period: .12, cycles: 13 },
+    { type: 'translate', repeat: true, period: 1, pause: .1, cycles: 2 },
+    { type: 'rotate', repeat: true },
+  ]) assert.throws(() => validateProject(project(motion)))
+  const one = validateProject(project({ type: 'translate', repeat: true, dx: .2, period: .5, cycles: 1 })).regions[0].motion
+  assert.equal(one.repeat, true)
+  assert.equal(motionPose(one, .25).dx, .2)
+  for (const type of ['static', 'reveal']) {
+    const old = validateProject(project({ type, duration: 1 })).regions[0].motion
+    const next = validateProject(project({ type, duration: 1, repeat: true })).regions[0].motion
+    for (const time of [0, .5, 2]) assert.deepEqual(motionPose(next, time), motionPose(old, time))
+  }
+})
 test('premultiplied actor interpolation cannot pull bright surrounding RGB into a dark edge', () => {
   const width = 8, height = 8, source = Buffer.alloc(192, 255), mask = new Uint8Array(64)
   mask[3 * 8 + 3] = 255; source.fill(0, (3 * 8 + 3) * 3, (3 * 8 + 3) * 3 + 3)

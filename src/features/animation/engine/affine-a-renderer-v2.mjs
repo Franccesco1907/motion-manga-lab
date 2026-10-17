@@ -28,13 +28,19 @@ export function validateProject(project) {
     if (!Number.isInteger(motion.cycles)) throw new Error('cycles must be an integer')
     if (!['hold', 'reset'].includes(motion.endState)) throw new Error('Unknown endState')
     if (!['linear', 'smooth', 'ease-in'].includes(motion.easing)) throw new Error('Unknown easing')
+    if (m.repeat !== undefined) {
+      if (typeof m.repeat !== 'boolean') throw new Error('repeat must be a boolean')
+      motion.repeat = m.repeat
+    }
     const affine = type === 'scale' || type === 'stretch'
     if (type === 'scale') motion.scale = finite(m.scale, 'scale', .75, 1.25)
     if (type === 'stretch') {
       motion.scaleX = finite(m.scaleX, 'scaleX', .75, 1.25)
       motion.scaleY = finite(m.scaleY, 'scaleY', .75, 1.25)
     }
-    if (m.period !== undefined) { finite(m.period, 'period', .12, 6); if (type === 'rotate' || affine) motion.period = m.period }
+    const repeatedMove = type === 'translate' && motion.repeat === true
+    if (m.period !== undefined) { finite(m.period, 'period', .12, 6); if (type === 'rotate' || affine || repeatedMove) motion.period = m.period }
+    if (motion.repeat === true && (type === 'rotate' || affine || repeatedMove) && motion.period === undefined) throw new Error('Repeated movement requires an explicit gesture period')
     if (affine && motion.cycles > 1 && motion.period === undefined) throw new Error('Finite affine repetition requires an explicit period')
     if (m.pause !== undefined) motion.pause = finite(m.pause, 'pause', 0, 6)
     if (m.wristInfluence !== undefined) motion.wristInfluence = finite(m.wristInfluence, 'wristInfluence', .001, 1)
@@ -55,7 +61,10 @@ export function motionPose(motion, time) {
   let amount = 0
   if (motion.period !== undefined) {
     const span = motion.period + (motion.pause ?? 0), local = elapsed % span
-    if (elapsed > 0 && elapsed < span * motion.cycles && local < motion.period) amount = Math.sin(2 * Math.PI * local / motion.period)
+    if (elapsed > 0 && elapsed < span * motion.cycles && local < motion.period) {
+      const phase = 2 * Math.PI * local / motion.period
+      amount = motion.type === 'translate' && motion.repeat === true ? (1 - Math.cos(phase)) / 2 : Math.sin(phase)
+    }
   } else {
     const progress = clamp(elapsed / motion.duration)
     amount = motion.easing === 'ease-in' ? progress ** 2 : motion.easing === 'linear' ? progress : smooth(progress)

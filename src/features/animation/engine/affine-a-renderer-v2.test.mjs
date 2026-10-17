@@ -15,6 +15,66 @@ const input = motion => ({ sourcePath: 'synthetic', duration: 2, fps: 4, regions
 const prepared = (engine, f, motion, options = {}) => engine.preparePixels({ ...f, regions: [{ id: 'actor', mask: f.mask, motion: engine.validateProject(input(motion)).regions[0].motion }], ...options })
 const pixel = (bytes, width, x, y) => [...bytes.subarray((y * width + x) * 3, (y * width + x) * 3 + 3)]
 
+test('explicit repeated Move has positive out/back excursion and byte-identical legacy compatibility', () => {
+  const f = fixture()
+  for (const engine of [legacy, affine]) {
+    const motion = engine.validateProject(input({ type: 'translate', repeat: true, dx: .125, dy: -.25, period: .5, duration: .5, cycles: 3 })).regions[0].motion
+    const ctx = prepared(engine, f, motion)
+    for (const time of [.25, .75, 1.25]) expect(engine.motionPose(motion, time)).toMatchObject({ dx: .125, dy: -.25 })
+    for (const time of [0, .5, 1, 1.5, 2]) {
+      expect(engine.motionPose(motion, time)).toMatchObject({ dx: 0, dy: -0 })
+      expect(engine.renderFrame(ctx, time)).toEqual(f.source)
+    }
+    expect(engine.renderFrame(ctx, .25)).not.toEqual(f.source)
+    expect(engine.renderFrame(ctx, .75)).toEqual(engine.renderFrame(ctx, .25))
+    expect(engine.renderFrame(ctx, .25, { static: true })).toEqual(f.source)
+    for (const repeat of [undefined, false]) {
+      const old = prepared(engine, f, { type: 'translate', dx: .125, dy: -.25, period: 1, duration: 1, cycles: 1, repeat })
+      expect(engine.motionPose(old.regions[0].motion, 2)).toMatchObject({ dx: .125, dy: -.25 })
+    }
+  }
+})
+
+test('affine repeat flags are boolean and transforms require finite fitting periods', () => {
+  for (const repeat of ['false', 0, null, []]) expect(() => affine.validateProject(input({ type: 'scale', scale: 1.1, repeat }))).toThrow(/repeat/)
+  for (const type of ['rotate', 'scale', 'stretch', 'translate']) {
+    const motion = { type, scale: 1.1, scaleX: 1.1, scaleY: .9, repeat: true }
+    expect(() => affine.validateProject(input(motion))).toThrow(/period/i)
+    expect(() => affine.validateProject(input({ ...motion, period: 1, cycles: 3 }))).toThrow(/duration/i)
+    const valid = affine.validateProject(input({ ...motion, period: .5, cycles: 2 })).regions[0].motion
+    expect(valid.repeat).toBe(true)
+    expect(affine.motionPose(valid, 2)).toMatchObject({ dx: 0, angle: 0, scaleX: 1, scaleY: 1 })
+  }
+})
+
+test('both kernels render later Slow/Medium/Fast cycles within six seconds without changing old Move frames', () => {
+  const f = fixture()
+  for (const engine of [legacy, affine]) {
+    for (const [period, cycles] of [[2, 3], [1.2, 5], [.6, 10]]) {
+      const project = { ...input({ type: 'translate', repeat: true, dx: .125, dy: .125, period, duration: period, cycles }), duration: 6, fps: 24 }
+      const motion = engine.validateProject(project).regions[0].motion
+      const ctx = engine.preparePixels({ ...f, regions: [{ id: 'actor', mask: f.mask, motion }] })
+      const firstPeak = engine.renderFrame(ctx, period / 2)
+      expect(firstPeak).not.toEqual(f.source)
+      for (const cycle of [1, cycles - 1]) {
+        expect(engine.motionPose(motion, period * (cycle + .5))).toMatchObject({ dx: .125, dy: .125 })
+        expect(engine.renderFrame(ctx, period * (cycle + .5))).toEqual(firstPeak)
+      }
+      expect(engine.renderFrame(ctx, 6)).toEqual(f.source)
+      const legacyMotion = { type: 'translate', dx: .125, dy: .125, duration: period, endState: 'hold' }
+      const baseline = prepared(engine, f, legacyMotion)
+      for (const repeat of [undefined, false]) {
+        const old = prepared(engine, f, { ...legacyMotion, period, cycles: 1, repeat })
+        for (const time of [0, period / 4, period / 2, 2]) expect(engine.renderFrame(old, time)).toEqual(engine.renderFrame(baseline, time))
+      }
+    }
+    const delayed = prepared(engine, f, { type: 'translate', repeat: true, dx: .125, period: .5, pause: .25, start: .25, duration: .5, cycles: 2 })
+    for (const time of [0, .25, .875, 1, 1.625, 1.75, 2]) expect(engine.renderFrame(delayed, time)).toEqual(f.source)
+    expect(engine.renderFrame(delayed, .5)).not.toEqual(f.source)
+    expect(engine.renderFrame(delayed, 1.25)).toEqual(engine.renderFrame(delayed, .5))
+  }
+})
+
 test('uniform scale and independent-axis stretch move an asymmetric marker around the explicit anchor', () => {
   const f = fixture(), anchor = [8 / f.width, 8 / f.height]
   for (const [motion, destination] of [

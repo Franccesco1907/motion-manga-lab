@@ -28,7 +28,13 @@ export function validateProject(project) {
     if (!Number.isInteger(motion.cycles)) throw new Error('cycles must be an integer')
     if (!['hold', 'reset'].includes(motion.endState)) throw new Error('Unknown endState')
     if (!['linear', 'smooth', 'ease-in'].includes(motion.easing)) throw new Error('Unknown easing')
-    if (m.period !== undefined) { finite(m.period, 'period', .12, 6); if (type === 'rotate') motion.period = m.period }
+    if (m.repeat !== undefined) {
+      if (typeof m.repeat !== 'boolean') throw new Error('repeat must be a boolean')
+      motion.repeat = m.repeat
+    }
+    const repeatedMove = type === 'translate' && motion.repeat === true
+    if (m.period !== undefined) { finite(m.period, 'period', .12, 6); if (type === 'rotate' || repeatedMove) motion.period = m.period }
+    if (motion.repeat === true && (type === 'rotate' || repeatedMove) && motion.period === undefined) throw new Error('Repeated movement requires an explicit gesture period')
     if (m.pause !== undefined) motion.pause = finite(m.pause, 'pause', 0, 6)
     if (m.wristInfluence !== undefined) motion.wristInfluence = finite(m.wristInfluence, 'wristInfluence', .001, 1)
     if (type !== 'static' && motion.start + (motion.period !== undefined ? (motion.period + (motion.pause ?? 0)) * motion.cycles : motion.duration) > duration + 1e-6) throw new Error('Motion extends past the project duration')
@@ -48,7 +54,10 @@ export function motionPose(motion, time) {
   let amount = 0
   if (motion.period !== undefined) {
     const span = motion.period + (motion.pause ?? 0), local = elapsed % span
-    if (elapsed > 0 && elapsed < span * motion.cycles && local < motion.period) amount = Math.sin(2 * Math.PI * local / motion.period)
+    if (elapsed > 0 && elapsed < span * motion.cycles && local < motion.period) {
+      const phase = 2 * Math.PI * local / motion.period
+      amount = motion.type === 'translate' && motion.repeat === true ? (1 - Math.cos(phase)) / 2 : Math.sin(phase)
+    }
   } else {
     const progress = clamp(elapsed / motion.duration)
     amount = motion.easing === 'ease-in' ? progress ** 2 : motion.easing === 'linear' ? progress : smooth(progress)
