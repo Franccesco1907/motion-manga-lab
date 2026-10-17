@@ -52,6 +52,16 @@ describe('private original-page store', () => {
     expect((await store.original(project.id)).bytes).toEqual(bytes)
   })
 
+  it('blocks SVG loading before metadata decoding and persists no rejected original', async () => {
+    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="3" height="2"><rect width="3" height="2" fill="#365778"/></svg>')
+    // A valid benign SVG must fail at libvips admission, not our post-metadata format check.
+    await expect(sharp(svg).metadata()).rejects.toThrow('Input buffer contains unsupported image format')
+    const root = join(directory, 'store'), store = new LocalProjectStore(root)
+    await expect(store.import(svg, 'misleading.png')).rejects.toMatchObject({ code: 'invalid_image', status: 422 })
+    expect(await store.list()).toEqual([])
+    expect(await readdir(root)).toEqual([])
+  })
+
   it('lists newest first deterministically and ignores incomplete staging folders', async () => {
     const root = join(directory, 'store'), store = new LocalProjectStore(root)
     const first = await store.import(png, 'first'), second = await store.import(png, 'second')
