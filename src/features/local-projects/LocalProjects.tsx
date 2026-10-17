@@ -4,6 +4,7 @@ import { localProjectClient, type LocalProjectClient } from './local-project-cli
 import './LocalProjects.css'
 import { PageEditor } from './PageEditor'
 import { LocalChapters } from './LocalChapters'
+import { PageThumbnail } from './PageThumbnail'
 
 const LIST_STATE = { LOADING: 'loading', READY: 'ready', FAILED: 'failed' } as const
 type ListState = (typeof LIST_STATE)[keyof typeof LIST_STATE]
@@ -38,7 +39,6 @@ export function LocalProjects({ client = localProjectClient, ownerId = 'local', 
   const [candidate, setCandidate] = useState<OriginalView>()
   const [originalFailure, setOriginalFailure] = useState<OriginalFailure>()
   const [openingName, setOpeningName] = useState('')
-  const [editing, setEditing] = useState(false)
   const [chaptersVisible, setChaptersVisible] = useState(false)
   const mounted = useRef(false)
   const listRequest = useRef(0)
@@ -51,7 +51,6 @@ export function LocalProjects({ client = localProjectClient, ownerId = 'local', 
   const candidateRef = useRef<OriginalView | undefined>(undefined)
   const failureRef = useRef<OriginalFailure | undefined>(undefined)
   const headingRef = useRef<HTMLHeadingElement>(null)
-  const originalHeadingRef = useRef<HTMLHeadingElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function release(url?: string) {
@@ -98,14 +97,17 @@ export function LocalProjects({ client = localProjectClient, ownerId = 'local', 
   }, [client])
 
   useEffect(() => {
-    if (visible) originalHeadingRef.current?.focus()
-  }, [visible])
+    headingRef.current?.focus()
+  }, [visible, chaptersVisible])
 
   async function openProject(project: LocalProject) {
     const requestId = ++originalRequest.current
     originalController.current?.abort()
     const controller = new AbortController()
     originalController.current = controller
+    release(visibleRef.current?.url)
+    visibleRef.current = undefined
+    setVisible(undefined)
     release(candidateRef.current?.url)
     release(failureRef.current?.url)
     candidateRef.current = undefined
@@ -138,8 +140,7 @@ export function LocalProjects({ client = localProjectClient, ownerId = 'local', 
     setVisible(next)
     setCandidate(undefined)
     setOpeningName('')
-    setEditing(false)
-    setStatus('Unchanged original opened.')
+    setStatus('Page opened. The original is unchanged.')
   }
 
   function displayFailed(next: OriginalView) {
@@ -193,64 +194,85 @@ export function LocalProjects({ client = localProjectClient, ownerId = 'local', 
     if (latestSaved) void openProject(latestSaved)
   }
 
+  function closePage() {
+    ++originalRequest.current
+    originalController.current?.abort()
+    release(visibleRef.current?.url)
+    release(candidateRef.current?.url)
+    release(failureRef.current?.url)
+    visibleRef.current = undefined
+    candidateRef.current = undefined
+    failureRef.current = undefined
+    setVisible(undefined)
+    setCandidate(undefined)
+    setOriginalFailure(undefined)
+    setOpeningName('')
+    setStatus('')
+  }
+
   return (
-    <main className="local-projects">
+    <main className="local-projects" data-view={chaptersVisible ? 'chapters' : visible ? 'editor' : 'library'}>
       <header className="local-projects__header">
-        <p className="local-projects__kicker">Motion Manga Lab · Local workspace</p>
-        <h1 ref={headingRef} tabIndex={-1}>Local projects</h1>
-        <p>Import originals, direct their parts, and prepare ordered local reading versions.</p>
-        <p className="local-projects__notice">{sharingEnabled ? 'Account-scoped self-hosted workspace. Originals stay private; guest access requires explicitly sharing a reviewed snapshot. Stored files are not encrypted backups.' : <>Available through <code>npm run dev</code> on this machine. Nothing is published online. Local storage is not encrypted storage or a backup.</>}</p>
-      </header>
-      <div className="local-toolbar" aria-label="Local workspace views"><button aria-pressed={!chaptersVisible} onClick={() => setChaptersVisible(false)}>Pages & editor</button><button aria-pressed={chaptersVisible} onClick={() => setChaptersVisible(true)}>Chapters & snapshots</button></div>
-      {chaptersVisible ? <LocalChapters projects={projects} sharingEnabled={sharingEnabled} /> : <div className="local-projects__layout">
-        <div className="local-projects__controls">
-          <section aria-labelledby="import-title" className="local-projects__panel">
-            <h2 id="import-title">Save an original</h2>
-            <form onSubmit={event => void saveOriginal(event)} aria-busy={saving}>
-              <label htmlFor="page-image">Page image</label>
-              <input ref={fileInputRef} id="page-image" type="file" multiple accept="image/png,image/jpeg,image/webp"
-                disabled={saving} aria-describedby="import-help"
-                onChange={event => { const files = Array.from(event.target.files ?? []); setFile(files[0]); setBatch(files); setFailedImports([]); setSaveError('') }} />
-              <p id="import-help">Choose a PNG, JPG or WebP you have permission to process. This increment accepts still images only. The local service checks its temporary safety limits.</p>
-              {file && <p>Selected: {batch.length > 1 ? `${batch.length} images` : file.name}</p>}
-              <button type="submit" disabled={!file || saving}>{saving ? (batch.length > 1 ? 'Saving originals…' : 'Saving original…') : (batch.length > 1 ? 'Save originals' : 'Save original')}</button>
-              {saveError && <p role="alert">{saveError} Your selected file and current original are kept. Retry saving or choose another file.</p>}
-              {!!failedImports.length && <button type="button" disabled={saving} onClick={() => void saveFiles(failedImports.map(item => item.file))}>Retry failed imports</button>}
-            </form>
-          </section>
-
-          <section aria-labelledby="saved-title" className="local-projects__panel" aria-busy={listState === LIST_STATE.LOADING}>
-            <h2 id="saved-title">Saved projects</h2>
-            {listState === LIST_STATE.LOADING && <p role="status">Loading saved projects…</p>}
-            {listState === LIST_STATE.FAILED && <div><p role="alert">{listError}</p><button onClick={retryProjects}>Retry loading projects</button></div>}
-            {listState === LIST_STATE.READY && !projects.length && <p>No saved projects yet.</p>}
-            <ul className="local-projects__list">
-              {projects.map(project => <li key={project.id}>
-                <button onClick={() => void openProject(project)} aria-pressed={visible?.project.id === project.id} aria-label={`Open ${project.name}`}>
-                  <span>{project.name}</span><small>{project.width} × {project.height} · {project.byteLength.toLocaleString()} bytes</small>
-                </button>
-              </li>)}
-            </ul>
-          </section>
+        <div className="local-projects__title-row">
+          <div>
+            <p className="local-projects__kicker">{visible ? 'Page editor' : 'Private creator workspace'}</p>
+            <h1 ref={headingRef} tabIndex={-1}>{chaptersVisible ? 'Chapters & snapshots' : visible?.project.name ?? 'Page library'}</h1>
+          </div>
+          {visible && <div className="local-toolbar">
+            <button type="button" onClick={closePage}>Back to pages</button>
+            <a href={visible.url} download={visible.project.name}>Download original</a>
+          </div>}
         </div>
-
-        <section className="local-projects__original" aria-labelledby="original-title">
-          <h2 id="original-title" ref={originalHeadingRef} tabIndex={-1}>{visible?.project.name ?? 'Original preview'}</h2>
+        {!visible && <>
+          <p>Start with a page. Select its parts, add motion, then assemble a chapter.</p>
+          <p className="local-projects__notice">{sharingEnabled ? 'Your originals are private to your account. Guest access requires explicitly sharing a reviewed snapshot. Keep your own backups; stored files are not encrypted.' : 'Originals stay on this machine. Nothing is published online. Keep your own backups; local storage is not encrypted.'}</p>
+        </>}
+      </header>
+      {!visible && <nav className="local-toolbar local-projects__views" aria-label="Creator views">
+        <button aria-pressed={!chaptersVisible} onClick={() => setChaptersVisible(false)}>Pages</button>
+        <button aria-pressed={chaptersVisible} disabled={saving} onClick={() => { closePage(); setChaptersVisible(true) }}>Chapters & snapshots</button>
+      </nav>}
+      {chaptersVisible ? <LocalChapters projects={projects} sharingEnabled={sharingEnabled} /> : visible ? (
+        <section className="local-projects__original" aria-label={`Editing ${visible.project.name}`}>
+          <PageEditor key={`${ownerId}:${visible.project.id}`} ownerId={ownerId} project={visible.project} originalUrl={visible.url} />
+        </section>
+      ) : <div className="local-projects__layout">
+        <section aria-labelledby="saved-title" className="local-projects__library" aria-busy={listState === LIST_STATE.LOADING}>
+          <div className="local-projects__section-heading"><h2 id="saved-title">Your pages</h2><span>{projects.length} {projects.length === 1 ? 'page' : 'pages'}</span></div>
+          {listState === LIST_STATE.LOADING && <p role="status">Loading saved pages…</p>}
+          {listState === LIST_STATE.FAILED && <div><p role="alert">{listError}</p><button onClick={retryProjects}>Retry loading projects</button></div>}
+          {listState === LIST_STATE.READY && !projects.length && <div className="local-projects__empty"><h3>No saved pages yet.</h3><p>Upload a page you have permission to edit to begin.</p></div>}
+          <ul className="local-projects__list">
+            {projects.map(project => <li key={project.id}>
+              <button className="page-card" onClick={() => void openProject(project)} aria-label={`Open ${project.name}`}>
+                <PageThumbnail project={project} client={client} />
+                <span className="page-card__details"><strong>{project.name}</strong><small>{project.width} × {project.height} · {project.byteLength.toLocaleString()} bytes</small><span className="page-card__status">Original saved</span><span className="page-card__action">Open editor →</span></span>
+              </button>
+            </li>)}
+          </ul>
           {openingName && <p role="status">Opening {openingName}…</p>}
           {originalFailure && <div className="local-projects__panel"><p role="alert">{originalFailure.message}</p><button onClick={() => void openProject(originalFailure.project)}>Retry original</button>
             {originalFailure.url && <a href={originalFailure.url} download={originalFailure.project.name}>Download original</a>}
           </div>}
-          {visible && <>
-            <img src={visible.url} alt={`Original page: ${visible.project.name}`} width={visible.project.width} height={visible.project.height} />
-            <a href={visible.url} download={visible.project.name}>Download original</a>
-            <button onClick={() => setEditing(value => !value)}>{editing ? 'Close editor' : 'Edit page'}</button>
-            {editing && <PageEditor key={`${ownerId}:${visible.project.id}`} ownerId={ownerId} project={visible.project} originalUrl={visible.url} />}
-          </>}
-          {!visible && !openingName && !originalFailure && <p>Open a saved project or save your first original.</p>}
-          {candidate && <img key={candidate.url} hidden src={candidate.url} alt={`Original page: ${candidate.project.name}`}
-            onLoad={() => displayOriginal(candidate)} onError={() => displayFailed(candidate)} />}
+        </section>
+        <section aria-labelledby="import-title" className="local-projects__panel local-projects__upload">
+          <p className="local-projects__kicker">New page</p>
+          <h2 id="import-title">Upload your artwork</h2>
+          <form onSubmit={event => void saveOriginal(event)} aria-busy={saving}>
+            <label htmlFor="page-image">Page image</label>
+            <input ref={fileInputRef} id="page-image" type="file" multiple accept="image/png,image/jpeg,image/webp"
+              disabled={saving} aria-describedby="import-help"
+              onChange={event => { const files = Array.from(event.target.files ?? []); setFile(files[0]); setBatch(files); setFailedImports([]); setSaveError('') }} />
+            <p id="import-help">PNG, JPG or WebP still images only. Choose artwork you have permission to process. Your original is preserved; the service checks file safety limits.</p>
+            {file && <p>Selected: {batch.length > 1 ? `${batch.length} images` : file.name}</p>}
+            <button className="local-projects__primary" type="submit" disabled={!file || saving}>{saving ? (batch.length > 1 ? 'Uploading pages…' : 'Uploading page…') : (batch.length > 1 ? 'Upload pages' : 'Upload page')}</button>
+            {saveError && <p role="alert">{saveError} Your selected file is kept. Retry uploading or choose another file.</p>}
+            {!!failedImports.length && <button type="button" disabled={saving} onClick={() => void saveFiles(failedImports.map(item => item.file))}>Retry failed imports</button>}
+          </form>
         </section>
       </div>}
+      {candidate && <img key={candidate.url} hidden src={candidate.url} alt={`Original page: ${candidate.project.name}`}
+        onLoad={() => displayOriginal(candidate)} onError={() => displayFailed(candidate)} />}
       <p className="local-projects__status" role="status">{status}</p>
     </main>
   )

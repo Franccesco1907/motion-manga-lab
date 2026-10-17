@@ -1,7 +1,13 @@
 :root {
-  color: #161b23;
-  background: #e8edf3;
-  font-family: "Segoe UI Variable Text", "Avenir Next", Avenir, system-ui, sans-serif;
+  --paper: #fafbfc;
+  --workspace: #e9edf2;
+  --ink: #20252b;
+  --cobalt: #3158c9;
+  --muted: #5b6471;
+  --line: #cdd4de;
+  color: var(--ink);
+  background: var(--workspace);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }

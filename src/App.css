@@ -1,3 +1,73 @@
 #root {
   min-height: 100vh;
 }
+
+.application-header,
+.account-navigation {
+  --ink: #20252b;
+  color: var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.65rem clamp(1rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.application-brand {
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.workspace-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.workspace-navigation button,
+.account-navigation button {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.workspace-navigation button[aria-pressed="true"] {
+  color: var(--cobalt);
+  background: #e9eefc;
+}
+
+.workspace-navigation button:focus-visible,
+.account-navigation button:focus-visible {
+  outline: 3px solid var(--cobalt);
+  outline-offset: 2px;
+}
+
+.account-navigation {
+  justify-content: flex-end;
+  padding-block: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.account-navigation p {
+  margin-block: 0.4rem;
+}
+
+@media (max-width: 40rem) {
+  .application-header {
+    gap: 0.25rem 0.75rem;
+    padding-block: 0.25rem;
+  }
+
+  .account-navigation {
+    gap: 0.25rem 0.75rem;
+    padding-block: 0;
+  }
+}

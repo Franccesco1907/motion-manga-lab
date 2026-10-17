@@ -24,16 +24,19 @@ export function PrivateWorkspace({ client = accountClient, workspace }: PrivateW
 
   async function logout() {
     if (!session.csrfToken) return
+    const token = session.csrfToken
     setSigningOut(true)
-    try { await client.logout(session.csrfToken); expirePrivateSession('Signed out. Private workspace and recovery drafts were cleared.') }
+    expirePrivateSession('Signing out. Private workspace and recovery drafts were cleared.')
+    try { await client.logout(token); expirePrivateSession('Signed out. Private workspace and recovery drafts were cleared.') }
     catch { expirePrivateSession('Sign out could not reach the server. This workspace is closed; close this browser session or sign in again.') }
     finally { setSigningOut(false) }
   }
   if (!ready) return <main className="local-projects"><h1>Connect workspace</h1>{error ? <><p role="alert">{error}</p><button onClick={() => { setError(''); setAttempt(value => value + 1) }}>Retry workspace connection</button></> : <p role="status">Verifying application service…</p>}</main>
+  if (signingOut) return <main className="local-projects"><h1>Signing out</h1><p role="status">Signing out… Private editing is closed.</p></main>
   if (session.mode === 'accounts' && !session.user) return <LoginPanel client={client} notice={session.notice} signedIn={verified => configurePrivateSession('accounts', verified)} />
   const owner = session.mode === 'accounts' ? session.user!.id : 'local'
   return <div key={`${owner}:${session.epoch}`}>
-    {session.mode === 'accounts' && <header className="workspace-navigation"><p>Signed in as {session.user!.username}</p><button disabled={signingOut} onClick={() => void logout()}>{signingOut ? 'Signing out…' : 'Sign out'}</button></header>}
+    {session.mode === 'accounts' && <header className="account-navigation"><p>Signed in as {session.user!.username}</p><button disabled={signingOut} onClick={() => void logout()}>{signingOut ? 'Signing out…' : 'Sign out'}</button></header>}
     {workspace ? workspace(owner) : <LocalProjects ownerId={owner} sharingEnabled={session.mode === 'accounts'} />}
   </div>
 }

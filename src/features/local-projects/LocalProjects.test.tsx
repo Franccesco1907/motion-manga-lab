@@ -1,9 +1,11 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LocalProjects } from './LocalProjects'
 import type { LocalProject } from './contracts'
-import { authoringClient } from './authoring-client'
+vi.mock('./LocalChapters', () => ({ LocalChapters: () => <p>Chapter tools</p> }))
+vi.mock('./PageThumbnail', () => ({ PageThumbnail: () => <span aria-hidden="true">Preview</span> }))
+vi.mock('./PageEditor', () => ({ PageEditor: ({ project }: { project: LocalProject }) => <div aria-label="Page editor"><img alt={`Editing page: ${project.name}`} /><button>Add part</button></div> }))
 
 const first: LocalProject = {
   id: 'f3a8c842-a5f8-4ee4-89ec-15230555eca7', name: 'first.png', mimeType: 'image/png',
@@ -48,6 +50,7 @@ afterEach(() => {
 })
 
 async function open(name: string) {
+  if (screen.queryByRole('button', { name: 'Back to pages' })) await userEvent.click(screen.getByRole('button', { name: 'Back to pages' }))
   await userEvent.click(await screen.findByRole('button', { name: `Open ${name}` }))
   const image = await screen.findByAltText(`Original page: ${name}`)
   fireEvent.load(image)
@@ -56,15 +59,23 @@ async function open(name: string) {
 }
 
 describe('local original projects', () => {
+  it('presents page identity and truthful saved-original status alongside its preview', async () => {
+    render(<LocalProjects client={client([first])} />)
+    const card = await screen.findByRole('button', { name: 'Open first.png' })
+    expect(within(card).getByText('first.png')).toBeInTheDocument()
+    expect(within(card).getByText('2 × 3 · 4 bytes')).toBeInTheDocument()
+    expect(within(card).getByText('Original saved')).toBeInTheDocument()
+    expect(within(card).getByText('Open editor →')).toBeInTheDocument()
+  })
   it('imports a batch sequentially, retains successful pages, and retries only failed files', async () => {
     const api = client()
     api.create.mockResolvedValueOnce(first).mockRejectedValueOnce(new Error('Invalid second image.')).mockResolvedValueOnce(second)
     render(<LocalProjects client={api} />)
-    await screen.findByText('No saved projects yet.')
+    await screen.findByText('No saved pages yet.')
     const one = new File(['one'], 'first.png', { type: 'image/png' })
     const two = new File(['two'], 'second.png', { type: 'image/png' })
     await userEvent.upload(screen.getByLabelText('Page image'), [one, two])
-    await userEvent.click(screen.getByRole('button', { name: 'Save originals' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Upload pages' }))
     expect(await screen.findByRole('button', { name: 'Open first.png' })).toBeInTheDocument()
     expect(await screen.findByRole('alert')).toHaveTextContent('Invalid second image')
     expect(api.create.mock.calls.map(call => call[0])).toEqual([one, two])
@@ -72,31 +83,33 @@ describe('local original projects', () => {
     expect(await screen.findByRole('button', { name: 'Open second.png' })).toBeInTheDocument()
     expect(api.create.mock.calls.map(call => call[0])).toEqual([one, two, two])
   })
-  it('enters the actual editor only after opening a saved page', async () => {
-    vi.spyOn(authoringClient, 'draft').mockResolvedValue({ schemaVersion: 1, projectId: first.id, sourceVersion: 'source', normalizationVersion: 'working-image-v1', revision: 0, duration: '6', fps: '24', regions: [] })
-    vi.spyOn(authoringClient, 'working').mockResolvedValue(new Blob(['working'], { type: 'image/png' }))
-    vi.spyOn(authoringClient, 'latest').mockResolvedValue(null)
-    vi.spyOn(authoringClient, 'capabilities').mockResolvedValue({ suggestRegions: { available: false, reason: 'Optional model unavailable.' }, refineRegion: { available: false, reason: 'Optional model unavailable.' } })
+  it('automatically opens one editor only after the hidden original loads', async () => {
     render(<LocalProjects client={client([first])} />)
-    await open(first.name)
-    await userEvent.click(screen.getByRole('button', { name: 'Edit page' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Open first.png' }))
+    const candidate = await screen.findByAltText('Original page: first.png')
+    expect(candidate).not.toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Add part' })).not.toBeInTheDocument()
+    fireEvent.load(candidate)
     expect(await screen.findByRole('button', { name: 'Add part' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Scene duration')).toHaveValue('6')
+    expect(screen.queryByRole('button', { name: 'Edit page' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: 'Original page: first.png' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'first.png' })).toHaveFocus()
   })
   it('saves a native File, shows saving state, then lists and displays its original', async () => {
     const api = client()
     const saving = deferred<LocalProject>()
     api.create.mockReturnValue(saving.promise)
     render(<LocalProjects client={api} />)
-    await screen.findByText('No saved projects yet.')
+    await screen.findByText('No saved pages yet.')
     const file = new File(['original bytes'], 'first.png', { type: 'image/png' })
     await userEvent.upload(screen.getByLabelText('Page image'), file)
-    await userEvent.click(screen.getByRole('button', { name: 'Save original' }))
-    expect(screen.getByRole('button', { name: 'Saving original…' })).toBeDisabled()
+    await userEvent.click(screen.getByRole('button', { name: 'Upload page' }))
+    expect(screen.getByRole('button', { name: 'Uploading page…' })).toBeDisabled()
     expect(api.create.mock.calls[0][0]).toBe(file)
     await act(async () => saving.resolve(first))
     fireEvent.load(await screen.findByAltText('Original page: first.png'))
-    expect(await screen.findByRole('button', { name: 'Open first.png' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Back to pages' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'first.png' })).toHaveFocus()
     expect(screen.getByRole('link', { name: 'Download original' })).toHaveAttribute('href', 'blob:original-1')
   })
@@ -118,36 +131,38 @@ describe('local original projects', () => {
     api.list.mockRejectedValueOnce(new Error('Local service unavailable. Start npm run dev.'))
     render(<LocalProjects client={api} />)
     expect(await screen.findByRole('alert')).toHaveTextContent('npm run dev')
-    expect(screen.queryByText('No saved projects yet.')).not.toBeInTheDocument()
+    expect(screen.queryByText('No saved pages yet.')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Retry loading projects' }))
-    expect(await screen.findByText('No saved projects yet.')).toBeInTheDocument()
+    expect(await screen.findByText('No saved pages yet.')).toBeInTheDocument()
   })
 
-  it('keeps the current original and selected file after a rejected save, then retries', async () => {
+  it('keeps the selected file after a rejected upload without revealing the closed editor, then retries', async () => {
     const api = client([first])
     api.create.mockRejectedValueOnce(new Error('Image exceeds the local safety limit.')).mockResolvedValue(second)
     render(<LocalProjects client={api} />)
     await open(first.name)
+    await userEvent.click(screen.getByRole('button', { name: 'Back to pages' }))
     const file = new File(['next bytes'], 'second.png', { type: 'image/png' })
     const input = screen.getByLabelText('Page image') as HTMLInputElement
     await userEvent.upload(input, file)
-    await userEvent.click(screen.getByRole('button', { name: 'Save original' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Upload page' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('local safety limit')
     expect(input.files?.[0]).toBe(file)
-    expect(screen.getByRole('img', { name: 'Original page: first.png' })).toBeVisible()
-    await userEvent.click(screen.getByRole('button', { name: 'Save original' }))
+    expect(screen.queryByRole('img', { name: 'Editing page: first.png' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Upload page' }))
     fireEvent.load(await screen.findByAltText('Original page: second.png'))
     expect(await screen.findByRole('heading', { name: 'second.png' })).toBeInTheDocument()
   })
 
-  it('keeps the current image after original fetch failure and offers retry', async () => {
+  it('never reveals the previous page after original fetch failure and offers retry', async () => {
     const api = client([second, first])
     render(<LocalProjects client={api} />)
     await open(first.name)
+    await userEvent.click(screen.getByRole('button', { name: 'Back to pages' }))
     api.original.mockRejectedValueOnce(new Error('Original could not be loaded.'))
     await userEvent.click(screen.getByRole('button', { name: 'Open second.png' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Original could not be loaded')
-    expect(screen.getByRole('img', { name: 'Original page: first.png' })).toBeVisible()
+    expect(screen.queryByRole('img', { name: 'Editing page: first.png' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Retry original' }))
     fireEvent.load(await screen.findByAltText('Original page: second.png'))
     expect(await screen.findByRole('heading', { name: 'second.png' })).toBeInTheDocument()
@@ -209,11 +224,28 @@ describe('local original projects', () => {
     const api = client()
     api.create.mockRejectedValue(new Error('<img src=x onerror=alert(1)>'))
     render(<LocalProjects client={api} />)
-    await screen.findByText('No saved projects yet.')
+    await screen.findByText('No saved pages yet.')
     await userEvent.upload(screen.getByLabelText('Page image'), new File(['bytes'], 'page.png', { type: 'image/png' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Save original' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Upload page' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('<img src=x onerror=alert(1)>')
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
     expect(api.create).toHaveBeenCalledTimes(1)
   })
+  it('aborts an opening page when switching to chapters and never reveals its late image', async () => {
+    const api = client([first])
+    const pending = deferred<Blob>()
+    api.original.mockReturnValue(pending.promise)
+    render(<LocalProjects client={api} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Open first.png' }))
+    const signal = api.original.mock.calls[0][1] as AbortSignal
+    await userEvent.click(screen.getByRole('button', { name: 'Chapters & snapshots' }))
+    expect(signal.aborted).toBe(true)
+    expect(screen.getByText('Chapter tools')).toBeInTheDocument()
+    await act(async () => pending.resolve(new Blob(['page'])))
+    expect(createObjectURL).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Pages' }))
+    expect(screen.getByRole('heading', { name: 'Page library' })).toHaveFocus()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  })
+
 })
