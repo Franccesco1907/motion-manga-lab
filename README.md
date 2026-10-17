@@ -22,7 +22,7 @@ The local workbench's startup instructions and verification are at `experiments/
 
 ## Internal legacy renderer
 
-`src/features/animation/engine/legacy-a-renderer.mjs` is a byte-for-byte copy of the approved local `experiments/a-workbench/engine/renderer.mjs`; its paired synthetic tests use Vitest instead of `node:test`. The original laboratory remains unchanged. This internal Node processing module uses `Buffer`, is not a browser-ready API, and includes no file IO, export or model adapter.
+`src/features/animation/engine/legacy-a-renderer.mjs` originated as a byte-for-byte copy of the approved local `experiments/a-workbench/engine/renderer.mjs`; its paired synthetic tests use Vitest instead of `node:test`. The product kernels now add explicit, opt-in finite Move repetition; absent or disabled repetition preserves legacy translation frames. The original laboratory remains unchanged. This internal Node processing module uses `Buffer`, is not a browser-ready API, and includes no file IO, export or model adapter.
 
 The retained pilot limits are a 1280-pixel maximum edge, a six-second duration cap, a 24 fps cap, 16 regions and eight moving regions, with only static, rotate, translate and reveal actions. These are legacy bounds, not approved product limits. The tests use in-memory synthetic pixels and require no local artwork or experimental files.
 
@@ -37,6 +37,8 @@ Run `npm run dev` from this checkout and open the printed loopback URL. The appl
 3. Choose **Preview changes** to save, prepare and play the matching result once. Compare **Before** and **After** on the same canvas, then **Continue editing**. Before uses the previous successful preview, or the clearly labeled original when none exists.
 
 Editing only updates selection and static movement guides; it never starts rendering. **Save draft** keeps edits without rendering. Undo/redo restores edits without rolling back server revisions or render jobs. Preparation and failures keep the last valid result available, and outdated results are labeled rather than presented as new. Before/After clicks explicitly play the selected result once; reduced motion remains static.
+
+**Repeat movement**, beside Speed, repeats the selected part's complete movements within the finite clip while retaining intensity and speed. Any remainder stays still; a short clip may fit only one movement. Existing custom repetitions are identified without rewriting the draft on open. This is separate from replaying the whole clip with **Loop preview (3 plays)**.
 
 Explicitly choosing scale/stretch upgrades a draft to [affine version 2](docs/product/affine-v2.md); opening existing pages does not migrate them. Refined brush/model masks are not silently replaced by rectangle tools. Arrange saved pages into ordered chapters separately from page editing. Reviewed reading snapshots can be created, replaced and unpublished locally; this is **not Internet publication**.
 

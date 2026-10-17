@@ -46,6 +46,7 @@ export function isLocalDraft(value: unknown): value is LocalDraft {
       && selection.strokes.every(stroke => object(stroke) && member(LOCAL_STROKE, stroke.mode) && raw(stroke.radius)
         && Array.isArray(stroke.points) && stroke.points.every(point => object(point) && typeof point.x === 'number' && Number.isFinite(point.x) && typeof point.y === 'number' && Number.isFinite(point.y)))
       && MOTION_FIELDS.every(key => raw(motion[key])) && member(value.schemaVersion === LOCAL_DRAFT_SCHEMA.AFFINE ? LOCAL_AFFINE_MOTION : LOCAL_MOTION, motion.type)
+      && (motion.repeat === undefined || typeof motion.repeat === 'boolean')
       && FACTOR_FIELDS.every(key => motion[key] === undefined || (value.schemaVersion === LOCAL_DRAFT_SCHEMA.AFFINE && raw(motion[key])))
       && member(LOCAL_END, motion.endState) && member(LOCAL_EASING, motion.easing)
   })

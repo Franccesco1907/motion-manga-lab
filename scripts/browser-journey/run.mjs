@@ -129,6 +129,26 @@ async function click(label) {
 }
 async function fill(label, value) { await cdp.evaluate(`journey.fill(${JSON.stringify(label)}, ${JSON.stringify(value)})`) }
 async function details(label) { await cdp.evaluate(`journey.details(${JSON.stringify(label)})`) }
+async function toggleCheckbox(label) {
+  const point = await cdp.evaluate(`(() => {
+    const item = journey.field(${JSON.stringify(label)});
+    if (item.type !== 'checkbox' || item.disabled) throw new Error('Checkbox unavailable');
+    item.scrollIntoView({block:'center'});
+    const b = item.getBoundingClientRect(); return {x:b.x + b.width / 2,y:b.y + b.height / 2};
+  })()`)
+  await cdp.send('Input.dispatchMouseEvent', {type:'mousePressed',...point,button:'left',buttons:1,clickCount:1})
+  await cdp.send('Input.dispatchMouseEvent', {type:'mouseReleased',...point,button:'left',buttons:0,clickCount:1})
+}
+async function stepSlider(label, key) {
+  await cdp.evaluate(`(() => {
+    const name = ${JSON.stringify(label)};
+    const item = [...document.querySelectorAll('input[aria-label]')].find(e => e.getAttribute('aria-label') === name) || journey.field(name);
+    if (item.type !== 'range' || item.disabled) throw new Error('Slider unavailable');
+    item.scrollIntoView({block:'center'}); item.focus();
+  })()`)
+  await cdp.send('Input.dispatchKeyEvent', {type:'keyDown',key,code:key})
+  await cdp.send('Input.dispatchKeyEvent', {type:'keyUp',key,code:key})
+}
 async function upload(path) {
   const { root: document } = await cdp.send('DOM.getDocument')
   const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: document.nodeId, selector: 'input[type=file]' })
@@ -380,6 +400,77 @@ try {
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] })
     await cdp.wait(`!!document.querySelector('video') && ![...document.querySelectorAll('.local-playback button')].find(e => e.textContent === 'Play').disabled`, 'motion preference recovery')
   })
+  await check('native repeat movement retains speed and intensity intent in saved rendered output', async () => {
+    await click('Continue editing')
+    await details('Part inspector')
+    await cdp.send('Emulation.setDeviceMetricsOverride', {width:1440,height:1000,deviceScaleFactor:1,mobile:false})
+    await cdp.evaluate(`new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`)
+    const controlLayout = await cdp.evaluate(`(() => {
+      const speed = document.querySelector('input[aria-label="Speed"]');
+      const repeat = journey.field('Repeat movement');
+      repeat.scrollIntoView({block:'center'});
+      const box = element => { const b = element.getBoundingClientRect(); return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height}; };
+      return {speed:box(speed),repeat:box(repeat)};
+    })()`)
+    assert.ok(controlLayout.speed.width > 0 && controlLayout.repeat.width > 0, 'Speed and Repeat movement controls must be visible.')
+    assert.ok(controlLayout.speed.right <= controlLayout.repeat.left, 'Repeat movement must sit beside Speed at desktop width, not below it.')
+    assert.ok(Math.max(controlLayout.speed.top, controlLayout.repeat.top) < Math.min(controlLayout.speed.bottom, controlLayout.repeat.bottom), 'Speed and Repeat movement must overlap vertically in the same desktop row.')
+    await details('Advanced')
+    const controls = () => cdp.evaluate(`({
+      repeat:journey.field('Repeat movement').checked,
+      speed:document.querySelector('input[aria-label="Speed"]').value,
+      intensity:journey.field('Intensity').value,
+      cycles:journey.field('Finite repetitions').value,
+      period:journey.field('Gesture period (optional)').value,
+      duration:journey.field('Movement duration').value
+    })`)
+    const heavy = heavyRequests.length
+    assert.equal((await controls()).repeat, false, 'Existing single-movement drafts remain opt-out.')
+    assert.equal((await controls()).cycles, '1')
+    await fill('Scene duration', '6')
+    await toggleCheckbox('Repeat movement')
+    const medium = await controls()
+    assert.deepEqual(medium, {repeat:true,speed:'2',intensity:'40',cycles:'5',period:'1.2',duration:'1.2'})
+    await stepSlider('Speed', 'ArrowRight')
+    const fast = await controls()
+    assert.deepEqual(fast, {...medium,speed:'3',cycles:'10',period:'0.6',duration:'0.6'})
+    await stepSlider('Speed', 'ArrowLeft')
+    await stepSlider('Speed', 'ArrowLeft')
+    const slow = await controls()
+    assert.deepEqual(slow, {...medium,speed:'1',cycles:'3',period:'2',duration:'2'})
+    await stepSlider('Speed', 'ArrowRight')
+    await stepSlider('Intensity', 'ArrowRight')
+    const adjusted = await controls()
+    assert.deepEqual(adjusted, {...medium,intensity:'41'}, 'Native slider updates preserve repeat intent and speed timing.')
+    await toggleCheckbox('Repeat movement')
+    assert.deepEqual(await controls(), {...adjusted,repeat:false,cycles:'1'}, 'Opting out restores one movement at the selected speed.')
+    await toggleCheckbox('Repeat movement')
+    assert.deepEqual(await controls(), adjusted)
+    assert.equal(heavyRequests.length, heavy, 'Repeat and native slider adjustments do not render or invoke models.')
+    await save()
+    const saved = await snapshot()
+    assert.equal(saved.draft.duration, '6')
+    const motion = saved.draft.regions[0].motion
+    assert.equal(motion.repeat, true, 'The explicit repeat flag, not only derived cycle count, must be durable.')
+    assert.equal(motion.cycles, '5')
+    assert.equal(motion.period, '1.2')
+    assert.equal(motion.duration, '1.2')
+    const renders = renderRequests.length, videos = videoRequests.length
+    await click('Preview changes')
+    const metadata = await decodedPlayback(60000)
+    const played = videoRequests.slice(videos)
+    const rendered = await snapshot()
+    currentArtifact = rendered.artifact
+    assert.equal(renderRequests.length, renders + 1)
+    assert.deepEqual(rendered.draft.regions[0].motion, motion, 'Preview preparation preserves the saved repeat settings.')
+    assert.equal(currentArtifact.draftRevision, rendered.draft.revision, 'The rendered clip matches the revision saved by Preview changes.')
+    assert.equal(currentArtifact.duration, 6)
+    assert.ok(metadata.duration > 0 && metadata.duration <= 6.1, 'The real decoded output remains a finite six-second clip.')
+    assert.deepEqual(played, [`/api/local-projects/${currentArtifact.projectId}/artifacts/${currentArtifact.id}/video`])
+    await cdp.wait(`document.querySelector('video')?.hidden && document.querySelector('video')?.ended`, 'one repeat-enabled clip naturally returns to static', 15000)
+    await staticPlayback()
+    return {nativeInput:true,controlLayout,medium,fast,slow,adjusted,repeatPersisted:true,artifactId:currentArtifact.id,...metadata}
+  })
   await check('cancel pending preview keeps edits and never starts rendering', async () => {
     await click('Continue editing')
     await details('Part inspector')
@@ -415,6 +506,7 @@ try {
     before = await snapshot()
     assert.equal(before.draft.regions[0].label, 'Synthetic actor')
     assert.equal(before.draft.regions[0].motion.type, 'rotate')
+    assert.equal(before.draft.regions[0].motion.repeat, true)
     assert.ok(before.artifact?.id)
     assert.equal(before.originalSha256, createHash('sha256').update(await readFile(image)).digest('hex'), 'The imported original bytes remain unchanged.')
   })
@@ -427,6 +519,7 @@ try {
     await click('Open synthetic-page.png')
     await cdp.wait(`journey.text('Synthetic actor') && !journey.text('Loading editable draft')`, 'reopened saved editor')
     assert.deepEqual(await snapshot(), before, 'Saved draft and last valid artifact must survive server and browser restart.')
+    assert.ok(await cdp.evaluate(`journey.field('Repeat movement').checked`), 'Repeat remains enabled after a complete browser and server restart.')
     await assertNeverAutoplays()
     const metadata = await playAndStop()
     return { draftRevision: before.draft.revision, artifactRestored: true, ...metadata }

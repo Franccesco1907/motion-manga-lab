@@ -51,3 +51,21 @@ it('recognizes v2 raw factor drafts and recovers incomplete factors only for the
   expect(isLocalDraft(invalid)).toBe(false)
   localStorage.clear()
 })
+
+it('preserves explicit per-part repeat intent in recovery and rejects malformed booleans', () => {
+  for (const repeat of [true, false]) {
+    const next = structuredClone(draft)
+    Reflect.set(next.regions[0].motion, 'repeat', repeat)
+    expect(isLocalDraft(next)).toBe(true)
+    backupDraft(next)
+    expect(recoverDraft(draft)?.draft.regions[0].motion).toHaveProperty('repeat', repeat)
+  }
+  for (const repeat of ['true', 'false', 1, 0, null, {}, []]) {
+    const next = structuredClone(draft)
+    Reflect.set(next.regions[0].motion, 'repeat', repeat)
+    expect(isLocalDraft(next)).toBe(false)
+    localStorage.setItem('motion-manga-raw-draft:local:page:source', JSON.stringify(next))
+    expect(recoverDraft(draft)).toBeUndefined()
+  }
+  localStorage.clear()
+})

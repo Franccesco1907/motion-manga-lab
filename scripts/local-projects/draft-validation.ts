@@ -59,6 +59,10 @@ export function validateDraft(value: unknown, projectId: string, sourceVersion: 
       period: raw(movement.period), pause: raw(movement.pause), wristInfluence: raw(movement.wristInfluence),
       endState: option(movement.endState, Object.values(LOCAL_END)), easing: option(movement.easing, Object.values(LOCAL_EASING)),
     }
+    if (movement.repeat !== undefined) {
+      if (typeof movement.repeat !== 'boolean') throw invalid()
+      motion.repeat = movement.repeat
+    }
     for (const field of ['scale', 'scaleX', 'scaleY'] as const) if (movement[field] !== undefined) {
       if (draft.schemaVersion !== LOCAL_DRAFT_SCHEMA.AFFINE) throw invalid()
       motion[field] = raw(movement[field])

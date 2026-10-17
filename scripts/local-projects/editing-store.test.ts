@@ -43,6 +43,27 @@ const provider = (artifacts: LocalRenderArtifact[]) => ({
 })
 
 describe('coherent versioned local drafts', () => {
+  it('round-trips optional repeat intent without migrating old drafts and rejects malformed flags', async () => {
+    let saved = await editing.getDraft(projectId)
+    for (const repeat of [true, false, undefined]) {
+      const selected = region()
+      if (repeat !== undefined) Reflect.set(selected.motion, 'repeat', repeat)
+      saved = await editing.saveDraft(projectId, saved.revision, { ...saved, regions: [selected] })
+      const reopened = await new EditingStore(originals).getDraft(projectId)
+      expect(reopened).toEqual(saved)
+      expect(reopened.schemaVersion).toBe(1)
+      if (repeat === undefined) expect(reopened.regions[0].motion).not.toHaveProperty('repeat')
+      else expect(reopened.regions[0].motion).toHaveProperty('repeat', repeat)
+    }
+    for (const repeat of ['true', 'false', 1, 0, null, {}, []]) {
+      const selected = region()
+      Reflect.set(selected.motion, 'repeat', repeat)
+      await expect(editing.saveDraft(projectId, saved.revision, { ...saved, regions: [selected] })).rejects.toMatchObject({ code: 'invalid_draft' })
+      expect(await editing.getDraft(projectId)).toEqual(saved)
+    }
+    expect((await originals.original(projectId)).bytes).toEqual(bytes)
+  })
+
   it('saves and reopens incomplete raw inputs exactly without numeric coercion', async () => {
     const initial = await editing.getDraft(projectId)
     expect(initial).toMatchObject({ schemaVersion: 1, revision: 0, normalizationVersion: 'working-image-v1', sourceVersion: createHash('sha256').update(bytes).digest('hex') })
