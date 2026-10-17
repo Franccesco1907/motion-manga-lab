@@ -1,8 +1,9 @@
 // @vitest-environment node
 import { request } from 'node:http'
+import { spawnSync } from 'node:child_process'
 import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { AddressInfo } from 'node:net'
 import sharp from 'sharp'
@@ -11,16 +12,48 @@ import type { LocalProject, LocalDraft, LocalRenderJob, LocalChapter, LocalSnaps
 import type { ShareCreation, SharedReading } from '../../src/features/sharing/contracts.ts'
 import { createSelfHostedService } from './server.ts'
 import type { AccountSession } from '../../src/features/accounts/contracts.ts'
+import { region } from '../local-projects/render-fixtures.ts'
 const roots:string[]=[]
 const running:ReturnType<typeof createSelfHostedService>[]=[]
 afterEach(async()=>{for(const service of running.splice(0))await service.close();for(const root of roots.splice(0))await rm(root,{recursive:true,force:true})})
-async function setup(ownerLimits?:{maxProjects:number;maxBytes:number}){const root=await mkdtemp(join(tmpdir(),'mml-http-'));roots.push(root);const staticRoot=join(root,'built');await mkdir(staticRoot);await writeFile(join(staticRoot,'index.html'),'<html><body>Built app fixture</body></html>');const service=createSelfHostedService({root:join(root,'private'),staticRoot,ownerLimits});running.push(service);await service.auth.createUser('alice','a synthetic password only');await service.auth.createUser('bob','b synthetic password only');await new Promise<void>(resolve=>service.server.listen(0,'127.0.0.1',resolve));const origin=`http://127.0.0.1:${(service.server.address() as AddressInfo).port}`
+async function setup(ownerLimits?:{maxProjects:number;maxBytes:number},temporaryPrefix=join(tmpdir(),'mml-http-')){const root=await mkdtemp(temporaryPrefix);roots.push(root);const staticRoot=join(root,'built');await mkdir(staticRoot);await writeFile(join(staticRoot,'index.html'),'<html><body>Built app fixture</body></html>');const service=createSelfHostedService({root:join(root,'private'),staticRoot,ownerLimits});running.push(service);await service.auth.createUser('alice','a synthetic password only');await service.auth.createUser('bob','b synthetic password only');await new Promise<void>(resolve=>service.server.listen(0,'127.0.0.1',resolve));const origin=`http://127.0.0.1:${(service.server.address() as AddressInfo).port}`
  async function login(username:string,password:string){const response=await fetch(origin+'/api/auth/login',{method:'POST',headers:{Origin:origin,'X-Motion-Manga-Local':'1','Content-Type':'application/json'},body:JSON.stringify({username,password})});expect(response.status).toBe(200);const session=await response.json() as AccountSession;return{cookie:response.headers.get('set-cookie')!.split(';')[0],csrf:session.csrfToken!,user:session.user!}}
  return{service,origin,login}}
 it('refuses account storage inside frontend build inputs before any private data is created',()=>{
  expect(()=>createSelfHostedService({root:'/tmp/operator-project/public/content/private-accounts',staticRoot:'/tmp/operator-project/dist'})).toThrow(/Private account storage/)
 })
 describe('standalone native HTTP accounts and owner boundaries',()=>{
+ it('renders a bounded portrait page from hidden home account storage and exposes playable owner media',async()=>{
+  const {origin,login,service}=await setup(undefined,join(homedir(),'.mml-http-')),alice=await login('alice','a synthetic password only')
+  const headers={Cookie:alice.cookie,Origin:origin,'X-Motion-Manga-Local':'1','X-Motion-Manga-CSRF':alice.csrf,'Content-Type':'application/json'}
+  const bytes=await sharp({create:{width:591,height:1280,channels:3,background:'#334455'}}).png().toBuffer()
+  const upload=await fetch(origin+'/api/local-projects',{method:'POST',headers:{...headers,'Content-Type':'application/octet-stream','X-File-Name':'portrait-fixture.png'},body:new Uint8Array(bytes)})
+  expect(upload.status).toBe(201)
+  const {project}=await upload.json() as {project:LocalProject}
+  const {draft}=await(await fetch(origin+`/api/local-projects/${project.id}/draft`,{headers})).json() as {draft:LocalDraft}
+  const part=region({selection:{x:'.465',y:'.488',width:'.158',height:'.055',strokes:[]}})
+  const savedResponse=await fetch(origin+`/api/local-projects/${project.id}/draft`,{method:'PUT',headers,body:JSON.stringify({expectedRevision:0,draft:{...draft,schemaVersion:2,duration:'2',fps:'12',regions:[{...part,motion:{...part.motion,type:'scale',scale:'1.05',anchorX:'.544',anchorY:'.5155',duration:'1'}}]}})})
+  expect(savedResponse.status).toBe(200)
+  const saved=await savedResponse.json() as {draft:LocalDraft}
+  const response=await fetch(origin+`/api/local-projects/${project.id}/render`,{method:'POST',headers,body:JSON.stringify({expectedRevision:saved.draft.revision})})
+  expect(response.status).toBe(202)
+  const {job}=await response.json() as {job:LocalRenderJob}
+  await service.owners.get(alice.user.id).renderer.wait(job.id)
+  const status=await(await fetch(origin+`/api/local-projects/${project.id}/jobs/${job.id}`,{headers})).json() as {job:LocalRenderJob}
+  expect(status.job.status).toBe('completed')
+  expect(status.job.artifact).toMatchObject({width:591,height:1280,duration:2,fps:12,rendererVersion:'affine-a-v2'})
+  const media=await fetch(origin+`/api/local-projects/${project.id}/artifacts/${job.id}/video`,{headers})
+  expect(media.status).toBe(200)
+  expect(media.headers.get('Content-Type')).toBe('video/webm')
+  const encoded=Buffer.from(await media.arrayBuffer())
+  expect(encoded.byteLength).toBeGreaterThan(100)
+  const decoded=spawnSync('/snap/bin/ffmpeg',['-hide_banner','-i','pipe:0','-f','null','-'],{input:encoded,encoding:'utf8'})
+  expect(decoded.status).toBe(0)
+  expect(decoded.stderr).toContain('Duration: 00:00:02.00')
+  expect(decoded.stderr).toContain('591x1280')
+  const original=await fetch(origin+`/api/local-projects/${project.id}/original`,{headers})
+  expect(Buffer.from(await original.arrayBuffer())).toEqual(bytes)
+ },15000)
  it('serves the built app, rejects traversal/host/Origin/proxy spoofing and exposes no public registration',async()=>{
   const {origin}=await setup();expect(await(await fetch(origin+'/')).text()).toContain('Built app fixture');expect(await(await fetch(origin+'/api/runtime')).json()).toEqual({mode:'accounts'})
   for(const path of ['/api/auth/register','/api/users','/%2e%2e%2fprivate','/assets/%2e%2e%2fsecret'])expect((await fetch(origin+path)).status).toBe(404)

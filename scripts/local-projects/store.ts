@@ -4,6 +4,10 @@ import { join, resolve } from 'node:path'
 import sharp from 'sharp'
 import { LOCAL_IMAGE_MIME, type LocalProject } from '../../src/features/local-projects/contracts.ts'
 
+// Block SVG before any metadata parsing; the format allowlist below is too late.
+// Official workaround: https://github.com/advisories/GHSA-wq5f-xc86-pv6w
+sharp.block({ operation: ['VipsForeignLoadSvg'] })
+
 export const LOCAL_LIMITS = { maxBytes: 10 * 1024 * 1024, maxPixels: 20_000_000 } as const
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
