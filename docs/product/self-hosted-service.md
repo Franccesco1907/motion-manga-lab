@@ -2,7 +2,11 @@
 
 The standalone service serves the built application without Vite. Its browser workspace now signs into closed, operator-created accounts and supports isolated authoring plus explicitly reviewed unlisted reading links. It does not deploy the application or establish permission to distribute artwork.
 
-## Quick path
+## Recommended local MVP path
+
+Use the [local MVP runbook](local-mvp-runbook.md) from this implementation’s repository root for persisted private configuration, first-account setup, preflight and restart. It also documents source delivery, explicit stopped-service backup/restore and the permanent browser journey. That path disables optional models and uses only loopback. The manual commands below remain the lower-level operator interface; keep account creation and startup pointed at the same data root.
+
+## Manual operator path
 
 Use the existing Node.js 22.12+ environment and installed dependencies:
 
@@ -15,7 +19,7 @@ npm start
 
 Replace quoted placeholders with actual values. Account creation asks for a hidden password on a terminal; noninteractive use accepts one password line through stdin, never a password argument. Do not put real passwords in shell history, source files or command-line arguments. Registration is not exposed through HTTP.
 
-The default service listens on `127.0.0.1:8080`. Select **Local projects**, sign in, then import pages and use **Edit page**. The research reader remains a separate default view. Account storage uses the separate `self-hosted-v1` directory under the operator's local application-data directory. Existing local/Vite projects are not imported or exposed automatically.
+The default service listens on `127.0.0.1:8080`. The application opens the creator workspace: sign in, then upload a page or open a saved page to enter its editor. Add a part, select its area, choose a motion and explicitly generate a preview. Save the complete draft before leaving; browser recovery is a fallback, not a backup. The research reader remains a separate navigation choice, not the authoring entry point. Account storage uses the separate `self-hosted-v1` directory under the operator's local application-data directory. Existing local/Vite projects are not imported or exposed automatically.
 
 To share, create a complete reviewed local snapshot under **Chapters & snapshots**, then independently approve guest reading and confirm permission to share the content. Optional attribution is plain text. **Share reviewed snapshot** returns the actual new link; copy it immediately. A guest opens `/read/<token>` without an account and sees derived reading assets only, never the editable workspace. **Replace guest link** invalidates older URLs; **Withdraw guest link** blocks subsequent requests.
 
@@ -36,6 +40,8 @@ Example syntax: `MOTION_MANGA_MODEL_PROJECT="<approved-model-project>" npm start
 
 Build output includes compiled server JavaScript, source-only renderer kernels and Python adapters. TypeScript and Vite are build tools, not production runtime requirements. Existing Sharp is a runtime dependency; installed FFmpeg is still required for rendering. Models are optional and remain outside the build output.
 
+Encoding uses a private directory in the OS temporary location and a seekable file because Snap FFmpeg cannot reopen descriptors backed by hidden home paths. After the existing size check, the worker copies the completed video exclusively into its owner-scoped job. Managed completion and error paths remove staging; an abrupt process kill can leave restricted temporary files. Existing account data is not migrated.
+
 ## Security and sharing boundary
 
 - Passwords use asynchronous native scrypt with random salts and bounded work. Sessions use random opaque tokens stored only as hashes; cookie flags, server expiry, logout, same-origin checks and session CSRF protect private changes. Login admission and attempts are bounded. This is not a security certification.
@@ -47,7 +53,7 @@ Build output includes compiled server JavaScript, source-only renderer kernels a
 
 ## Verification and release gates
 
-`npm test` includes native two-owner/anonymous API boundaries, actual encoded synthetic derivatives, permission acknowledgments and a compiled-entry journey. This branch does not claim the following browser UI proof. `npm run typecheck`, `npm run lint`, `npm run build` and `npm run build:server` verify the shipped code/build boundaries.
+`npm test` includes native two-owner/anonymous API boundaries, actual encoded synthetic derivatives, permission acknowledgments and a compiled-entry journey. `npm run typecheck`, `npm run lint`, `npm run build` and `npm run build:server` verify the shipped code/build boundaries. The compiled-entry test rebuilds output: do not run it concurrently with a browser verification session using that output. The permanent `npm run test:browser` journey builds both outputs and exercises the local account workflow with isolated synthetic data. Run it serially with other build/test commands. Current execution evidence is in [local MVP verification](local-mvp-verification.md). Historical one-off browser observations remain separately labelled in [implementation status](local-execution-status.md); neither those observations nor the harness establish physical-device certification.
 
 Live Internet deployment, operational TLS/security review, reporting and retention policy, real-art public rights, corpus selection, physical-device acceptance and research-quality claims remain release gates. No public hosting, data migration, legal clearance or universal model-quality guarantee is implied.
 
@@ -55,4 +61,4 @@ Live Internet deployment, operational TLS/security review, reporting and retenti
 
 `GET /api/runtime` reports account mode. `GET /api/auth/session` returns the current user and in-memory CSRF token, or null values. `POST /api/auth/login` accepts username/password JSON from the exact configured Origin with `X-Motion-Manga-Local: 1`; it issues an opaque HttpOnly cookie. Private requests require that cookie, and mutations also require the returned `X-Motion-Manga-CSRF` token and exact Origin. `POST /api/auth/logout` revokes the session. No public registration endpoint exists.
 
-The existing `/api/local-projects` paths are scoped to the authenticated owner. `POST /api/shares` requires `snapshotId`, `expectedSnapshotRevision`, `reviewed: true`, `rightsConfirmed: true` and optional `attribution`; it returns the new token once. `PUT /api/shares/:id` additionally requires `expectedRevision`, rotates the token and invalidates old links. `DELETE /api/shares/:id` withdraws all token revisions. Anonymous access is limited to `GET /api/read/:token` and its `/pages/:index/poster|video` derivatives. The returned `/read/:token` browser path is reserved for the next UI integration; use the manifest/media APIs in this unit.
+The existing `/api/local-projects` paths are scoped to the authenticated owner. `POST /api/shares` requires `snapshotId`, `expectedSnapshotRevision`, `reviewed: true`, `rightsConfirmed: true` and optional `attribution`; it returns the new token once. `PUT /api/shares/:id` additionally requires `expectedRevision`, rotates the token and invalidates old links. `DELETE /api/shares/:id` withdraws all token revisions. Anonymous access is limited to `GET /api/read/:token` and its `/pages/:index/poster|video` derivatives. The returned `/read/:token` browser path opens the separate guest reader, not the creator workspace.

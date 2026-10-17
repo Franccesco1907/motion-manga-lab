@@ -2,6 +2,12 @@
 
 The research track asks whether restrained motion improves reader enjoyment without disrupting reading pace. Product MVP planning is a separate track documented below; this repository does not yet provide a deployed public authoring service.
 
+## Local MVP: start here
+
+Use the [local MVP runbook](docs/product/local-mvp-runbook.md) for persistent configuration, preflight/start, source-only delivery, safe backup/restore and the repeatable browser journey. Run these commands from the repository root of this implementation; older planning-only revisions do not provide the same commands.
+
+Recorded workspace checks are in [local MVP verification](docs/product/local-mvp-verification.md). This is a local/private MVP, not an Internet release. The user performs the human acceptance pass; recruitment and third-party-user validation are not prerequisites for this local delivery. Existing creator-workspace behavior and the separate research contract are preserved.
+
 ## Product planning
 
 The user accepted the planning baseline on **2026-10-04** for a user-directed editor and reader: upload image pages, arrange chapters, animate selected parts and optionally publish a version for other readers. Subsequent authorization covers the feasible local/private implementation below, not public hosting or a validated product release. Proposed details and OPEN decisions remain as labelled, and the enjoyment-study protocol remains a separate track.
@@ -40,7 +46,7 @@ Reversible local safety defaults include **10 MiB per original, 20 million pixel
 
 Finite WebM encoding currently requires Linux/procfs and the existing `/snap/bin/ffmpeg`; the encoder writes through an inherited, Node-owned seekable file descriptor to preserve duration metadata, not a client-provided path. Optional audited Magi/SAM assistance requires existing offline environments/weights; no installer or automatic model download is included. In this extra worktree, start with `MOTION_MANGA_MODEL_PROJECT=<project-root> npm run dev` to reference the original laboratory's approved runtimes read-only. This operator environment setting is not a client-selectable path. Capabilities do not prove model quality or completed inference; all proposed regions/masks require review.
 
-The Vite development service rejects non-loopback binding and is absent from `npm run build` output and `npm run preview`; static preview cannot save, process or reopen local data. Opening a page never starts motion. The creator’s explicit **Preview changes** action plays its matching completed result; reading controls remain opt-in and reduced-motion reading stays static. Neither these local controls nor synthetic tests establish device/accessibility certification or study outcomes.
+The Vite development service rejects non-loopback binding and is absent from `npm run build` output and `npm run preview`; static preview cannot save, process or reopen local data. The separately compiled account service is the persistent local-MVP route in the runbook. Opening a page never starts motion. The creator’s explicit **Preview changes** action plays its matching completed result; reading controls remain opt-in and reduced-motion reading stays static. Neither these local controls nor synthetic tests establish device/accessibility certification or study outcomes.
 
 **Loop preview (3 plays)** explicitly repeats a rendered clip three times, then returns to its static image. A six-second clip therefore provides eighteen seconds of preview playback. **Static** stops it immediately; **Play** and **Restart** retain single-play behavior. This product preview does not change the research treatment or enable infinite autoplay.
 
