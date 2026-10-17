@@ -14,7 +14,7 @@ import type { LocalProject,LocalDraft,LocalRenderJob,LocalChapter,LocalSnapshot 
 import type { ShareCreation,SharedReading } from '../../src/features/sharing/contracts.ts'
 const execute=promisify(execFile),roots:string[]=[],children:ChildProcess[]=[]
 const cwd=process.cwd()
-beforeAll(async()=>{await execute(process.execPath,[join(cwd,'node_modules/vite/bin/vite.js'),'build'],{timeout:20000});await execute(process.execPath,[join(cwd,'scripts/build-server.mjs')],{timeout:20000})},30000)
+beforeAll(async()=>{await execute(process.execPath,[join(cwd,'node_modules/vite/bin/vite.js'),'build'],{timeout:20000,env:{...process.env,NODE_ENV:'production'}});await execute(process.execPath,[join(cwd,'scripts/build-server.mjs')],{timeout:20000})},30000)
 afterEach(async()=>{for(const child of children.splice(0)){child.kill('SIGTERM');await new Promise<void>(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',()=>resolve())})}for(const root of roots.splice(0))await rm(root,{recursive:true,force:true})})
 async function account(username:string,password:string,env:NodeJS.ProcessEnv){
  await new Promise<void>((resolve,reject)=>{const child=spawn(process.execPath,[join(cwd,'dist-server/scripts/self-hosted/create-account.js'),username],{env,stdio:['pipe','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',b=>{stdout+=b});child.stderr.on('data',b=>{stderr+=b});child.once('error',reject);child.once('close',code=>{if(code!==0)reject(new Error(stderr));else if((stdout+stderr).includes(password))reject(new Error('Password leaked'));else resolve()});child.stdin.end(password+'\n')})
@@ -60,3 +60,47 @@ it('compiled account bootstrap rejects public-tree and symlink aliases before an
  }
  expect(await readFile(marker,'utf8')).toBe('synthetic pre-existing content');expect((await lstat(marker)).mode).toBe(mode)
 },10000)
+
+it('packages store exclusion for compiled service and account bootstrap and releases it on shutdown', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'mml-compiled-lock-'))
+  roots.push(root)
+  const dataRoot = join(root, 'account-data')
+  const env = { ...process.env, HOME: root, MOTION_MANGA_ACCOUNT_DATA: dataRoot }
+  await account('lock-owner', 'synthetic lock password only', env)
+  const probe = createServer()
+  await new Promise<void>(resolve => probe.listen(0, '127.0.0.1', resolve))
+  const address = probe.address()
+  if (!address || typeof address === 'string') throw new Error('No probe port')
+  await new Promise<void>(resolve => probe.close(() => resolve()))
+  const serviceEnv = { ...env, PORT: String(address.port) }
+  const child = spawn(process.execPath, [join(cwd, 'dist-server/scripts/self-hosted/start.js')], {
+    env: serviceEnv, stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  children.push(child)
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('Compiled service startup timed out')), 5000)
+    child.stdout!.on('data', chunk => {
+      if (String(chunk).includes('listening on loopback')) { clearTimeout(timeout); resolve() }
+    })
+    child.once('error', error => { clearTimeout(timeout); reject(error) })
+    child.once('exit', () => { clearTimeout(timeout); reject(new Error('Compiled service exited before readiness')) })
+  })
+  expect((await lstat(`${dataRoot}.lock`)).isDirectory()).toBe(true)
+  await expect(account('blocked-owner', 'another synthetic password only', env)).rejects.toThrow(/lock|running|use|busy/i)
+  const duplicate = await execute(process.execPath, [join(cwd, 'dist-server/scripts/self-hosted/start.js')], {
+    env: serviceEnv, timeout: 5000,
+  }).then(() => ({ code: 0 }), (error: unknown) => error as { code: number })
+  expect(duplicate.code).not.toBe(0)
+  child.kill('SIGTERM')
+  await new Promise<void>(resolve => child.exitCode !== null ? resolve() : child.once('exit', () => resolve()))
+  children.splice(children.indexOf(child), 1)
+  await expect(lstat(`${dataRoot}.lock`)).rejects.toMatchObject({ code: 'ENOENT' })
+  await account('after-stop-owner', 'after stop synthetic password only', env)
+}, 15000)
+
+it('builds production React for the compiled service even under the test runner', async () => {
+  const assets = await readdir(join(cwd, 'dist/assets'))
+  const javascript = await Promise.all(assets.filter(name => name.endsWith('.js')).map(name => readFile(join(cwd, 'dist/assets', name), 'utf8')))
+  expect(javascript.join('\n').includes('bundleType:1')).toBe(false)
+  expect(javascript.join('\n').includes('bundleType:0')).toBe(true)
+})

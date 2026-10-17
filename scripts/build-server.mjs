@@ -9,7 +9,7 @@ if (result.status !== 0) process.exit(result.status ?? 1)
 // Copy only server source adapters, never model weights, user projects or private generated output.
 const engine = 'src/features/animation/engine'
 const kernels = (await readdir(join(root, engine), { withFileTypes: true })).filter(entry => entry.isFile() && entry.name.endsWith('.mjs') && !entry.name.endsWith('.test.mjs')).map(entry => `${engine}/${entry.name}`)
-for (const relative of [...kernels, 'scripts/local-projects/model-worker.py', 'scripts/local-projects/model_contract.py']) {
+for (const relative of [...kernels, 'scripts/local-runtime/store-lock.mjs', 'scripts/local-projects/model-worker.py', 'scripts/local-projects/model_contract.py']) {
   const destination = join(root, 'dist-server', relative)
   await mkdir(dirname(destination), { recursive: true })
   await copyFile(join(root, relative), destination)

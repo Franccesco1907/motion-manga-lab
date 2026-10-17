@@ -42,7 +42,7 @@ Requirements:
 - npm 11 or newer
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
