@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { Reader } from './features/reader/Reader'
+import { guestClient } from './features/sharing/share-client'
 import { localProjectClient } from './features/local-projects/local-project-client'
 import { accountClient } from './features/accounts/account-client'
 import { resetPrivateSession } from './features/accounts/private-session'
@@ -222,21 +224,37 @@ afterEach(() => {
 })
 
 describe('reader baseline', () => {
-  it('opens local projects only through the explicit workspace entry and returns to research', async () => {
+  it('starts in the creator workspace and keeps research as an explicit separate view', async () => {
     const list = vi.spyOn(localProjectClient, 'list').mockResolvedValue([])
     render(<App />)
-    expect(screen.getAllByRole('img')).toHaveLength(3)
-    expect(list).not.toHaveBeenCalled()
-    await userEvent.click(screen.getByRole('button', { name: 'Local projects' }))
-    expect(await screen.findByRole('heading', { name: 'Local projects' })).toHaveFocus()
-    expect(await screen.findByText('No saved projects yet.')).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Page library' })).toHaveFocus()
+    expect(await screen.findByText('No saved pages yet.')).toBeInTheDocument()
+    expect(list).toHaveBeenCalledOnce()
+    expect(screen.getByRole('button', { name: 'Creator workspace' })).toHaveAttribute('aria-pressed', 'true')
     await userEvent.click(screen.getByRole('button', { name: 'Research reader' }))
     expect(screen.getAllByRole('img')).toHaveLength(3)
     expect(screen.getByRole('main')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Creator workspace' }))
+    expect(await screen.findByRole('heading', { name: 'Page library' })).toHaveFocus()
+  })
+
+  it('keeps an unlisted guest link outside creator and research navigation', async () => {
+    const manifest = vi.spyOn(guestClient, 'manifest').mockRejectedValue(new Error('Shared version unavailable.'))
+    const list = vi.spyOn(localProjectClient, 'list')
+    window.history.replaceState(null, '', '/read/guest-token')
+    try {
+      render(<App />)
+      expect(screen.getByRole('heading', { name: 'Guest reading' })).toBeInTheDocument()
+      expect(await screen.findByRole('alert')).toHaveTextContent('Shared version unavailable.')
+      expect(manifest).toHaveBeenCalledWith('guest-token', expect.any(AbortSignal))
+      expect(list).not.toHaveBeenCalled()
+      expect(screen.queryByRole('navigation', { name: 'Workspace' })).not.toBeInTheDocument()
+    } finally { window.history.replaceState(null, '', '/') }
   })
 
   it('renders a semantic, visible reading sequence with exact responsive candidates', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
 
     expect(screen.getByRole('main')).toBeInTheDocument()
@@ -310,7 +328,7 @@ describe('reader baseline', () => {
   })
 
   it('publishes the approved attribution and modification notice with source links', async () => {
-    render(<App />)
+    render(<Reader />)
     await flushPromises()
 
     const footer = screen.getByRole('contentinfo')
@@ -340,7 +358,7 @@ describe('reader baseline', () => {
 
   it('keeps the same content, loading, controls, and order between Motion and Static', async () => {
     const user = userEvent.setup()
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
 
     const paritySnapshot = () => ({
@@ -387,7 +405,7 @@ describe('approved panel treatment', () => {
       value: decode,
     })
 
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     const observer = currentObserver()
     const [firstPanel] = panelElements(container)
 
@@ -407,7 +425,7 @@ describe('approved panel treatment', () => {
   })
 
   it('plays exact keyframes once with a batch-local 60ms stagger', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const panels = panelElements(container)
 
@@ -483,7 +501,7 @@ describe('approved panel treatment', () => {
   })
 
   it('pauses offscreen work and resumes only while visible', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const [firstPanel] = panelElements(container)
     const observer = currentObserver()
@@ -517,7 +535,7 @@ describe('approved panel treatment', () => {
   })
 
   it('forces final values, removes temporary hints, and never replays after completion', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const [firstPanel] = panelElements(container)
     const crop = firstPanel.querySelector<HTMLElement>('[data-motion-crop]')
@@ -549,7 +567,7 @@ describe('approved panel treatment', () => {
 
   it('cancels into readable identity state on Static mode and explicit restart', async () => {
     const user = userEvent.setup()
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const [firstPanel] = panelElements(container)
 
@@ -589,7 +607,7 @@ describe('approved panel treatment', () => {
   })
 
   it('updates the reading rail from the real panel sequence', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const panels = panelElements(container)
 
@@ -608,7 +626,7 @@ describe('approved panel treatment', () => {
 
   it('keeps explicit Panel 2 navigation active across a stale tied observer callback', async () => {
     const user = userEvent.setup()
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const panels = panelElements(container)
 
@@ -671,7 +689,7 @@ describe('approved panel treatment', () => {
     const mediaRemove = vi.spyOn(mediaQuery, 'removeEventListener')
     const { container, unmount } = render(
       <StrictMode>
-        <App />
+        <Reader />
       </StrictMode>,
     )
     await flushPromises()
@@ -732,7 +750,7 @@ describe('failure and reduced-motion fallbacks', () => {
       throw new Error('observer unavailable')
     })
     vi.stubGlobal('IntersectionObserver', setupFailure)
-    const setupView = render(<App />)
+    const setupView = render(<Reader />)
     expect(setupView.getAllByRole('img')).toHaveLength(3)
     setupView.unmount()
 
@@ -745,7 +763,7 @@ describe('failure and reduced-motion fallbacks', () => {
       configurable: true,
       value: vi.fn(() => Promise.reject(new Error('decode failed'))),
     })
-    const decodeView = render(<App />)
+    const decodeView = render(<Reader />)
     await flushPromises()
     const decodePanel = panelElements(decodeView.container)[0]
     act(() => {
@@ -768,7 +786,7 @@ describe('failure and reduced-motion fallbacks', () => {
         throw new Error('WAAPI failed')
       }),
     })
-    const waapiView = render(<App />)
+    const waapiView = render(<Reader />)
     await flushPromises()
     const waapiPanel = panelElements(waapiView.container)[0]
     act(() => {
@@ -787,7 +805,7 @@ describe('failure and reduced-motion fallbacks', () => {
 
   it('creates zero animations and keeps every light at zero for reduced motion', async () => {
     mediaQuery.matches = true
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const panels = panelElements(container)
 
@@ -810,7 +828,7 @@ describe('failure and reduced-motion fallbacks', () => {
   })
 
   it('cancels immediately when reduced motion is enabled and does not auto-replay', async () => {
-    const { container } = render(<App />)
+    const { container } = render(<Reader />)
     await flushPromises()
     const [firstPanel] = panelElements(container)
     const observer = currentObserver()

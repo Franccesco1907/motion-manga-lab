@@ -1,0 +1,92 @@
+.selection-surface {
+  position: relative;
+  touch-action: pinch-zoom;
+  user-select: none;
+  margin-block: 1rem;
+  line-height: 0;
+}
+
+.selection-surface > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.selection-surface > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.selection-surface .selection-gizmo {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 2px solid var(--cobalt, #3158c9);
+  border-radius: 50%;
+  background: var(--surface, #fff);
+  color: var(--cobalt, #3158c9);
+  font: 700 1.4rem/1 system-ui, sans-serif;
+  cursor: grab;
+}
+
+.selection-surface .selection-gizmo:focus-visible {
+  outline: 3px solid var(--ink, #1d2c3d);
+  outline-offset: 3px;
+}
+
+.selection-surface--move { cursor: move; }
+.selection-surface--resize { cursor: nwse-resize; }
+.selection-surface--pivot,
+.selection-surface--direction { cursor: crosshair; }
+
+.selection-surface-help {
+  font-size: 0.875rem;
+  color: var(--muted, #52616f);
+}
+
+.selection-surface-selected {
+  margin-block: 0 0.5rem;
+  color: var(--ink, #1d2c3d);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.selection-movement-reference,
+.selection-movement-guide {
+  fill: none;
+  pointer-events: none;
+}
+
+.selection-movement-reference {
+  stroke: var(--ink, #1d2c3d);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.65;
+}
+
+.selection-movement-guide {
+  stroke: var(--cobalt, #3158c9);
+  stroke-width: 2;
+}
+
+.selection-movement-caption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted, #52616f);
+}
+
+.selection-movement-caption strong {
+  color: var(--ink, #1d2c3d);
+}

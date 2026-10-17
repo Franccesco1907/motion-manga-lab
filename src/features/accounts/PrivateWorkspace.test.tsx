@@ -6,6 +6,8 @@ import { accountClient } from './account-client'
 import { expirePrivateSession, resetPrivateSession } from './private-session'
 import { act } from 'react'
 import { LocalProjects } from '../local-projects/LocalProjects'
+vi.mock('../local-projects/PageThumbnail', () => ({ PageThumbnail: () => <span aria-hidden="true">Preview</span> }))
+vi.mock('../local-projects/PageEditor', () => ({ PageEditor: () => <p>Private page editor</p> }))
 
 afterEach(() => { cleanup(); resetPrivateSession() })
 
@@ -55,14 +57,29 @@ it('revokes owner A image URLs and clears the selected project before owner B si
   render(<PrivateWorkspace client={client} workspace={ownerId => <LocalProjects ownerId={ownerId} client={projects} />} />)
   await userEvent.click(await screen.findByRole('button', { name: 'Open A-private.png' }))
   fireEvent.load(await screen.findByAltText('Original page: A-private.png'))
-  expect(await screen.findByRole('img', { name: 'Original page: A-private.png' })).toBeVisible()
+  expect(await screen.findByText('Private page editor')).toBeInTheDocument()
   await userEvent.click(screen.getByRole('button', { name: 'Sign out' }))
   await screen.findByRole('heading', { name: 'Sign in' })
   expect(revoke).toHaveBeenCalledWith('blob:owner-a')
   await userEvent.type(screen.getByLabelText('Username'), 'bob')
   await userEvent.type(screen.getByLabelText('Password'), 'other-test-password')
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
-  expect(await screen.findByText('No saved projects yet.')).toBeInTheDocument()
+  expect(await screen.findByText('No saved pages yet.')).toBeInTheDocument()
   expect(screen.queryByText('A-private.png')).not.toBeInTheDocument()
   expect(screen.queryByRole('img')).not.toBeInTheDocument()
+})
+
+it('closes private content immediately during sign out and prevents a new login until it settles', async () => {
+  let finish!: () => void
+  const pending = new Promise<void>(resolve => { finish = resolve })
+  const client = { ...accountClient, runtime: vi.fn().mockResolvedValue({ mode: 'accounts' }), session: vi.fn().mockResolvedValue({ user: { id: 'owner-a', username: 'alice' }, csrfToken: 'csrf-a' }), logout: vi.fn().mockReturnValue(pending) }
+  render(<PrivateWorkspace client={client} workspace={() => <p>Private content</p>} />)
+  expect(await screen.findByText('Private content')).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Sign out' }))
+  expect(screen.queryByText('Private content')).not.toBeInTheDocument()
+  expect(screen.getByRole('status')).toHaveTextContent('Signing out')
+  expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+  await act(async () => finish())
+  expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
+  expect(client.logout).toHaveBeenCalledWith('csrf-a')
 })

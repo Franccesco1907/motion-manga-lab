@@ -1,0 +1,101 @@
+/* The manuscript is the workspace; cobalt marks editable content. */
+.page-editor {
+  --editor-ink: #20252b;
+  --editor-paper: #fafbfc;
+  --editor-line: #c5cddd;
+  --editor-accent: #3158c9;
+  padding: .5rem;
+  background: var(--editor-paper);
+  color: var(--editor-ink);
+}
+.page-editor__header { position: sticky; top: 0; z-index: 4; padding-block: .25rem; background: var(--editor-paper); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.page-editor__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.page-editor .page-editor__actions { margin-block: 0; padding: .25rem 0; background: var(--editor-paper); border-bottom: 1px solid var(--editor-line); }
+.page-editor .page-editor__primary { color: white; border-color: var(--editor-accent); background: var(--editor-accent); font-weight: 650; }
+.page-editor__save-state { min-height: 1.5rem; margin: .25rem 0 .5rem; font-size: .85rem; }
+.page-editor__workspace { display: grid; gap: 1rem; align-items: start; }
+.page-editor__workspace > * { min-width: 0; }
+.page-editor__canvas { grid-row: 1; border: 1px solid var(--editor-line); background: #e9edf2; }
+.page-editor__canvas-bar { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; padding: .5rem; background: var(--editor-paper); border-bottom: 1px solid var(--editor-line); }
+.page-editor__fit { margin-left: auto; font: .7rem/1.4 ui-monospace, monospace; color: #59677c; }
+.page-editor__view { padding: .75rem; }
+.page-editor__view > img,
+.page-editor__view .local-playback > img:not([hidden]),
+.page-editor__view .local-playback > video:not([hidden]) { display: block; width: auto; max-width: 100%; height: auto; max-height: 70vh; margin: 0 auto; object-fit: contain; }
+.page-editor__view .selection-surface { width: fit-content; max-width: 100%; margin: 0 auto; }
+.page-editor .page-editor__view .selection-surface img { display: block; width: auto; max-width: 100%; max-height: 70vh; object-fit: contain; }
+.page-editor__hint, .page-editor__stale, .page-editor__job { margin: .5rem .75rem; font-size: .8rem; }
+.page-editor__stale { padding: .5rem .75rem; border-left: 3px solid #987119; background: #faf3df; }
+.page-editor__error { padding: .75rem; border-left: 3px solid #8f2323; background: #f9eaea; }
+.page-editor__parts, .page-editor__inspector { padding: .75rem; border: 1px solid var(--editor-line); background: var(--editor-paper); }
+.page-editor__parts h3, .page-editor__inspector h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.page-editor__parts p, .page-editor__inspector p { font-size: .82rem; line-height: 1.5; }
+.page-editor__presets { display: grid; gap: .5rem; }
+.page-editor input { min-height: 2.75rem; padding: .5rem; font: inherit; }
+.page-editor input[type="range"] { padding: 0; accent-color: var(--editor-accent); }
+.page-editor__advanced summary, .page-editor__recovery summary { padding: .75rem .2rem; cursor: pointer; font-weight: 600; }
+.page-editor summary:focus-visible, .page-editor select:focus-visible { outline: 3px solid var(--editor-accent); outline-offset: 2px; }
+.page-editor__recovery { margin-top: 1rem; font-size: .85rem; }
+.page-editor .local-playback .local-toolbar { position: sticky; top: 0; z-index: 2; background: var(--editor-paper); padding: .5rem; }
+.page-editor .local-playback > p { font-size: .8rem; }
+@media (min-width: 70rem) {
+  .page-editor { padding: 1rem; }
+  .page-editor__workspace { grid-template-columns: minmax(9rem, .8fr) minmax(0, 3fr) minmax(14rem, 1.25fr); }
+  .page-editor__canvas { grid-row: auto; }
+  .page-editor__parts, .page-editor__inspector { max-height: 85vh; overflow: auto; }
+}
+
+.page-editor__inspector > summary { padding: .5rem 0; cursor: pointer; font-weight: 650; }
+.page-editor__inspector > summary:focus-visible { outline: 3px solid var(--editor-accent); outline-offset: 3px; }
+
+/* Compare clips in one fixed reading surface; controls never become a second canvas. */
+.page-editor__comparison { display: flex; gap: .35rem; }
+.page-editor__comparison [aria-pressed="true"],
+.page-editor__canvas-bar [aria-pressed="true"] { border-color: var(--editor-accent); color: var(--editor-accent); background: #e9efff; }
+.page-editor__comparison-label { margin: .5rem 0; font-size: .85rem; font-weight: 600; }
+.page-editor__view .local-playback { display: flex; flex-direction: column; }
+.page-editor__view .local-playback > img,
+.page-editor__view .local-playback > video { order: 0; }
+.page-editor__view .local-playback > .local-toolbar { order: 1; position: static; }
+.page-editor__view .local-playback > p { order: 2; margin-block: .35rem; }
+.page-editor__parts > label { display: grid; gap: .4rem; margin-block: .75rem; }
+@media (max-width: 69.999rem) {
+  .page-editor__parts { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .page-editor__parts h3 { width: 100%; margin-bottom: 0; }
+  .page-editor__parts > label { flex: 1 1 10rem; margin: 0; }
+  .page-editor__parts > button { flex: 0 1 auto; }
+  .page-editor__header { top: 0; }
+}
+.page-editor__workspace > [hidden] { display: none; }
+@media (min-width: 70rem) {
+  .page-editor__parts { grid-column: 1; }
+  .page-editor__canvas { grid-column: 2; }
+  .page-editor__inspector { grid-column: 3; }
+}
+
+.page-editor__selection > summary { padding: .75rem .2rem; cursor: pointer; font-weight: 600; }
+/* A normalized page-sized slot, not codec dimensions, sets comparison framing. */
+.page-editor__view--compare .local-playback__media {
+  position: relative;
+  flex: none;
+  order: 0;
+  width: min(100%, calc(70vh * var(--editor-page-ratio)));
+  margin-inline: auto;
+  background: #e9edf2;
+}
+.page-editor__view--compare .local-playback__media > img:not([hidden]),
+.page-editor__view--compare .local-playback__media > video:not([hidden]) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+}
+.page-editor__view--compare .local-playback__feedback {
+  order: 1;
+  min-block-size: 13rem;
+}
+.page-editor__view--compare .local-playback__feedback .local-toolbar { position: static; }
+.page-editor__view--compare .local-playback__feedback > p { margin-block: .35rem; font-size: .8rem; }
