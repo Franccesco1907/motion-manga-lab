@@ -22,7 +22,8 @@
     "local:start": "node scripts/local-runtime/start.mjs",
     "backup:local": "node scripts/local-backup/cli.mjs backup",
     "restore:local": "node scripts/local-backup/cli.mjs restore",
-    "local:bundle": "node scripts/local-delivery/bundle.mjs"
+    "local:bundle": "node scripts/local-delivery/bundle.mjs",
+    "test:browser": "npm run build && npm run build:server && node scripts/browser-journey/run.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

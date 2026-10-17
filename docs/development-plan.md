@@ -1,8 +1,8 @@
 # Development Plan: Product MVP and Preserved Research Track
 
-**Status:** User-accepted product planning baseline, 2026-10-04; implementation not authorized by this acceptance. Proposed details and OPEN decisions remain as labelled. Research plan retained from 2026-08-30.
+**Status:** Product planning baseline accepted 2026-10-04, followed by separately authorized local/private implementation and local MVP stabilization. Current operations are in the [local MVP runbook](./product/local-mvp-runbook.md) and [execution status](./product/local-execution-status.md). Proposed details and OPEN decisions remain as labelled. Research plan retained from 2026-08-30.
 
-## Current product direction — planning only
+## Product planning baseline and current local implementation
 
 The user approved documenting a user-directed animation MVP inside the main application: users upload JPG/PNG/WebP pages, order them into chapters, use suggested or manual editable selections, direct movement, save their work, and optionally publish it for other readers. The platform does not supply a manga catalog; PDF and CBZ import are deferred. This is a conscious product-planning expansion, not evidence that the product has already been integrated or released.
 
@@ -14,7 +14,7 @@ Read the product documents in this order:
 
 The accepted A workbench (`experiments/a-workbench/README.md`, a repository-root local path) is the engineering baseline to evaluate and reuse, not a production service to expose unchanged. It is local, unversioned engineering evidence, not included in this documentation change or available in a clean clone. Its local single-image limits, model quality and browser observations are not approved product limits or broad usability evidence. The first integration target is one authorized page through editing, persistence and reading; the whole MVP also requires ordered chapter uploads and optional publication.
 
-**Immediate product action:** resolve the decisions that block the first work package and obtain its separate implementation authorization. This documentation approval does not authorize implementation, new dependencies, content imports, model generation, deployment or actual publication. No provider, cost commitment or unresolved study decision is silently selected.
+**Immediate local product action:** complete the runbook checks and the user’s own acceptance pass on the separately authorized local MVP. Source delivery and operational recovery are local engineering work, not Internet deployment, recruitment or third-party-user validation. The original planning approval alone did not authorize implementation; subsequent local authorization does not authorize new dependencies, content imports, model generation, deployment or public publication. No provider, cost commitment or unresolved study decision is silently selected.
 
 ## Research track boundary
 

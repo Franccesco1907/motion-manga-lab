@@ -2,7 +2,7 @@
 
 ## Mission and current stage
 
-This repository is a documentation-first engineering spike for testing whether restrained motion improves manga-reading enjoyment. The application is still a placeholder. Pepper & Carrot Episode 1, Spanish page 2 is provisional spike content only; it is not frozen or representative final-study manga content.
+This active implementation checkout contains a local/private creator MVP and a separate restrained-motion research reader. Use `docs/product/local-mvp-runbook.md` for persistent local operation and recovery; older planning-only revisions do not provide the same operational workflow. Pepper & Carrot Episode 1, Spanish page 2 is provisional spike content only; it is not frozen or representative final-study manga content.
 
 ## Sources of truth and scope
 
@@ -23,13 +23,13 @@ Do not silently resolve an `OPEN` decision, broaden the experiment into a reader
 
 ## Navigation: CodeGraph first
 
-Use CodeGraph before broad manual searching for source behavior, call paths, symbols, or change impact. For MCP calls, always pass:
+Use CodeGraph before broad manual searching for source behavior, call paths, symbols, or change impact. For MCP calls, always pass the absolute path of the repository checkout being inspected. Replace `<repository-root>` below with that actual path:
 
 ```text
-projectPath: /home/franccesco/Projects/motion-manga-lab
+projectPath: <repository-root>
 ```
 
-Run `codegraph status /home/franccesco/Projects/motion-manga-lab` before relying on the index and `codegraph sync /home/franccesco/Projects/motion-manga-lab` after source changes. Documentation and configuration may not be indexed. If CodeGraph is unavailable, stale, or omits the needed file, fall back to direct file reads and focused search; never infer missing evidence.
+Run `codegraph status "<repository-root>"` before relying on the index and `codegraph sync "<repository-root>"` after source changes. Documentation and configuration may not be indexed. If CodeGraph is unavailable, stale, or omits the needed file, fall back to direct file reads and focused search; never infer missing evidence.
 
 ## TDD and verification
 
@@ -41,7 +41,7 @@ Use red-green-refactor for every behavior change:
 
 Add a failing regression test before fixing a bug. Test behavior rather than implementation details. Animation and accessibility checks must be deterministic: control media queries, image decoding, observer entries, document visibility, and WAAPI lifecycle rather than sleeping on wall-clock time. Verify static parity, reading order, keyboard/touch/zoom behavior, one-shot/restart behavior, cleanup, and reduced motion.
 
-Currently available commands are exactly:
+Development, build and local-operation commands:
 
 ```bash
 npm run dev
@@ -51,9 +51,20 @@ npm run typecheck
 npm run lint
 npm run build
 npm run preview
+npm run build:server
+npm start
+npm run account:create -- "<account-name>"
+npm run local:configure -- --data-root "/absolute/private/account-store" --port 8080
+npm run local:doctor
+npm run local:start
+npm run backup:local -- --source "/absolute/private/account-store" --destination "/absolute/private/fresh-backup" --server-stopped
+npm run restore:local -- --source "/absolute/private/fresh-backup" --destination "/absolute/private/fresh-restored-store" --server-stopped
+npm run local:bundle -- --output "/absolute/private/fresh-source-bundle"
+npm run local:bundle -- --verify "/absolute/private/fresh-source-bundle"
+npm run test:browser
 ```
 
-There is currently no E2E, visual-regression, animation-performance, or physical-device test command. Define and authorize the required harness and package script before implementing behavior that depends on such proof; do not invent a command or claim unrun evidence.
+The authorized `test:browser` harness uses existing Chrome and isolated synthetic fixtures for the local account workflow. Run it serially with builds and tests because compiled-entry tests rebuild server output. There is no visual-regression, animation-performance or physical-device test command. Do not invent commands or claim unrun evidence; see the local MVP runbook for prerequisites, private-data boundaries and user-owned human acceptance.
 
 ## Frozen accessibility and motion constraints
 
