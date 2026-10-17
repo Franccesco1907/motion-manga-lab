@@ -16,7 +16,13 @@
     "preview": "vite preview",
     "build:server": "node scripts/build-server.mjs",
     "start": "node dist-server/scripts/self-hosted/start.js",
-    "account:create": "node dist-server/scripts/self-hosted/create-account.js"
+    "account:create": "node dist-server/scripts/self-hosted/create-account.js",
+    "local:configure": "node scripts/local-runtime/configure.mjs",
+    "local:doctor": "node scripts/local-runtime/doctor.mjs",
+    "local:start": "node scripts/local-runtime/start.mjs",
+    "backup:local": "node scripts/local-backup/cli.mjs backup",
+    "restore:local": "node scripts/local-backup/cli.mjs restore",
+    "local:bundle": "node scripts/local-delivery/bundle.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
