@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { PageEditor } from './PageEditor'
@@ -730,6 +730,12 @@ function downloadClient() {
   return client
 }
 
+async function previewForDownload(client = downloadClient()) {
+  const result = await editor(client)
+  await userEvent.click(screen.getByRole('button', { name: 'Preview' }))
+  return result
+}
+
 function nativeDownloads() {
   const downloads: { filename: string; href: string; connected: boolean }[] = []
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
@@ -744,7 +750,7 @@ it('downloads exact current After bytes without rendering, saving or autoplay, i
   const bytes = new Blob([new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 17, 23])], { type: 'video/webm' })
   client.video.mockResolvedValue(bytes)
   vi.mocked(URL.createObjectURL).mockImplementation(blob => blob === bytes ? 'blob:download' : 'blob:working')
-  const { view } = await editor(client)
+  const { view } = await previewForDownload(client)
   const button = screen.getByRole('button', { name: 'Download animation' })
   expect(button).not.toHaveClass('page-editor__primary')
   await userEvent.click(button)
@@ -787,14 +793,14 @@ it.each([
 ])('disables downloading an invalid or outdated artifact %j', async invalid => {
   const client = downloadClient()
   client.latest.mockResolvedValue({ ...renderArtifact, draftRevision: 0, ...invalid })
-  await editor(client)
+  await previewForDownload(client)
   expect(screen.getByRole('button', { name: 'Download animation' })).toBeDisabled()
   expect(client.video).not.toHaveBeenCalled()
 })
 
 it('requires Preview changes after editing and while preparing or failing a new render', async () => {
   const client = downloadClient()
-  await editor(client)
+  await previewForDownload(client)
   fireEvent.change(screen.getByLabelText('Part label'), { target: { value: 'Kept edits' } })
   expect(screen.getByRole('button', { name: 'Download animation' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Download animation' })).toHaveAccessibleDescription(/Preview changes/)
@@ -805,6 +811,7 @@ it('requires Preview changes after editing and while preparing or failing a new 
   expect(screen.getByRole('button', { name: 'Download animation' })).toBeDisabled()
   await act(async () => fail(new Error('Render unavailable')))
   expect(await screen.findByRole('alert')).toHaveTextContent('Render unavailable')
+  await userEvent.click(screen.getByRole('button', { name: 'Preview' }))
   expect(screen.getByRole('button', { name: 'Download animation' })).toBeDisabled()
   expect(screen.getByLabelText('Part label')).toHaveValue('Kept edits')
 })
@@ -813,7 +820,7 @@ it('keeps failed downloads retryable and permits only one pending request', asyn
   const client = downloadClient(), downloads = nativeDownloads()
   let fail!: (error: Error) => void
   client.video.mockReturnValueOnce(new Promise((_resolve, reject) => { fail = reject }))
-  await editor(client)
+  await previewForDownload(client)
   const button = screen.getByRole('button', { name: 'Download animation' })
   fireEvent.click(button)
   fireEvent.click(button)
@@ -829,20 +836,21 @@ it('keeps failed downloads retryable and permits only one pending request', asyn
   expect(client.render).not.toHaveBeenCalled()
 })
 
-it.each(['edit', 'unmount', 'owner', 'project', 'source', 'reload', 'render'] as const)('ignores a pending download after %s even when the client ignores abort', async boundary => {
+it.each(['edit', 'mode', 'unmount', 'owner', 'project', 'source', 'reload', 'render'] as const)('ignores a pending download after %s even when the client ignores abort', async boundary => {
   const client = downloadClient(), downloads = nativeDownloads()
   let complete!: (blob: Blob) => void
   client.video.mockReturnValue(new Promise<Blob>(resolve => { complete = resolve }))
-  const { view } = await editor(client)
+  const { view } = await previewForDownload(client)
   await userEvent.click(screen.getByRole('button', { name: 'Download animation' }))
   const signal = client.video.mock.calls[0][1] as AbortSignal
   if (boundary === 'edit') fireEvent.change(screen.getByLabelText('Part label'), { target: { value: 'Newer edit' } })
+  if (boundary === 'mode') await userEvent.click(screen.getByRole('button', { name: 'Original' }))
   if (boundary === 'unmount') view.unmount()
   if (boundary === 'owner') view.rerender(<PageEditor project={project} originalUrl="blob:original" client={client} ownerId="different-owner" />)
   if (boundary === 'project') view.rerender(<PageEditor project={{ ...project, id: 'other-project' }} originalUrl="blob:original" client={client} />)
   if (boundary === 'source') view.rerender(<PageEditor project={project} originalUrl="blob:new-source" client={client} />)
   if (boundary === 'reload') { await userEvent.click(screen.getByText('Recovery and reload')); await userEvent.click(screen.getByRole('button', { name: 'Retry loading editor' })) }
-  if (boundary === 'render') await userEvent.click(screen.getByRole('button', { name: 'Preview changes' }))
+  if (boundary === 'render') { await userEvent.click(screen.getByRole('button', { name: 'Continue editing' })); await userEvent.click(screen.getByRole('button', { name: 'Preview changes' })) }
   expect(signal.aborted).toBe(true)
   await act(async () => complete(new Blob(['stale'], { type: 'video/webm' })))
   expect(downloads).toHaveLength(0)
@@ -856,6 +864,7 @@ it.each([
   const client = downloadClient(), downloads = nativeDownloads()
   render(<PageEditor project={{ ...project, name }} originalUrl="blob:original" client={client} />)
   await screen.findByLabelText('Part label')
+  await userEvent.click(screen.getByRole('button', { name: 'Preview' }))
   await userEvent.click(screen.getByRole('button', { name: 'Download animation' }))
   await screen.findByText('Download requested. Check your browser downloads.')
   expect(downloads[0].filename).toBe(expected)
@@ -865,7 +874,7 @@ it('retains only its latest download URL without revoking the working image URL'
   const client = downloadClient(), downloads = nativeDownloads()
   let sequence = 0
   vi.mocked(URL.createObjectURL).mockImplementation(blob => blob instanceof Blob && blob.type === 'video/webm' ? `blob:download-${++sequence}` : 'blob:working')
-  const { view } = await editor(client)
+  const { view } = await previewForDownload(client)
   await userEvent.click(screen.getByRole('button', { name: 'Download animation' }))
   await screen.findByText('Download requested. Check your browser downloads.')
   expect(URL.revokeObjectURL).not.toHaveBeenCalledWith('blob:download-1')
@@ -882,10 +891,96 @@ it('retains only its latest download URL without revoking the working image URL'
 it.each(['video/mp4', 'image/png', ''])('rejects non-WebM download bytes %j without renaming or changing the draft', async type => {
   const client = downloadClient(), downloads = nativeDownloads()
   client.video.mockResolvedValue(new Blob(['wrong-format'], { type }))
-  await editor(client)
+  await previewForDownload(client)
   await userEvent.click(screen.getByRole('button', { name: 'Download animation' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('The current WebM animation is unavailable.')
   expect(downloads).toHaveLength(0)
   expect(screen.getByRole('button', { name: 'Download animation' })).toBeEnabled()
   expect(client.render).not.toHaveBeenCalled()
+})
+
+
+it('separates draft persistence, canvas history and preview actions into labelled groups', async () => {
+  const { client } = await editor(downloadClient())
+  const draftActions = screen.getByRole('group', { name: 'Draft actions' })
+  expect(within(draftActions).getByRole('button', { name: 'Save draft' })).toBeDisabled()
+  expect(within(draftActions).getByRole('status', { name: 'Draft save status' })).toHaveTextContent('Saved revision 0')
+  expect(within(draftActions).queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Download animation' })).not.toBeInTheDocument()
+  const canvas = screen.getByRole('region', { name: 'Page canvas' })
+  const history = within(canvas).getByRole('group', { name: 'Edit history' })
+  expect(within(history).getByRole('button', { name: 'Undo' })).toBeDisabled()
+  expect(within(history).getByRole('button', { name: 'Redo' })).toBeDisabled()
+  const preview = within(canvas).getByRole('group', { name: 'Preview actions' })
+  expect(within(preview).getByRole('button', { name: 'Preview changes' })).toHaveClass('page-editor__primary')
+  expect(within(canvas).getByRole('group', { name: 'Canvas view' })).toBeInTheDocument()
+  expect(screen.queryByRole('toolbar')).not.toBeInTheDocument()
+  expect(client.render).not.toHaveBeenCalled()
+})
+
+it('keeps save status truthful and independent of preview processing and failure', async () => {
+  const client = api()
+  let submit!: (job: LocalRenderJob) => void
+  client.render.mockReturnValue(new Promise<LocalRenderJob>(resolve => { submit = resolve }))
+  await editor(client)
+  const saveStatus = screen.getByRole('status', { name: 'Draft save status' })
+  fireEvent.change(screen.getByLabelText('Part label'), { target: { value: 'Unsaved label' } })
+  expect(saveStatus).toHaveTextContent('Unsaved changes.')
+  expect(client.saveDraft).not.toHaveBeenCalled()
+  await userEvent.click(screen.getByRole('button', { name: 'Preview changes' }))
+  await waitFor(() => expect(client.render).toHaveBeenCalledTimes(1))
+  expect(saveStatus).toHaveTextContent('Saved revision 1')
+  expect(screen.getByRole('button', { name: 'Preparing preview…' })).toHaveAccessibleDescription(/Preparing preview|Draft saved/)
+  await act(async () => submit({ ...renderJob, status: 'failed', error: { code: 'render_failed', message: 'Render unavailable.' } }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Render unavailable')
+  expect(saveStatus).toHaveTextContent('Saved revision 1')
+  fireEvent.change(screen.getByLabelText('Part label'), { target: { value: 'New unsaved label' } })
+  client.saveDraft.mockRejectedValueOnce(new Error('Save unavailable.'))
+  await userEvent.click(screen.getByRole('button', { name: 'Save draft' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Save unavailable')
+  expect(saveStatus).toHaveTextContent('Unsaved changes.')
+})
+
+it('keeps download feedback beside After and preserves the mounted playback on download updates', async () => {
+  const client = downloadClient(), downloads = nativeDownloads()
+  await previewForDownload(client)
+  const comparison = screen.getByRole('group', { name: 'Compare previews' })
+  const downloadGroup = screen.getByRole('group', { name: 'Animation download' })
+  expect(comparison.parentElement).toBe(downloadGroup.parentElement)
+  const button = within(downloadGroup).getByRole('button', { name: 'Download animation' })
+  expect(button).not.toHaveClass('page-editor__primary')
+  await userEvent.click(screen.getByRole('button', { name: 'Play' }))
+  const video = await screen.findByLabelText(`Animated page: ${project.name}`)
+  client.video.mockRejectedValueOnce(new Error('Download unavailable.'))
+  await userEvent.click(button)
+  expect(await within(downloadGroup).findByRole('alert')).toHaveTextContent('Download unavailable')
+  expect(button).toHaveAccessibleDescription(/Download failed: Download unavailable/)
+  expect(screen.getByLabelText(`Animated page: ${project.name}`)).toBe(video)
+  await userEvent.click(button)
+  expect(await within(downloadGroup).findByRole('status')).toHaveTextContent('Download requested.')
+  expect(button).toHaveAccessibleDescription('Download requested. Check your browser downloads.')
+  expect(screen.getByLabelText(`Animated page: ${project.name}`)).toBe(video)
+  expect(downloads).toHaveLength(1)
+  await userEvent.click(screen.getByRole('button', { name: 'Static' }))
+  expect(client.saveDraft).not.toHaveBeenCalled()
+  expect(client.render).not.toHaveBeenCalled()
+})
+
+
+it('keeps one download feedback slot mounted through Before, After and download success', async () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+  const client = downloadClient()
+  nativeDownloads()
+  await previewForDownload(client)
+  const downloadGroup = screen.getByRole('group', { name: 'Animation download' })
+  const feedback = downloadGroup.querySelector('.page-editor__download-feedback')
+  expect(feedback).toBeInTheDocument()
+  expect(feedback).toBeEmptyDOMElement()
+  await userEvent.click(screen.getByRole('button', { name: 'Before' }))
+  expect(feedback).toContainElement(screen.getByText('Switch to After to download the current animation.'))
+  await userEvent.click(screen.getByRole('button', { name: 'After' }))
+  expect(feedback).toBeEmptyDOMElement()
+  await userEvent.click(screen.getByRole('button', { name: 'Download animation' }))
+  expect(feedback).toContainElement(await within(downloadGroup).findByRole('status'))
+  expect(downloadGroup.querySelector('.page-editor__download-feedback')).toBe(feedback)
 })
