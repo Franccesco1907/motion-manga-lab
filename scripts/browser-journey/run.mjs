@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
 import { once } from 'node:events'
-import { access, chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -20,7 +20,7 @@ await Promise.all([chmod(temporary, 0o700), chmod(evidence, 0o700)])
 const password = randomBytes(32).toString('base64url'), username = 'journey-operator'
 let accountRoot = join(temporary, 'accounts')
 const children = new Set(), report = { status: 'running', checks: [], screenshots: [], limitations: ['Desktop headless Chrome only; not physical-device, visual-regression, accessibility-audit or load-test proof.'] }
-let browser, server, cdp, stage = 'preflight'
+let browser, server, cdp, browserCdp, stage = 'preflight'
 const network = [], renderRequests = [], videoRequests = [], heavyRequests = []
 let cleanupPromise
 
@@ -42,6 +42,7 @@ function child(command, args, options = {}) {
 async function cleanup() {
   cleanupPromise ??= (async () => {
     cdp?.close()
+    browserCdp?.close()
     await Promise.allSettled([...children].map(stop))
     await rm(temporary, { recursive: true, force: true })
   })()
@@ -81,6 +82,8 @@ async function startBrowser(origin, iteration) {
     try { return Number((await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]) }
     catch (error) { if (error.code === 'ENOENT') return false; throw error }
   }, { label: 'sandboxed Chrome readiness' })
+  const version = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json()
+  browserCdp = await CDP.connect(version.webSocketDebuggerUrl)
   const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()
   cdp = await CDP.connect(targets.find(target => target.type === 'page').webSocketDebuggerUrl)
   await cdp.send('Page.enable')
@@ -218,6 +221,79 @@ async function snapshot() {
 async function decodedPlayback(timeout = 15000) {
   return cdp.wait(`(() => { const v = document.querySelector('video'); return v && !v.hidden && !v.paused && v.currentTime > 0 && v.videoWidth > 0 && {width:v.videoWidth,height:v.videoHeight,duration:v.duration}; })()`, 'actual naturally decoded video playback', timeout)
 }
+async function downloadDisabled(hint) {
+  await cdp.wait(`(() => { const button = [...document.querySelectorAll('button')].find(e => e.textContent === 'Download animation'); return button?.disabled; })()`, 'Download animation is disabled')
+  if (hint) assert.ok(await cdp.evaluate(`journey.text(${JSON.stringify(hint)})`), 'The disabled download explains how to get a current After clip.')
+}
+async function decodeDownloadedVideo(bytes, artifact) {
+  // Decode the actual downloaded bytes outside the application and browser player.
+  // Use the same already-required system binary as the renderer; no dependency is added.
+  const decoder = child('/snap/bin/ffmpeg', ['-hide_banner', '-i', 'pipe:0', '-map', '0:v:0', '-an', '-f', 'framemd5', '-'])
+  let output = '', diagnostics = ''
+  decoder.stdout.on('data', chunk => { output += chunk })
+  decoder.stderr.on('data', chunk => { diagnostics += chunk })
+  const timeout = setTimeout(() => decoder.kill('SIGKILL'), 30000)
+  try {
+    const completion = once(decoder, 'close')
+    decoder.stdin.end(bytes)
+    const [code] = await completion
+    assert.equal(code, 0, 'The downloaded WebM must decode independently with FFmpeg.')
+  } finally { clearTimeout(timeout); children.delete(decoder) }
+  const durationMatch = /Duration: (\d+):(\d+):(\d+\.\d+)/.exec(diagnostics)
+  assert.ok(durationMatch, 'The encoded WebM must declare finite metadata, not an unbounded browser loop.')
+  const duration = Number(durationMatch[1]) * 3600 + Number(durationMatch[2]) * 60 + Number(durationMatch[3])
+  assert.ok(Number.isFinite(duration) && duration > 0 && duration <= 6, 'The downloaded clip is finite and no longer than six seconds.')
+  assert.equal(duration, artifact.duration, 'The downloaded encoded duration matches the saved artifact, not three preview plays.')
+  const dimensions = /^#dimensions 0:\s+(\d+)x(\d+)$/m.exec(output)
+  assert.ok(dimensions, 'Independent decoding exposes actual video dimensions.')
+  assert.deepEqual([Number(dimensions[1]), Number(dimensions[2])], [artifact.width, artifact.height])
+  const frames = output.split('\n').filter(line => /^0,/.test(line)).map(line => line.split(',').map(value => value.trim()))
+  assert.equal(frames.length, Math.round(artifact.duration * artifact.fps), 'Decode every frame of exactly one saved clip.')
+  const uniqueFrames = new Set(frames.map(frame => frame.at(-1))).size
+  assert.ok(uniqueFrames > 1, 'Independently decoded pixels must actually move; a valid static WebM is insufficient.')
+  return { decoder:'system FFmpeg', duration, width:artifact.width, height:artifact.height, frames:frames.length, uniqueFrames }
+}
+async function downloadAfter(artifact, expectedSha256, beforeSha256) {
+  const folder = await mkdtemp(join(evidence, 'synthetic-download-'))
+  await chmod(folder, 0o700)
+  const started = [], progress = new Map()
+  const disposeStart = browserCdp.on('Browser.downloadWillBegin', event => started.push(event))
+  const disposeProgress = browserCdp.on('Browser.downloadProgress', event => progress.set(event.guid, event))
+  // Automation-only permission for this newly launched synthetic-test browser.
+  // This changes no user's browser settings and is not a production policy bypass.
+  await browserCdp.send('Browser.setDownloadBehavior', {behavior:'allow', downloadPath:folder, eventsEnabled:true})
+  const renders = renderRequests.length, videos = videoRequests.length
+  try {
+    await click('Download animation')
+    const download = await eventually(() => started[0], {label:'native browser download begins after trusted pointer click'})
+    assert.match(download.suggestedFilename, /^[A-Za-z0-9][A-Za-z0-9._-]*\.webm$/, 'The browser receives a safe WebM filename.')
+    assert.ok(!download.suggestedFilename.includes('..'), 'The suggested filename must not contain path traversal.')
+    const completed = await eventually(() => {
+      const event = progress.get(download.guid)
+      if (event?.state === 'canceled') throw new Error('Native browser download was canceled.')
+      return event?.state === 'completed' && event
+    }, {label:'native browser download completes', timeout:30000})
+    assert.equal(started.length, 1, 'One explicit click creates exactly one native download.')
+    const names = await readdir(folder)
+    assert.deepEqual(names, [download.suggestedFilename], 'The completed native download exists without partial or unexpected files.')
+    const path = join(folder, names[0])
+    await chmod(path, 0o600)
+    const bytes = await readFile(path)
+    assert.ok(bytes.length > 0)
+    assert.equal(completed.totalBytes, bytes.length)
+    assert.equal(completed.receivedBytes, bytes.length)
+    const sha256 = createHash('sha256').update(bytes).digest('hex')
+    assert.equal(sha256, expectedSha256, 'The actual downloaded file must exactly match the current saved After artifact.')
+    assert.notEqual(sha256, beforeSha256, 'Download must not silently export the previous Before artifact.')
+    assert.deepEqual(videoRequests.slice(videos), [`/api/local-projects/${artifact.projectId}/artifacts/${artifact.id}/video`], 'The download retrieves exactly the current artifact through the existing authenticated endpoint.')
+    assert.equal(renderRequests.length, renders, 'Downloading a completed artifact must not create a render job.')
+    const decoded = await decodeDownloadedVideo(bytes, artifact)
+    return {path,filename:names[0],bytes:bytes.length,sha256,beforeSha256,artifactId:artifact.id,nativeDownloadCompleted:true,trustedPointer:true,renderRequestsAdded:0,...decoded}
+  } finally {
+    disposeStart(); disposeProgress()
+    await browserCdp.send('Browser.setDownloadBehavior', {behavior:'default', eventsEnabled:false})
+  }
+}
 async function staticPlayback() {
   await cdp.wait(`document.querySelector('video')?.hidden && !document.querySelector('.local-playback img')?.hidden`, 'static original after playback')
 }
@@ -233,7 +309,7 @@ async function playAndStop() {
   assert.equal(videoRequests.length, requests, 'Static must not fetch another video.')
   return metadata
 }
-async function capture(name, width) {
+async function capture(name, width, expectDownload = true) {
   await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: false })
   await cdp.evaluate(`document.querySelector('.page-editor').scrollIntoView({block:'start'})`)
   // Let responsive layout and image sizing settle, not video timing.
@@ -242,9 +318,19 @@ async function capture(name, width) {
     const frame = document.querySelector('.page-editor__canvas');
     const media = [...frame.querySelectorAll('img,video')].find(e => !e.hidden && e.getBoundingClientRect().width > 0);
     const box = e => { const b = e.getBoundingClientRect(); return {width:b.width,height:b.height}; };
-    return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,canvas:box(frame),media:box(media)};
+    const actions = document.querySelector('.page-editor__actions');
+    const download = [...actions.querySelectorAll('button')].find(e => e.textContent === 'Download animation');
+    const bounds = download?.getBoundingClientRect();
+    return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,canvas:box(frame),media:box(media),
+      primaryActions:[...actions.querySelectorAll('.page-editor__primary')].map(e => e.textContent),
+      download:bounds && {left:bounds.left,right:bounds.right,top:bounds.top,bottom:bounds.bottom,width:bounds.width,height:bounds.height,secondary:!download.classList.contains('page-editor__primary'),viewportHeight:innerHeight}};
   })()`)
   assert.ok(metrics.documentWidth <= width, 'The editor must not overflow horizontally.')
+  assert.equal(metrics.primaryActions.length, 1, 'Download must not add another primary editor action.')
+  if (expectDownload) {
+    assert.ok(metrics.download?.secondary, 'Download animation remains a secondary action.')
+    assert.ok(metrics.download.width > 0 && metrics.download.height > 0 && metrics.download.left >= 0 && metrics.download.right <= width && metrics.download.top >= 0 && metrics.download.bottom <= metrics.download.viewportHeight, 'Download animation must be visible and unclipped in the desktop and narrow screenshots.')
+  } else assert.equal(metrics.download, undefined, 'A page with no successful preview must not offer a download.')
   const path = join(evidence, `${name}-${width}.png`)
   const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false })
   await writeFile(path, Buffer.from(data, 'base64'), { mode: 0o600 })
@@ -274,7 +360,7 @@ try {
   }
   await sharp(pixels, { raw: { width, height, channels: 3 } }).png().toFile(image)
   await writeFile(invalid, 'This is not an image.', { mode: 0o600 })
-  let origin, firstArtifact, currentArtifact
+  let origin, firstArtifact, currentArtifact, firstVideoSha256, currentVideoSha256, previousVideoSha256
   await check('isolated account login', async () => { origin = await startServer(true); await startBrowser(origin, 1) })
   await check('rejected upload retains retry selection', async () => {
     await upload(invalid)
@@ -325,7 +411,9 @@ try {
     await cdp.wait(`journey.text('Ready. Compare Before and After, or continue editing.')`, 'matching preview ready')
     assert.equal(renderRequests.length, renders + 1, 'One click requests exactly one render.')
     const played = videoRequests.slice(videos)
-    firstArtifact = (await snapshot()).artifact
+    const rendered = await snapshot()
+    firstArtifact = rendered.artifact
+    firstVideoSha256 = rendered.videoSha256
     assert.deepEqual(played, [`/api/local-projects/${firstArtifact.projectId}/artifacts/${firstArtifact.id}/video`])
     assert.ok(await cdp.evaluate(`document.querySelector('video').muted && document.querySelector('video').playsInline`))
     await cdp.wait(`document.querySelector('video')?.hidden && document.querySelector('video')?.ended`, 'one natural preview play returns to Static', 10000)
@@ -351,7 +439,9 @@ try {
     await click('Preview changes')
     const metadata = await decodedPlayback(60000)
     const played = videoRequests.slice(videos)
-    currentArtifact = (await snapshot()).artifact
+    const rendered = await snapshot()
+    currentArtifact = rendered.artifact
+    currentVideoSha256 = rendered.videoSha256
     assert.notEqual(currentArtifact.id, firstArtifact.id)
     assert.equal(renderRequests.length, renders + 1)
     assert.deepEqual(played, [`/api/local-projects/${currentArtifact.projectId}/artifacts/${currentArtifact.id}/video`])
@@ -399,6 +489,18 @@ try {
     } finally { dispose() }
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] })
     await cdp.wait(`!!document.querySelector('video') && ![...document.querySelectorAll('.local-playback button')].find(e => e.textContent === 'Play').disabled`, 'motion preference recovery')
+  })
+  await check('reduced motion permits explicit native download without playback', async () => {
+    await cdp.send('Emulation.setEmulatedMedia', {features:[{name:'prefers-reduced-motion',value:'reduce'}]})
+    try {
+      await cdp.wait(`journey.text('Reduced motion is enabled. Reading stays static.')`, 'static reduced-motion mode before explicit download')
+      const download = await downloadAfter(currentArtifact, currentVideoSha256, firstVideoSha256)
+      assert.ok(await cdp.evaluate(`!document.querySelector('video') && !document.querySelector('.local-playback img').hidden`), 'Explicit download does not start in-app playback under reduced motion.')
+      return {...download,reducedMotion:true,staticPlayback:true}
+    } finally {
+      await cdp.send('Emulation.setEmulatedMedia', {features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+      await cdp.wait(`!!document.querySelector('video')`, 'ordinary playback controls restored after explicit download')
+    }
   })
   await check('native repeat movement retains speed and intensity intent in saved rendered output', async () => {
     await click('Continue editing')
@@ -460,7 +562,9 @@ try {
     const metadata = await decodedPlayback(60000)
     const played = videoRequests.slice(videos)
     const rendered = await snapshot()
+    previousVideoSha256 = currentVideoSha256
     currentArtifact = rendered.artifact
+    currentVideoSha256 = rendered.videoSha256
     assert.equal(renderRequests.length, renders + 1)
     assert.deepEqual(rendered.draft.regions[0].motion, motion, 'Preview preparation preserves the saved repeat settings.')
     assert.equal(currentArtifact.draftRevision, rendered.draft.revision, 'The rendered clip matches the revision saved by Preview changes.')
@@ -471,14 +575,25 @@ try {
     await staticPlayback()
     return {nativeInput:true,controlLayout,medium,fast,slow,adjusted,repeatPersisted:true,artifactId:currentArtifact.id,...metadata}
   })
+  await check('native download exports the current finite moving After WebM, never Before', async () => {
+    await click('Before')
+    await downloadDisabled('Switch to After to download the current animation.')
+    await click('After')
+    await decodedPlayback()
+    await click('Static')
+    await staticPlayback()
+    return downloadAfter(currentArtifact, currentVideoSha256, previousVideoSha256)
+  })
   await check('cancel pending preview keeps edits and never starts rendering', async () => {
     await click('Continue editing')
     await details('Part inspector')
     await fill('Intensity', '45')
+    await downloadDisabled('Preview changes before downloading the current animation.')
     const renders = renderRequests.length, videos = videoRequests.length
     await pauseNextSave(async ready => {
       await click('Preview changes')
       await ready()
+      await downloadDisabled()
       await click('Cancel preview')
       await cdp.wait(`![...document.querySelectorAll('button')].some(e=>e.textContent === 'Cancel preview') && [...document.querySelectorAll('button')].some(e=>e.textContent === 'Preview changes')`, 'cancel removes the pending preview controls while saving settles')
       assert.equal(await cdp.evaluate(`journey.field('Intensity').value`), '45')
@@ -512,6 +627,7 @@ try {
   })
   await check('close browser and server then reopen durable draft and artifact', async () => {
     cdp.close(); cdp = undefined
+    browserCdp.close(); browserCdp = undefined
     await stop(browser); browser = undefined
     await stop(server); server = undefined
     origin = await startServer()
@@ -526,6 +642,7 @@ try {
   })
   await check('stopped-store backup restore preserves original draft and playable artifact', async () => {
     cdp.close(); cdp = undefined
+    browserCdp.close(); browserCdp = undefined
     await stop(browser); browser = undefined
     await stop(server); server = undefined
     const backup = join(temporary, 'backup'), restored = join(temporary, 'accounts-restored')
@@ -569,7 +686,7 @@ try {
     await fill('Selection width', '0.2'); await fill('Selection height', '0.1')
     await click('Rotate / sway')
     await cdp.evaluate(`(() => { const advanced = [...document.querySelectorAll('summary')].find(e=>e.textContent==='Advanced'); if(advanced?.parentElement.open) advanced.click(); })()`)
-    const editDesktop = await capture('dense-edit', 1440), editNarrow = await capture('dense-edit', 390)
+    const editDesktop = await capture('dense-edit', 1440, false), editNarrow = await capture('dense-edit', 390, false)
     assert.equal(heavyRequests.length, heavy, 'Dense selection editing does not render or request a model.')
     const renders = renderRequests.length
     await click('Preview changes')
