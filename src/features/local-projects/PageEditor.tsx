@@ -19,10 +19,15 @@ type EditorMode = (typeof EDITOR_MODE)[keyof typeof EDITOR_MODE]
 interface PlaybackIntent { id: string; artifactId: string }
 interface PreviewIntent { id: string; generation: number; sourceVersion: string; revision?: number; allowPlay: boolean; before: LocalRenderArtifact | null }
 interface WorkingSize { width: number; height: number }
+function animationFilename(name: string) {
+  const stem = name.replace(/\.[^.]*$/, '').normalize('NFKC').replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80)
+  return stem ? `${stem}-animation.webm` : 'animation.webm'
+}
+
 const message = (error: unknown) => error instanceof Error ? error.message : 'The local operation failed. Your draft is kept; retry explicitly.'
 
 export function PageEditor(props: PageEditorProps) {
-  return <PageEditorSession key={`${props.project.id}:${props.ownerId ?? 'local'}`} {...props} />
+  return <PageEditorSession key={`${props.project.id}:${props.ownerId ?? 'local'}:${props.originalUrl}`} {...props} />
 }
 
 function PageEditorSession({ project, originalUrl, client = authoringClient, ownerId = 'local' }: PageEditorProps) {
@@ -55,6 +60,12 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   const [beforeArtifact, setBeforeArtifact] = useState<LocalRenderArtifact | null>(null)
   const [showBefore, setShowBefore] = useState(false)
   const [preparing, setPreparing] = useState(false)
+  const [renderFailed, setRenderFailed] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [downloadStatus, setDownloadStatus] = useState('')
+  const [downloadError, setDownloadError] = useState('')
+  const downloadRequest = useRef<AbortController | undefined>(undefined)
+  const downloadUrl = useRef('')
   const [autoPlayRequest, setAutoPlayRequest] = useState<PlaybackIntent>()
   const previewIntent = useRef<PreviewIntent | undefined>(undefined)
   const previewSequence = useRef(0)
@@ -73,8 +84,16 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
 
   function own(blob: Blob) { const url = URL.createObjectURL(blob); urls.current.add(url); return url }
 
+  function invalidateDownload() {
+    downloadRequest.current?.abort()
+    downloadRequest.current = undefined
+    setDownloading(false)
+    setDownloadStatus('')
+    setDownloadError('')
+  }
+
   function invalidatePreview() { if (previewIntent.current) previewIntent.current.allowPlay = false; setAutoPlayRequest(undefined) }
-  function changeMode(next: EditorMode) { invalidatePreview(); setMode(next) }
+  function changeMode(next: EditorMode) { invalidateDownload(); invalidatePreview(); setMode(next) }
 
   function reload(discard = false) {
     invalidatePreview()
@@ -86,6 +105,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   }
 
   function load(discard = false) {
+    invalidateDownload()
     previewIntent.current = undefined
     session.current = Symbol()
     ++jobSequence.current
@@ -120,6 +140,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
       workingOwned.current = own(working)
       setWorkingUrl(workingOwned.current)
       setArtifact(latest)
+      setRenderFailed(false)
       setLoading(false)
       setError('')
     }).catch((failure: unknown) => {
@@ -133,7 +154,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
     ++jobSequence.current
     void load()
     const owned = urls.current
-    return () => { previewIntent.current = undefined; alive.current = false; session.current = Symbol(); loadController.current?.abort(); jobController.current?.abort(); for (const url of owned) URL.revokeObjectURL(url); owned.clear() }
+    return () => { downloadRequest.current?.abort(); downloadRequest.current = undefined; if (downloadUrl.current) URL.revokeObjectURL(downloadUrl.current); downloadUrl.current = ''; previewIntent.current = undefined; alive.current = false; session.current = Symbol(); loadController.current?.abort(); jobController.current?.abort(); for (const url of owned) URL.revokeObjectURL(url); owned.clear() }
     // Project boundaries remount this editor; external client synchronization is intentional.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project.id, client, ownerId])
@@ -173,6 +194,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   }, [client, project.id, selected?.maskId, sourceVersion, maskRequest])
 
   function edit(next: LocalDraft, record = true) {
+    invalidateDownload()
     invalidatePreview()
     const previous = currentDraft.current
     if (record && previous) setHistory(current => recordEdit(current, previous, next))
@@ -257,6 +279,8 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   }
 
   function renderFailure(failure: unknown) {
+    invalidateDownload()
+    setRenderFailed(true)
     const labels: Record<string, string> = { ...MOTION_LABELS, ...GEOMETRY_LABELS, fps: 'Frames per second', duration: 'Scene or movement duration' }
     const readable = message(failure).replace(/\b(anchorX|anchorY|dx|dy|angle|fps|scaleX|scaleY|scale|cycles|period|pause|wristInfluence|start|duration|width|height|x|y)\b/g, key => labels[key] ?? key)
     setPreparing(false)
@@ -275,9 +299,12 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
       const result = next.artifact
       const current = currentDraft.current
       if (!intent || !current || intent.generation !== editGeneration.current || result.projectId !== project.id || next.projectId !== project.id || result.sourceVersion !== intent.sourceVersion || next.sourceVersion !== intent.sourceVersion || result.sourceVersion !== current.sourceVersion || result.draftRevision !== intent.revision || next.draftRevision !== intent.revision || current.revision !== intent.revision) {
+        setRenderFailed(true)
         setStatus('Outdated result. Preview changes again to see your current settings. The last successful preview is kept.')
         return
       }
+      invalidateDownload()
+      setRenderFailed(false)
       setArtifact(result)
       if (intent.allowPlay) {
         setShowBefore(false)
@@ -288,7 +315,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
       previewIntent.current = undefined
     }
     if (next.status === 'failed') { invalidatePreview(); renderFailure(new Error(next.error?.message ?? 'Preview failed.')) }
-    if (next.status === 'cancelled') { invalidatePreview(); setPreparing(false); setStatus('Render cancelled. Draft and selections are kept.') }
+    if (next.status === 'cancelled') { invalidateDownload(); setRenderFailed(true); invalidatePreview(); setPreparing(false); setStatus('Render cancelled. Draft and selections are kept.') }
   }
   const observeJobRef = useRef(observeJob)
   useEffect(() => { observeJobRef.current = observeJob })
@@ -321,6 +348,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   }
   async function render() {
     if (!draft || saving || loading || preparing) return
+    invalidateDownload()
     const epoch = session.current
     // Capture the edit and comparison boundary before the asynchronous save.
     const intent: PreviewIntent = { id: `preview-${++previewSequence.current}`, generation: editGeneration.current, sourceVersion: draft.sourceVersion, allowPlay: true, before: artifact?.sourceVersion === draft.sourceVersion ? artifact : null }
@@ -344,6 +372,8 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
     } catch (failure) { if (alive.current && epoch === session.current && sequence === jobSequence.current) { invalidatePreview(); renderFailure(failure) } }
   }
   async function cancel() {
+    invalidateDownload()
+    setRenderFailed(true)
     invalidatePreview()
     previewIntent.current = undefined
     setPreparing(false)
@@ -356,6 +386,7 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
     catch (failure) { if (alive.current && epoch === session.current && sequence === jobSequence.current) setError(message(failure)) }
   }
   function compare(before: boolean) {
+    invalidateDownload()
     invalidatePreview()
     setShowBefore(before)
     const chosen = before ? beforeArtifact : artifact
@@ -379,6 +410,43 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   const stale = !!artifact && (dirty || artifact.draftRevision !== savedRevision || artifact.sourceVersion !== draft?.sourceVersion)
   const ready = !!artifact && !stale && !preparing && !activeJob
   const displayedArtifact = showBefore ? beforeArtifact : artifact
+  const invalidArtifact = !!artifact && (artifact.projectId !== project.id || artifact.videoMime !== 'video/webm' || artifact.normalizationVersion !== draft?.normalizationVersion || !Number.isSafeInteger(artifact.draftRevision) || artifact.draftRevision < 0 || !Number.isFinite(artifact.duration) || artifact.duration <= 0 || artifact.duration > 6 || !Number.isSafeInteger(artifact.width) || artifact.width <= 0 || !Number.isSafeInteger(artifact.height) || artifact.height <= 0 || !Number.isFinite(artifact.fps) || artifact.fps <= 0)
+  const downloadReason = mode === EDITOR_MODE.PREVIEW && showBefore ? 'Switch to After to download the current animation.'
+    : stale || invalidArtifact || renderFailed ? 'Preview changes before downloading the current animation.'
+      : loading || saving || preparing || activeJob ? 'Wait for the current preview operation before downloading.' : ''
+
+  async function download() {
+    if (!artifact || !draft || downloadReason || downloadRequest.current) return
+    const requested = artifact, epoch = session.current, generation = editGeneration.current
+    const controller = new AbortController()
+    downloadRequest.current = controller
+    setDownloading(true)
+    setDownloadStatus('')
+    setDownloadError('')
+    const current = () => alive.current && !controller.signal.aborted && downloadRequest.current === controller && epoch === session.current && generation === editGeneration.current && currentDraft.current?.sourceVersion === requested.sourceVersion && currentDraft.current?.revision === requested.draftRevision
+    try {
+      const blob = await client.video(requested, controller.signal)
+      if (!current()) return
+      if (!/^video\/webm(?:;|$)/i.test(blob.type) || blob.size === 0) throw new Error('The current WebM animation is unavailable.')
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = animationFilename(project.name)
+      try {
+        document.body.append(anchor)
+        anchor.click()
+      } catch (failure) { URL.revokeObjectURL(url); throw failure }
+      finally { anchor.remove() }
+      // Keep the native-download URL alive after activation; playback owns separate URLs.
+      if (downloadUrl.current) URL.revokeObjectURL(downloadUrl.current)
+      downloadUrl.current = url
+      setDownloadStatus('Download requested. Check your browser downloads.')
+    } catch (failure) {
+      if (current()) setDownloadError(`Download failed: ${message(failure)} Your draft and preview are kept. Retry Download animation.`)
+    } finally {
+      if (current()) { downloadRequest.current = undefined; setDownloading(false) }
+    }
+  }
   const frameAspectRatio = workingSize ? workingSize.width / workingSize.height : project.width / project.height
   const frameStyle = { '--editor-page-ratio': frameAspectRatio } as CSSProperties
 
@@ -396,8 +464,12 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
         <button onClick={() => historyStep(false)} disabled={!history.past.length || saving}>Undo</button>
         <button onClick={() => historyStep(true)} disabled={!history.future.length || saving}>Redo</button>
         {draft && <><button onClick={() => void save()} disabled={saving || loading || !dirty}>Save draft</button>{mode === EDITOR_MODE.PREVIEW && ready ? <button className="page-editor__primary" onClick={() => changeMode(EDITOR_MODE.EDIT)}>Continue editing</button> : <button className="page-editor__primary" onClick={() => void render()} disabled={saving || loading || activeJob || preparing}>{preparing || activeJob ? 'Preparing preview…' : 'Preview changes'}</button>}{(preparing || activeJob) && <button onClick={() => void cancel()}>Cancel preview</button>}</>}
+        {artifact && <button onClick={() => void download()} disabled={downloading || !!downloadReason} aria-describedby={downloadReason ? 'animation-download-help' : undefined}>{downloading ? 'Preparing download…' : 'Download animation'}</button>}
       </div>
     </header>
+    {artifact && downloadReason && <p className="page-editor__hint" id="animation-download-help">{downloadReason}</p>}
+    {downloadStatus && <p role="status">{downloadStatus}</p>}
+    {downloadError && <p className="page-editor__error" role="alert">{downloadError}</p>}
     {loading && <p role="status">Loading editable draft…</p>}
     {error && <p className="page-editor__error" role="alert">{error}</p>}
     {recoveryNotice && <p>{recoveryNotice}</p>}
