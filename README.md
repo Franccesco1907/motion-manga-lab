@@ -1,8 +1,10 @@
 # Motion Manga Lab
 
-The research track asks whether restrained motion improves reader enjoyment without disrupting reading pace. Product MVP planning is a separate track documented below; this repository does not yet provide a deployed public authoring service.
+The **v0.1.0 local/private MVP** supports creating a page, animating selected parts, comparing previews, saving, reopening and downloading the current animation. The separate research track asks whether restrained motion improves reader enjoyment without disrupting reading pace. This is not a public authoring service or a validated research release.
 
 ## Local MVP: start here
+
+[Version 0.1.0 release notes](docs/product/releases/v0.1.0.md) define the frozen local scope, supported runtime and known limits. No remote publication is part of this release.
 
 Use the [local MVP runbook](docs/product/local-mvp-runbook.md) for persistent configuration, preflight/start, source-only delivery, safe backup/restore and the repeatable browser journey. Run these commands from the repository root of this implementation; older planning-only revisions do not provide the same commands.
 

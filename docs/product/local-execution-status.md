@@ -1,12 +1,16 @@
 # Local authoring-to-reader implementation status
 
-**Scope:** Subsequently authorized local/private and self-hosted engineering implementation, 2026-10-04–05. Both browser workflows are implemented; no Internet deployment, validated release, product policy freeze or research result is claimed. The original [M0–M5 plan](implementation-plan.md) and [D1–D7 decisions](mvp.md#open-decisions-and-earliest-blocking-milestone) remain the planning baseline.
+**Current release:** The owner accepted **v0.1.0** for local/private use. The [release contract](releases/v0.1.0.md) freezes its bounded authoring, preview, persistence and exact-WebM download workflow. Earlier implementation observations below retain their original scope; local closure is not Internet deployment, a public-product policy freeze or a research result.
 
-## Local MVP stabilization
+## Local release closure
 
-The [local MVP runbook](local-mvp-runbook.md) is the current operational entry point for this implementation’s repository checkout. It covers a source-only delivery, persistent private account-store configuration, preflight/start, stopped-service backup/restore and a permanent synthetic browser journey. Older planning-only revisions do not provide the same operational workflow.
+Use the [local MVP runbook](local-mvp-runbook.md) to start the accepted release, preserve the configured private account store and perform stopped-service backup/restore. The owner reports that the workflow works; no recruitment or third-party-user study is required for this local release. That report is not broader usability, physical-device, accessibility or enjoyment evidence.
 
-These local engineering tools preserve the existing creator UX. They do not authorize public hosting, new artwork, model generation, dependencies or changes to the research contract. Human acceptance belongs to the user; no recruitment or third-party-user test is required for this local MVP. Current stabilization results are recorded separately in [local MVP verification](local-mvp-verification.md): 313 tests in 49 suites, production client/server builds, the 12-checkpoint permanent browser journey and actual launcher smoke. These are working-tree results; clean copied-source delivery checks are reported separately, not inferred from them. Historical observations below retain their original scope.
+The current journey is create/upload → order chapter pages → manually select a rectangle or brush mask → direct finite movement → explicitly preview/compare → save or undo/redo → reopen → download the exact current **After** WebM. **Rotate / sway**, **Move**, **Pulse / scale**, **Repeat movement** and advanced stretch are included within existing bounds. Before is the previous successful preview or a labeled original fallback. Download does not render or transcode, and it excludes **Loop preview (3 plays)** playback repetitions; browser download status alone does not prove a file was saved.
+
+[Local MVP verification history](local-mvp-verification.md) preserves earlier engineering checkpoints. Final v0.1.0 candidate/source-bundle checks belong in a separate external receipt tied to the exact source inventory and local Git tag; neither that history nor the results below are the final release receipt. The original [M0–M5 plan](implementation-plan.md) and [D1–D7 decisions](mvp.md#open-decisions-and-earliest-blocking-milestone) remain broader-product planning: those decisions stay OPEN without blocking this separately scoped local closure.
+
+No public auth platform, Internet hosting, cloud services, catalog, payments, automatic-model work or additional formats are authorized. Existing private accounts, local snapshots and optional unlisted guest reading remain implemented local/private capabilities, not an Internet deployment. No new artwork, model generation, dependency or change to the research contract follows from the release label.
 
 ## Available locally
 
@@ -14,26 +18,28 @@ These local engineering tools preserve the existing creator UX. They do not auth
 | --- | --- |
 | Import | Still PNG/JPEG/WebP bytes verified and retained exactly; server UUIDs, private storage, complete atomic imports and safe errors. No silent migration or deletion of existing imported pages. |
 | Draft | One source-bound coherent raw draft per page, optimistic revisions and save/reopen. Incomplete numeric strings are stored without coercion; render validation is separate. |
-| Selection/direction | Normalized working-image rectangle and add/erase brush controls; legacy static/translate/rotate/reveal and explicitly selected schema-2 scale/stretch controls. Drawing factors and pivots are distinct from selection geometry. Manual masks are not semantic cutouts or background reconstruction. |
-| Processing | Bounded original-texture rendering through an owned process, finite encoded WebM and static poster; explicit start/cancel/retry, matching source/draft versions and no automatic retries. Optional offline audited Magi/SAM proposals require human review. |
+| Selection/direction | Normalized working-image rectangle and add/erase brush controls; Rotate / sway, Move, Pulse / scale and finite Repeat movement, with exact/scale/stretch controls in Advanced. Legacy static/translate/rotate/reveal remains supported. Drawing factors and pivots are distinct from selection geometry. Manual masks are not semantic cutouts or perfect background reconstruction. |
+| Processing | Bounded original-texture rendering through an owned process, finite encoded WebM and static poster; explicit start/cancel/retry, matching source/draft versions and no automatic retries. Existing optional offline model adapters are not required by v0.1.0; the local launcher keeps them unavailable. |
 | Chapters | Explicit ordered arrays of imported page IDs; persisted rename/reorder with revisions. A page failure does not overwrite other originals or drafts. |
 | Local snapshots | Explicit review before capturing complete matching rendered pages. Immutable captures, atomic active revision, explicit replace/unpublish; later edits do not change an existing snapshot. Failed/stale output cannot replace valid reading. |
 | Reader | Private ordered reading and local snapshot reading, static fallback and explicit finite playback controls; reduced-motion reading remains static. The research reader remains separate. |
 
-These cover bounded authoring and reading through M1–M3. The optional account service adds closed-account isolation and reviewed guest reading related to M4, described below. They do **not** satisfy Internet-launch policy/security acceptance or M5 release-quality thresholds.
+These capabilities support the accepted local v0.1.0 workflow. The account service also provides closed-account isolation and optional reviewed guest reading, described below. Their relationship to the historical M1–M4 plan does **not** imply Internet-launch policy/security acceptance or completion of broader M5 quality thresholds.
 
-## Technical local defaults, not product decisions
+## Supported v0.1.0 configuration and bounds
 
 - Originals: at most 10 MiB and 20 million pixels; still images only. Bytes remain immutable.
 - Working source: EXIF-oriented, white-flattened RGB, maximum edge 1280. `sourceVersion` is the original-byte SHA-256; `normalizationVersion: working-image-v1` defines normalized working-image fractions, not original pixel coordinates. Old coordinates are not silently reinterpreted.
 - Drafts: at most 16 regions, 64 strokes per region, 4096 aggregate brush points, 64 characters per raw numeric field and 256 KiB per JSON request/state file. Chapters contain at most 100 unique page IDs.
-- Motion: legacy duration cap six seconds, 24 fps and eight moving regions remain. The browser explicitly selects schema-2 scale/stretch with positive targets 0.75–1.25; existing version-1 drafts are not silently upgraded. See [the versioned affine boundary](affine-v2.md). Raw incomplete factors remain saveable; active render values must be finite, complete and within their version's bounds.
+- Motion: the local release retains a maximum six-second clip, 24 fps and eight moving regions. The browser explicitly selects schema-2 scale/stretch with positive targets 0.75–1.25; existing version-1 drafts are not silently upgraded. See [the versioned affine boundary](affine-v2.md). Raw incomplete factors remain saveable; active render values must be finite, complete and within their version's bounds.
 - Processing: one shared heavy render/inference slot; at most 144 frames, 32 MiB encoded output, bounded owned-worker timeouts. Brush raster work is bounded at two million operations per selection and aggregate moving-source mask area at 200,000 pixels to bound numerical background completion.
 - Local-mode storage: one development-server process; restricted directories/files and atomic JSON replacement, without account isolation or owner quotas. The separate account service adds owner-scoped roots and provisional quotas. Neither mode promises encryption, automatic backups, multi-server coordination or retention automation. Explicit stopped-service account-store backup/restore is documented in the local MVP runbook.
 
 Snapshot manifests contain approved page names and immutable artifact references, not raw drafts, masks, model logs or filesystem paths. Reader asset requests pin the captured snapshot revision, including initial revision zero, so explicit replacement cannot mix new media into an older manifest. Unpublishing denies subsequent local lookup/asset requests for **all** revisions; already fetched media is not remotely revoked. This is not a shareable-URL privacy guarantee.
 
 ## Run and preserve data
+
+The following requirements are the supported bounded v0.1.0 configuration, not cross-platform support or approval of output quality for every manga.
 
 For the persistent account-based MVP, use the configure/check/start path in the [runbook](local-mvp-runbook.md). The following describes the separate Vite development mode: run `npm run dev` and open its printed loopback URL. The application data directory is `~/.local/share/motion-manga-lab/local-projects-v1`, outside Vite serving paths. Production build and static preview do not contain the service.
 
@@ -45,7 +51,7 @@ Existing data is not automatically migrated, cleaned or overwritten. Preserve th
 
 Tests use generated synthetic pixels and temporary private roots: exact-byte reopen, raw invalid-input persistence, concurrent revision conflicts, atomic failure recovery, chapter order, immutable snapshots and withdrawn lookup denial. Native HTTP integration exercises the real renderer/encoder, finite-video decoding and later-edit/stale-render behavior. Optional model smoke evidence is distinct from deterministic adapter tests and does not establish selection quality.
 
-The permanent `npm run test:browser` harness now targets the bounded local account workflow with isolated synthetic fixtures. It is not a visual-regression, physical-device or formal accessibility/performance acceptance harness. Synthetic examples are not a varied rights-cleared evaluation corpus. Large/occluded backgrounds, mask leakage, lettering quality and anatomy still require review; keep defective cases static. Internet hosting, operational security review, reporting/takedown policy, release thresholds, broader transform-quality acceptance and the formal enjoyment-study decisions remain unresolved or deferred as documented in D1–D7. Implemented closed accounts and bounded affine controls do not freeze those final policies or quality thresholds.
+The permanent `npm run test:browser` harness now targets the bounded local account workflow with isolated synthetic fixtures. It is not a visual-regression, physical-device or formal accessibility/performance acceptance harness. Synthetic examples are not a varied rights-cleared evaluation corpus. Large/occluded backgrounds, mask leakage, lettering quality and anatomy still require review; keep defective cases static. Internet hosting, operational security review, reporting/takedown policy, broader/public release thresholds, general transform-quality acceptance and the formal enjoyment-study decisions remain unresolved or deferred. D1–D7 stay OPEN for the broader product; the accepted local release does not freeze those final policies or quality thresholds.
 
 ### Historical checks: original implementation worktree
 
@@ -58,7 +64,7 @@ These historical one-off checks are bounded engineering observations on the Linu
 
 The review-chain preparation adds one regression for self-provisioning the artifact tests' required temporary parent, without changing the production generator's approved path gate. Its complete workspace tip passes **134 tests in 23 suites**, typecheck, lint, build and diff checks. Existing dependencies were reused; this is not clean-clone or remote CI evidence.
 
-## Standalone account browser extension
+## Historical implementation: standalone account browser extension
 
 The compiled Node service and browser now provide closed-account login/logout, per-owner authoring, session/CSRF boundaries and explicit reviewed guest reading. Runtime detection gates private requests; expiry/logout clears prior-owner recovery and private Blob views, and late responses cannot resurrect another owner's state. Existing Vite/local mode remains available without silently migrating or exposing its stored originals.
 
@@ -70,6 +76,8 @@ At that publication stage, the fresh UI worktree was based directly on the verif
 
 ## Creator workspace refinement
 
+The notes below preserve earlier refinement-stage implementation and evidence. For the current frozen controls, comparison/download semantics and local acceptance, use the [v0.1.0 contract](releases/v0.1.0.md) and [runbook](local-mvp-runbook.md).
+
 The subsequently authorized creator-first interface opens a page library instead of the research reader. Uploading or opening a page enters one shared canvas with Original, Edit and Preview views. A parts list and contextual inspector replace the repeated full-page images; mobile puts the canvas first and starts the inspector collapsed. Basic rotation, scaling and translation presets expose bounded intensity and speed controls. Advanced retains the exact raw fields and optional existing model assistance.
 
 Undo/redo stores bounded content history, not account identity, source versions, server revisions or processing jobs. Generation remains explicit and saves the coherent draft first. Failed processing retains the last valid preview, and changed content is marked out of date. Saving an already-clean draft is disabled so it cannot invalidate an unchanged preview by advancing its revision.
@@ -80,4 +88,4 @@ At the creator-refinement stage, the complete workspace passed **243 tests in 44
 
 At that stage, a repeated one-off native Chrome journey on isolated synthetic fixtures passed **11 workflow checkpoints and three supplemental checks**: upload, selection, presets and sliders, undo/redo, incomplete-field save/reopen, explicit rendering, native three-play completion/static fallback, ordered chapters and a private reviewed snapshot, keyboard/touch emulation, reduced motion and account isolation/expiry. Screenshot inspection caught thumbnail overflow hiding card details; the final browser run verified containment and unobscured labels. Compact headers moved the initial mobile canvas from 586 to 383 CSS pixels at a 390-pixel viewport without horizontal overflow. No guest link was created for these checks.
 
-Separate read-only native Chrome observations reopened an existing 14-region, eight-actor, 3,902-point private draft, preserved its raw state and all 31 baseline files, and confirmed one visible canvas, native explicit playback and no horizontal overflow at 1440 and 390 CSS pixels. All 14 final manual-mask bounds matched native rasterization; 11 differed from their seed rectangles. The compact mobile selector retains every part while hiding duplicate shortcuts; tall portrait pages still require scrolling. These historical one-off observations are bounded local engineering checks, not creator usability results, physical-device acceptance or results from the permanent browser harness. Research, rights, deployment and release gates remain open.
+Separate read-only native Chrome observations reopened an existing 14-region, eight-actor, 3,902-point private draft, preserved its raw state and all 31 baseline files, and confirmed one visible canvas, native explicit playback and no horizontal overflow at 1440 and 390 CSS pixels. All 14 final manual-mask bounds matched native rasterization; 11 differed from their seed rectangles. The compact mobile selector retains every part while hiding duplicate shortcuts; tall portrait pages still require scrolling. These historical one-off observations are bounded local engineering checks, not creator usability results, physical-device acceptance or results from the permanent browser harness. Research, rights, deployment and broader/public release gates remain open; this historical observation does not undo the separately scoped local v0.1.0 closure.

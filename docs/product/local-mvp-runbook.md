@@ -1,6 +1,6 @@
 # Run and preserve the local MVP
 
-Use this checkout for the existing creator workspace, private account persistence and finite playback. Human acceptance belongs to the user; no recruitment or third-party-user test is required. This is not public deployment or a research result.
+Use **v0.1.0** for the frozen local workflow: create, animate, compare, save, reopen and download. The [release notes](releases/v0.1.0.md) define supported runtime and limits. Human acceptance belongs to the user; no recruitment or third-party-user test is required. This is not public deployment or a research result.
 
 ## Start here
 
@@ -101,6 +101,28 @@ npm run build:server
 
 Run `npm run local:doctor` there if checking runtime prerequisites. These commands, not an existing `node_modules` symlink, are the clean-source build procedure. Dependency installation can require registry access; models and private data are not needed to compile. Actual build results must be recorded separately, never inferred from a valid manifest. Git is needed to create a new bundle from the original working tree, not to build the delivered source.
 
+## Replace a release safely or roll back
+
+There is no automatic updater or schema migration. Keep each release's verified source bundle with a stopped-store backup made by that release; a version label alone does not prove compatibility. Source bundles are not binary installers, signed releases or backups of your private work.
+
+1. Stop the service and **all writers/workers**. Use the backup commands above with a fresh destination before changing source or dependencies. Retain the current matching source bundle unchanged.
+2. Verify the replacement source bundle, then copy and build it in a **fresh build directory** using the source-delivery commands above. Do not install into the retained bundle or overwrite the previous build. For a future version, require explicit store-compatibility guidance before opening existing data.
+3. Restore the stopped backup into a **fresh private candidate store** with the matching release's restore tool. Configure the replacement build to use that copy, run `local:doctor`, then `local:start`. Sign in and check save, reopen, preview and download before accepting it. Keep the original store and backup untouched.
+
+To roll back, stop every writer again. Use the retained previous release's verified source and clean build; restore its **pre-upgrade backup** into another fresh private directory. From that matching previous build:
+
+```sh
+npm run restore:local -- \
+  --source "/absolute/private/pre-upgrade-backup" \
+  --destination "/absolute/private/fresh-rollback-store" \
+  --server-stopped
+npm run local:configure -- --data-root "/absolute/private/fresh-rollback-store" --port 8080
+npm run local:doctor
+npm run local:start
+```
+
+Do not point older code at data changed by a newer release. Rollback restores the backup's state, not edits made afterward; preserve those separately before deciding what to discard. Configuration selects the store for later starts, so confirm the intended root before sign-in. Neither this procedure nor browser restart checks establish machine-reboot recovery or cross-version migration support.
+
 ## Repeat the permanent browser check
 
 From the active checkout, with no concurrent build/test process:
@@ -125,11 +147,11 @@ npm run build
 npm run build:server
 ```
 
-Two workers bound CPU contention while preserving the existing native encoder timeouts; no suite is skipped. The compiled-entry tests rebuild output, so they must not overlap browser verification. See [current stabilization evidence](local-mvp-verification.md) for recorded results. Historical one-off counts in [execution status](local-execution-status.md) are not results from this harness.
+Two workers bound CPU contention while preserving the existing native encoder timeouts; no suite is skipped. The compiled-entry tests rebuild output, so they must not overlap browser verification. See [verification history](local-mvp-verification.md) for recorded results. Historical one-off counts in [execution status](local-execution-status.md) are not results from this harness.
 
 ## Security caution for local uploads
 
-The authorized dependency patch installs Sharp 0.35.5, brace-expansion 5.0.12, source-map-js 1.2.2 and undici 7.29.1; full and production-only npm audits both report zero vulnerabilities at this checkpoint. The supported ingestion path retains the [official Sharp SVG-decoder block](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) before untrusted metadata as defense in depth: SVG remains unsupported, while PNG/JPEG/WebP imports and immutable originals are preserved. These time-bounded audit results are not security certification. See [patch versions, audit receipts and historical findings](local-mvp-verification.md#svg-decoder-hardening-and-dependency-remediation). Use the new separately verified dependency-patched source snapshot/receipt, not the superseded original or workaround-only hardened snapshots. Broader security assurance remains separate work.
+The authorized dependency patch installs Sharp 0.35.5, brace-expansion 5.0.12, source-map-js 1.2.2 and undici 7.29.1; full and production-only npm audits both reported zero vulnerabilities at the recorded dependency-patch checkpoint. The supported ingestion path retains the [official Sharp SVG-decoder block](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) before untrusted metadata as defense in depth: SVG remains unsupported, while PNG/JPEG/WebP imports and immutable originals are preserved. These time-bounded audit results are not security certification. See [patch versions, audit receipts and historical findings](local-mvp-verification.md#svg-decoder-hardening-and-dependency-remediation). Use the new separately verified dependency-patched source snapshot/receipt, not the superseded original or workaround-only hardened snapshots. Broader security assurance remains separate work.
 
 ## If a check refuses to start
 
