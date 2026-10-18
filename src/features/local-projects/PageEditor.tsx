@@ -460,20 +460,14 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
   return <section className="page-editor" aria-labelledby="editor-title">
     <header className="page-editor__header">
       <h2 className="page-editor__sr-only" id="editor-title">Page controls</h2>
-      <div className="local-toolbar page-editor__actions">
-        <button onClick={() => historyStep(false)} disabled={!history.past.length || saving}>Undo</button>
-        <button onClick={() => historyStep(true)} disabled={!history.future.length || saving}>Redo</button>
-        {draft && <><button onClick={() => void save()} disabled={saving || loading || !dirty}>Save draft</button>{mode === EDITOR_MODE.PREVIEW && ready ? <button className="page-editor__primary" onClick={() => changeMode(EDITOR_MODE.EDIT)}>Continue editing</button> : <button className="page-editor__primary" onClick={() => void render()} disabled={saving || loading || activeJob || preparing}>{preparing || activeJob ? 'Preparing preview…' : 'Preview changes'}</button>}{(preparing || activeJob) && <button onClick={() => void cancel()}>Cancel preview</button>}</>}
-        {artifact && <button onClick={() => void download()} disabled={downloading || !!downloadReason} aria-describedby={downloadReason ? 'animation-download-help' : undefined}>{downloading ? 'Preparing download…' : 'Download animation'}</button>}
-      </div>
+      {draft && <div className="page-editor__save-actions" role="group" aria-label="Draft actions">
+        <button onClick={() => void save()} disabled={saving || loading || !dirty} aria-describedby="editor-save-status">Save draft</button>
+        <p className="page-editor__save-state" id="editor-save-status" role="status" aria-label="Draft save status">{saving ? 'Saving complete draft…' : dirty ? 'Unsaved changes.' : `Saved revision ${savedRevision}`}</p>
+      </div>}
     </header>
-    {artifact && downloadReason && <p className="page-editor__hint" id="animation-download-help">{downloadReason}</p>}
-    {downloadStatus && <p role="status">{downloadStatus}</p>}
-    {downloadError && <p className="page-editor__error" role="alert">{downloadError}</p>}
     {loading && <p role="status">Loading editable draft…</p>}
     {error && <p className="page-editor__error" role="alert">{error}</p>}
     {recoveryNotice && <p>{recoveryNotice}</p>}
-    <p className="page-editor__save-state" role="status">{saving ? 'Saving complete draft…' : status || (dirty ? 'Editing · unsaved changes.' : draft ? `Saved revision ${draft.revision}` : '')}</p>
     {draft && <div className="page-editor__workspace">
       <aside className="page-editor__parts" aria-label="Page parts" hidden={mode !== EDITOR_MODE.EDIT}>
         <h3>Select a part</h3>
@@ -483,7 +477,18 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
         {selected && <button disabled={saving} onClick={() => { edit({ ...draft, regions: draft.regions.filter(region => region.id !== selected.id) }); setSelectedId(draft.regions.find(region => region.id !== selected.id)?.id ?? ''); setSelectionOpen(false) }}>Remove selected part</button>}
       </aside>
       <section className="page-editor__canvas" aria-label="Page canvas">
-        <div className="page-editor__canvas-bar" aria-label="Canvas view">{Object.values(EDITOR_MODE).map(value => <button key={value} aria-pressed={mode === value} onClick={() => changeMode(value)}>{value}</button>)}<span className="page-editor__fit">Fit to canvas</span></div>
+        <div className="page-editor__canvas-actions">
+          <div className="page-editor__history" role="group" aria-label="Edit history">
+            <button onClick={() => historyStep(false)} disabled={!history.past.length || saving}>Undo</button>
+            <button onClick={() => historyStep(true)} disabled={!history.future.length || saving}>Redo</button>
+          </div>
+          <div className="page-editor__preview-actions" role="group" aria-label="Preview actions">
+            {mode === EDITOR_MODE.PREVIEW && ready ? <button className="page-editor__primary" onClick={() => changeMode(EDITOR_MODE.EDIT)}>Continue editing</button> : <button className="page-editor__primary" onClick={() => void render()} disabled={saving || loading || activeJob || preparing} aria-describedby={status ? 'editor-preview-status' : undefined}>{preparing || activeJob ? 'Preparing preview…' : 'Preview changes'}</button>}
+            {(preparing || activeJob) && <button onClick={() => void cancel()}>Cancel preview</button>}
+          </div>
+          {status && <p className="page-editor__preview-status" id="editor-preview-status" role="status">{status}</p>}
+        </div>
+        <div className="page-editor__canvas-bar" role="group" aria-label="Canvas view">{Object.values(EDITOR_MODE).map(value => <button key={value} aria-pressed={mode === value} onClick={() => changeMode(value)}>{value}</button>)}<span className="page-editor__fit">Fit to canvas</span></div>
         {mode === EDITOR_MODE.EDIT && <div className="page-editor__view">
           {selected && workingUrl ? <SelectionSurface key={`${draft.sourceVersion}:${selected.id}`} region={selected} imageUrl={workingUrl} maskUrl={maskSourceId === `${draft.sourceVersion}:${selected.maskId}` ? maskUrl : undefined} tool={tool} radius={radius} interaction={interaction} onDimensions={setWorkingSize} onChange={region => editRegion(() => region)} />
             : workingUrl ? <img src={workingUrl} alt={`Working page: ${project.name}`} /> : <p>Working image unavailable. Retry loading the editor.</p>}
@@ -491,7 +496,17 @@ function PageEditorSession({ project, originalUrl, client = authoringClient, own
         </div>}
         {mode === EDITOR_MODE.ORIGINAL && <div className="page-editor__view"><img src={originalUrl} alt={`Original page: ${project.name}`} /><p>Original bytes are unchanged.</p></div>}
         {mode === EDITOR_MODE.PREVIEW && <div className="page-editor__view page-editor__view--compare" style={frameStyle}>
-          {artifact && <div className="page-editor__comparison" aria-label="Compare previews"><button aria-pressed={showBefore} onClick={() => compare(true)}>Before</button><button aria-pressed={!showBefore} onClick={() => compare(false)}>After</button></div>}
+          {artifact && <div className="page-editor__result-actions">
+            <div className="page-editor__comparison" role="group" aria-label="Compare previews"><button aria-pressed={showBefore} onClick={() => compare(true)}>Before</button><button aria-pressed={!showBefore} onClick={() => compare(false)}>After</button></div>
+            <div className="page-editor__download" role="group" aria-label="Animation download">
+              <button onClick={() => void download()} disabled={downloading || !!downloadReason} aria-describedby={[downloadReason && 'animation-download-help', downloadStatus && 'animation-download-status', downloadError && 'animation-download-error'].filter(Boolean).join(' ') || undefined}>{downloading ? 'Preparing download…' : 'Download animation'}</button>
+              <div className="page-editor__download-feedback">
+                {downloadReason && <p className="page-editor__hint" id="animation-download-help">{downloadReason}</p>}
+                {downloadStatus && <p id="animation-download-status" role="status">{downloadStatus}</p>}
+                {downloadError && <p className="page-editor__error" id="animation-download-error" role="alert">{downloadError}</p>}
+              </div>
+            </div>
+          </div>}
           {artifact && <p className="page-editor__comparison-label">{showBefore ? beforeArtifact ? 'Before · previous successful preview' : 'Before · original (no previous preview)' : stale ? 'Last successful preview · outdated' : 'After · current changes'}</p>}
           {displayedArtifact ? <LocalPlayback key={displayedArtifact.id} name={project.name} originalUrl={originalUrl} loadVideo={signal => client.video(displayedArtifact, signal)} frameAspectRatio={frameAspectRatio} autoPlayRequest={autoPlayRequest?.artifactId === displayedArtifact.id ? autoPlayRequest.id : undefined} /> : <div className="local-playback"><div className="local-playback__media" style={{ aspectRatio: frameAspectRatio }}><img src={originalUrl} alt={`Static original: ${project.name}`} /></div><div className="local-playback__feedback"><p>{showBefore ? 'No previous successful preview. Showing the unchanged original.' : 'Preview changes to see the rendered movement. Switching views never starts a render.'}</p></div></div>}
         </div>}

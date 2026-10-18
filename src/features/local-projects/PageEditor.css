@@ -8,11 +8,21 @@
   background: var(--editor-paper);
   color: var(--editor-ink);
 }
-.page-editor__header { position: sticky; top: 0; z-index: 4; padding-block: .25rem; background: var(--editor-paper); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.page-editor__header { padding-block: .25rem .75rem; background: var(--editor-paper); }
 .page-editor__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.page-editor .page-editor__actions { margin-block: 0; padding: .25rem 0; background: var(--editor-paper); border-bottom: 1px solid var(--editor-line); }
+.page-editor__save-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; }
+.page-editor__canvas-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; padding: .5rem; background: var(--editor-paper); border-bottom: 1px solid var(--editor-line); }
+.page-editor__history, .page-editor__preview-actions { display: flex; flex-wrap: wrap; gap: .5rem; min-width: 0; }
+.page-editor__preview-status { flex-basis: 100%; margin: 0; font-size: .8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.page-editor :is(.page-editor__save-actions, .page-editor__canvas-actions, .page-editor__canvas-bar, .page-editor__result-actions) button { min-width: 2.75rem; min-height: 2.75rem; max-width: 100%; }
+.page-editor__result-actions { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .5rem .75rem; }
+.page-editor__download { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; min-width: 0; flex: 0 1 17rem; margin-left: auto; }
+/* Reserve three feedback lines so comparison toggles and downloads keep the reading surface still. */
+.page-editor__download-feedback { flex-basis: 100%; min-width: 0; min-block-size: 4.5em; font-size: .8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.page-editor__download-feedback > p { margin: 0; }
+.page-editor__download-feedback > .page-editor__error { padding: .5rem; }
 .page-editor .page-editor__primary { color: white; border-color: var(--editor-accent); background: var(--editor-accent); font-weight: 650; }
-.page-editor__save-state { min-height: 1.5rem; margin: .25rem 0 .5rem; font-size: .85rem; }
+.page-editor__save-state { flex: 1 1 8rem; min-width: 0; margin: 0; font-size: .85rem; line-height: 1.5; }
 .page-editor__workspace { display: grid; gap: 1rem; align-items: start; }
 .page-editor__workspace > * { min-width: 0; }
 .page-editor__canvas { grid-row: 1; border: 1px solid var(--editor-line); background: #e9edf2; }
@@ -69,7 +79,13 @@
   .page-editor__parts h3 { width: 100%; margin-bottom: 0; }
   .page-editor__parts > label { flex: 1 1 10rem; margin: 0; }
   .page-editor__parts > button { flex: 0 1 auto; }
-  .page-editor__header { top: 0; }
+  .page-editor { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
+  .page-editor :is(button, input, select, summary, a) { scroll-margin-block: 1rem calc(6rem + env(safe-area-inset-bottom, 0px)); }
+  .page-editor__preview-actions { position: fixed; inset: auto 0 0; z-index: 5; display: flex; flex-wrap: nowrap; gap: .5rem; padding: .5rem .75rem calc(.5rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--editor-line); background: var(--editor-paper); }
+  .page-editor .page-editor__preview-actions button { min-width: 0; min-height: 3.5rem; }
+  .page-editor__preview-actions .page-editor__primary { flex: 1 1 0; }
+  .page-editor__preview-actions > button:not(.page-editor__primary) { flex: 0 1 8rem; }
+  .page-editor__download { flex-basis: 100%; justify-content: flex-start; margin-left: 0; }
 }
 .page-editor__workspace > [hidden] { display: none; }
 @media (min-width: 70rem) {
@@ -104,3 +120,8 @@
 }
 .page-editor__view--compare .local-playback__feedback .local-toolbar { position: static; }
 .page-editor__view--compare .local-playback__feedback > p { margin-block: .35rem; font-size: .8rem; }
+
+@media (max-width: 24rem) {
+  .page-editor__comparison-label { min-block-size: 2lh; }
+  .page-editor__view--compare .local-playback__feedback { min-block-size: 16rem; }
+}
