@@ -1,12 +1,14 @@
-# Local MVP stabilization evidence
+# Local MVP verification history
+
+**Current release boundary:** [v0.1.0 local release](releases/v0.1.0.md) defines the frozen owner-local scope. Final candidate/source-bundle checks belong in an external receipt tied to the exact source inventory and local Git tag; the historical checkpoints below are not that receipt. The owner has reported the local workflow working; this is not third-party usability or broad artwork-quality evidence.
 
 **Recorded 2026-10-17, implementation working tree.** The initial working-tree checks below passed on this Linux machine with existing dependencies, before the subsequently authorized SVG-decoder hardening described below. They preserve the existing creator UX and do not establish a public release, research outcome or human acceptance. The user alone performs the [local acceptance pass](local-mvp-runbook.md#check-the-existing-workspace).
 
 Evidence-directory placeholders below redact private operator locations; they do not rename or relocate the recorded files. Those temporary records remain outside Git and are not public artifact links. Recorded commands, results and limitations remain historical evidence, not a claim that a clean clone was tested.
 
-**Prior dependency-patched checkpoint:** full and production-only npm audits report **zero vulnerabilities**; 314 tests in 49 suites, forced typecheck/lint, the exact `npm run test:browser` production-build/12-checkpoint pipeline and launcher smoke passed. [Dependency-patched results](#dependency-patched-working-tree-repeat) supersede the initial and workaround-only dependency checkpoints below; the creator UX results immediately below are the current source verification. Zero reported advisories are not security certification.
+**Prior dependency-patched checkpoint:** full and production-only npm audits report **zero vulnerabilities**; 314 tests in 49 suites, forced typecheck/lint, the exact `npm run test:browser` production-build/12-checkpoint pipeline and launcher smoke passed. [Dependency-patched results](#dependency-patched-working-tree-repeat) supersede the initial and workaround-only dependency checkpoints below; the creator UX results immediately below record a later historical checkpoint, before the final v0.1.0 candidate. Zero reported advisories are not security certification.
 
-## Creator preview flow — current UX checkpoint
+## Creator preview flow — historical 372-test checkpoint
 
 The authorized creator simplification now follows **select a part → adjust motion → Preview changes → Before/After → continue editing**. Motion controls come first; selection editing and exact technical fields use separate disclosures. Static movement guides do not pretend to be rendered animation. Preview changes saves and renders once, then plays only its matching result. Comparison uses one previous successful artifact and one current artifact, with a labeled original fallback; this is not version history.
 
@@ -116,7 +118,7 @@ After the SVG admission regression and workaround, the complete repeat passed:
 
 Logs are `<private-stabilization-evidence-directory>/verification/hardened-full-suite.log` and `hardened-quality-browser.log`. The repeated native report is `<private-hardened-browser-evidence-directory>/report.json` (`status: passed`, 12 passing checks). Unlike the initial checkpoint, the combined npm browser command itself was executed. These remain bounded working-tree/synthetic checks, not clean-copy delivery proof or security certification.
 
-### Authorized dependency patches and current audit
+### Authorized dependency patches and recorded audit
 
 The separately authorized patch installs exactly `sharp` **0.35.5**, `brace-expansion` **5.0.12**, `source-map-js` **1.2.2** and `undici` **7.29.1**, with matching package-lock resolutions. Sharp's matching optional native packages were updated; actual runtime versions report librsvg **2.63.2** and libvips **8.18.7** (previously 2.62.91 and 8.18.6). No new dependency or override was introduced.
 
@@ -143,4 +145,4 @@ The original source snapshot and the workaround-only hardened snapshot are **sup
 
 Source-bundle verification, fresh copied-source `npm ci`, client/server builds and any repeated browser run from that clean copy are **separate final-delivery checks**. Their external operator logs must be reported separately; neither this working-tree run nor a source manifest proves they ran. The [runbook](local-mvp-runbook.md#deliver-a-verifiable-source-snapshot) defines the procedure without claiming unrecorded results.
 
-The source bundle is a verifiable working-tree snapshot, not a Git release or commit. No public deployment, new artwork/model generation, dependency addition, research-contract decision or recruitment is part of this local stabilization. Human acceptance remains the user's own task; no third-party-user prerequisite is imposed.
+The bundle format is a verifiable working-tree source snapshot, not by itself a Git release or commit. For v0.1.0, a clean bundle must be tied to the local release commit/tag in the external delivery receipt; no GitHub release or remote publication is implied. No public deployment, new artwork/model generation, dependency addition, research-contract decision or recruitment is part of this local stabilization. Human acceptance remains the user's own task; no third-party-user prerequisite is imposed.

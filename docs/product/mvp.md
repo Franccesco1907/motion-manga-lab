@@ -1,54 +1,33 @@
 # User-directed manga animation MVP
 
-**Status:** User-accepted planning baseline, 2026-10-04. Planning approval alone was not implementation authorization. Subsequently authorized local and self-hosted execution is recorded in [the implementation status](local-execution-status.md); proposed details and OPEN release/research decisions remain as labelled.
+**Status:** The owner accepted the local/private creator MVP as **v0.1.0**. Its [release contract](releases/v0.1.0.md) freezes the current local workflow, not the broader public product proposed on 2026-10-04. D1–D7 below remain OPEN for that broader scope.
 
-Users upload their own manga, select parts of the drawing, direct their movement, and optionally publish an animated reading experience for others. AI assists selection; it does not replace the user's creative direction or guarantee correct results.
+## Closed local v0.1.0 scope
 
-Read next: [architecture proposal](architecture.md) → [implementation plan](implementation-plan.md). The [development-plan gateway](../development-plan.md) separates this product track from the unchanged research protocol.
-
-## Confirmed scope
-
-| Area | Confirmed outcome |
+| Area | Local release contract |
 | --- | --- |
-| Content | User uploads only; no platform-provided manga catalog. Accept JPG, PNG and WebP images, ordered as pages of a chapter. PDF and CBZ are deferred. |
-| Selection | Offer suggested regions; let the user select heads, hands or other parts manually and correct the suggestions. Repositioning or resizing a selection is distinct from animating it. |
-| Direction | The user chooses what moves, in which direction, how far and when. Enlargement, reduction and stretching are desired capabilities whose exact first-release scope remains OPEN. |
-| Application | Integrate authoring into the main application, with editor, processing and reader boundaries rather than leaving the experience only in `experiments/`. |
-| Persistence and sharing | Save editable projects and optionally publish animations for other people to read. Uploading or saving is not itself a request to publish. |
-| Quality | Validate usability, visual fidelity, accessibility and performance on varied content; the accepted laboratory is a starting point, not proof for every manga. |
+| Content and chapters | Create local work from owner-supplied still JPG/PNG/WebP pages; preserve original bytes and arrange pages in ordered chapters. No source catalog or new import format. |
+| Selection | Manual rectangle and add/erase brush controls. Selection geometry is separate from drawing movement; a manual mask is not a semantic cutout or perfect background reconstruction. |
+| Motion | Bounded **Rotate / sway**, **Move**, **Pulse / scale** and finite **Repeat movement**; exact fields and independent-axis stretch remain in **Advanced**. Motion stays within the existing encoded clip, not an endless loop. |
+| Editing and preview | One shared canvas, explicit **Preview changes**, Before/After comparison, reversible content edits and raw-field save/reopen. Before means the prior successful preview, or a labeled original fallback; it is not always the original. |
+| Persistence and download | Private save/reopen and last valid preview retention; **Download animation** retrieves the exact current **After** WebM without rendering or transcoding. It excludes the player's extra three-play loop. The browser owns file saving. |
+| Operation | The runbook's local account-store workflow, preflight/start and stopped-service backup/restore. Existing private reading, local snapshots and optional unlisted guest reading are not Internet deployment. |
 
-## Intended journey
+Use the [local MVP runbook](local-mvp-runbook.md) to operate the release and [execution status](local-execution-status.md) for implementation details. Optional model assistance is not required or newly authorized; the supported local launcher keeps it unavailable. The owner reports that the workflow works. This is owner acceptance, not a varied-content, third-party-user, physical-device, accessibility or research finding.
 
-1. Create a project, upload pages and arrange their chapter order.
-2. Open a page; request suggested selections or draw a region directly on the artwork.
-3. Inspect the actual cutout, correct it, and set its action, direction, extent and timing.
-4. Preview against the original, correct artifacts, and save the editable project.
-5. Read the prepared chapter privately; optionally publish a reviewed version for others.
+The existing Linux/procfs and FFmpeg requirements, upload/working-image/resource limits and bounded scale/stretch factors are **supported v0.1.0 constraints**. They are not promises of arbitrary-manga quality or the final limits of a future hosted product. The release contract is the concise source of truth for those bounds.
 
-Page/panel subdivision and reading direction still need an explicit decision. The journey does not assume that each uploaded page contains only one panel.
+## Broader product planning baseline — not this release
 
-## Proposed usability and release requirements
+The earlier proposal lets users upload their own manga, correct suggested or manual selections, direct movement and optionally publish a reviewed reading experience. It calls for broader usability, visual-fidelity, accessibility and performance evaluation. AI would assist selection, not replace creative direction or guarantee correct results.
 
-These are recommendations to approve before implementation, not claims about completed product functionality.
+[Architecture proposal](architecture.md) → [implementation plan](implementation-plan.md) retain this broader planning context. The [development-plan gateway](../development-plan.md) separates both product scopes from the preserved research protocol. Optional public publication, page/panel subdivision, reading-direction policy and general evaluation thresholds remain future decisions, not omissions from local v0.1.0 acceptance.
 
-- Keep one coherent draft: switching parts must not discard incomplete fields. Make saved, unsaved, processing, failed and outdated states visible.
-- Use image-based selection and direction controls with keyboard/numeric equivalents. Distinguish selection size, drawing scale and background repair; advanced repair controls must not masquerade as movement.
-- Make edits reversible and preserve originals. Show field-specific errors and a clear next action instead of unexplained disabled render controls.
-- Keep original/animated comparison and an always-readable static fallback. Reduced-motion reading must not require animation, GPU processing or waiting for a render.
-- Show processing progress and actionable resource failures. Preserve drafts after failure; retries must be explicit and must not duplicate work.
-- Separate private editing from publication. Recommend explicit publish, replace and unpublish actions, with previously published reading unchanged by draft edits.
-
-## Existing foundation versus new work
-
-The A workbench has original-texture rendering, assisted Magi/SAM selection, manual box creation/refinement, saved local projects and reviewed video export. Its actions are static, rotate, translate and reveal. Its repository-root local documentation path is `experiments/a-workbench/README.md`: local, unversioned engineering evidence, not included in this documentation change or available in a clean clone. It is a single-image local laboratory, not a deployed multi-user product.
-
-Uniform scaling is a **new recommended MVP candidate**. Nonuniform stretching is a **new advanced candidate**, not a confirmed exclusion; both require fidelity tests and scope approval. Selection handles and product-grade undo also need specification rather than assuming current lab controls provide them.
-
-The laboratory's six seconds, 24 fps, 1280-pixel working edge, 16 regions and eight moving actors are implementation bounds, **not approved product limits**. Existing examples and local test results do not establish publication rights, general model quality or mobile-device readiness.
+The independent A workbench supplied bounded engineering experience; it is not a deployed multi-user product or a required clean-clone input. Subsequent main-application implementation added scale/stretch, reversible editing, persistence, local reading and operational recovery. Historical laboratory observations do not establish publication rights, general model quality or mobile-device readiness.
 
 ## Open decisions and earliest blocking milestone
 
-The user owns scope/policy decisions; technical choices need evidence and explicit selection. Milestones are defined in the [implementation plan](implementation-plan.md).
+**All D1–D7 remain OPEN for the broader/public product.** The release contract settles only the current local configuration and owner workflow; it does not close these general policies or M5 evaluation thresholds. The user owns scope/policy decisions; technical choices need evidence and explicit selection. Milestones below refer to the broader [implementation plan](implementation-plan.md), not local-release blockers.
 
 | ID | Decision to resolve | Blocks |
 | --- | --- | --- |
@@ -60,6 +39,6 @@ The user owns scope/policy decisions; technical choices need evidence and explic
 | D6 | Storage, API/job deployment, authentication implementation, GPU provision, cost limits and model/dependency license suitability | M1 concrete integration; hosted processing or public release |
 | D7 | Rights-cleared varied evaluation set, defect severity, acceptable manual correction effort and release thresholds | M2 test design; M5 quality decision |
 
-## Not promised by this MVP
+## Not promised by local v0.1.0
 
-Automatic narrative direction for arbitrary manga, perfect reconstruction behind moving parts, a platform source catalog, PDF/CBZ import, social-network features or a measured improvement in reader enjoyment. These documents do not authorize downloads, dependencies, paid services, new artwork, deployment or changes to research `OPEN` decisions.
+Automatic narrative direction for arbitrary manga, perfect reconstruction behind moving parts, public account/platform deployment, cloud services, a source catalog, payments, automatic-model work, PDF/CBZ or additional export formats, social-network features or a measured improvement in reader enjoyment. The existing exact-WebM download is included; release closure does not authorize separate artwork acquisition/generation work, new dependencies, paid services, deployment or changes to research `OPEN` decisions.

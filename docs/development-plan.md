@@ -1,20 +1,22 @@
 # Development Plan: Product MVP and Preserved Research Track
 
-**Status:** Product planning baseline accepted 2026-10-04, followed by separately authorized local/private implementation and local MVP stabilization. Current operations are in the [local MVP runbook](./product/local-mvp-runbook.md) and [execution status](./product/local-execution-status.md). Proposed details and OPEN decisions remain as labelled. Research plan retained from 2026-08-30.
+**Status:** Local/private creator MVP **v0.1.0** is accepted by its owner and closed for the bounded workflow in the [release contract](./product/releases/v0.1.0.md). This is local release closure, not an Internet launch, broader product-policy freeze or research result. Product planning baseline: 2026-10-04; preserved research plan: 2026-08-30.
 
-## Product planning baseline and current local implementation
+## Current local release and broader product planning
 
-The user approved documenting a user-directed animation MVP inside the main application: users upload JPG/PNG/WebP pages, order them into chapters, use suggested or manual editable selections, direct movement, save their work, and optionally publish it for other readers. The platform does not supply a manga catalog; PDF and CBZ import are deferred. This is a conscious product-planning expansion, not evidence that the product has already been integrated or released.
+The local release supports owner-directed creation and image upload, ordered chapters, manual rectangle/brush selection, bounded finite motion, explicit preview/comparison, save/undo/redo, reopen and download of the exact current **After** WebM. **Rotate / sway**, **Move**, **Pulse / scale**, **Repeat movement** and advanced stretch are supported within the release's existing limits. It does not require optional models, guest sharing or public hosting.
 
-Read the product documents in this order:
+Read next:
 
-1. [MVP scope](./product/mvp.md) — confirmed requirements, proposed boundaries and open decisions.
-2. [Architecture](./product/architecture.md) — editor, processing and reader responsibilities; draft and publication contracts.
-3. [Implementation plan](./product/implementation-plan.md) — dependent work packages and observable acceptance criteria.
+1. [v0.1.0 release contract](./product/releases/v0.1.0.md) — frozen local scope, supported configuration and acceptance boundary.
+2. [Local MVP runbook](./product/local-mvp-runbook.md) — start, preserve and recover the private store.
+3. [Execution status](./product/local-execution-status.md) — current capabilities and clearly separated historical engineering observations.
 
-The accepted A workbench (`experiments/a-workbench/README.md`, a repository-root local path) is the engineering baseline to evaluate and reuse, not a production service to expose unchanged. It is local, unversioned engineering evidence, not included in this documentation change or available in a clean clone. Its local single-image limits, model quality and browser observations are not approved product limits or broad usability evidence. The first integration target is one authorized page through editing, persistence and reading; the whole MVP also requires ordered chapter uploads and optional publication.
+The earlier [MVP planning baseline](./product/mvp.md), [architecture proposal](./product/architecture.md) and [implementation plan](./product/implementation-plan.md) describe a broader user-directed product, including optional publication. They are not a checklist that must be completed to close this local release. D1–D7 remain OPEN for that broader scope; their unresolved public-policy, varied-content quality and device/research questions are not silently settled by local owner acceptance.
 
-**Immediate local product action:** complete the runbook checks and the user’s own acceptance pass on the separately authorized local MVP. Source delivery and operational recovery are local engineering work, not Internet deployment, recruitment or third-party-user validation. The original planning approval alone did not authorize implementation; subsequent local authorization does not authorize new dependencies, content imports, model generation, deployment or public publication. No provider, cost commitment or unresolved study decision is silently selected.
+The independent A workbench was an engineering foundation, not a production service to expose unchanged or a clean-clone dependency. The separately authorized implementation now provides the local workflow in the main application. Its Linux/procfs/FFmpeg prerequisites and resource limits are the supported bounded v0.1.0 configuration, not approval of quality for all manga.
+
+**Current action:** preserve and use the accepted local release through the runbook. The owner reports that the workflow works; that acceptance does not establish third-party usability, physical-device, accessibility or enjoyment-study results. Public accounts/platform deployment, cloud services, a source catalog, payments, automatic-model work and additional formats require separate authorization. Existing private accounts, local snapshots and optional unlisted guest reading do not constitute Internet deployment. No new dependencies, separate content acquisition/generation work, provider or cost commitment is authorized by release closure.
 
 ## Research track boundary
 
